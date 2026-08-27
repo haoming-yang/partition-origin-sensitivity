@@ -4,16 +4,18 @@ channels:
   - nvidia
   - conda-forge
 dependencies:
-  - python=3.9
-  - pytorch
+  - python=3.9.16
+  - pytorch=2.5.1
   - pytorch-cuda=12.1
-  - numpy
-  - pandas
-  - pyyaml
-  - matplotlib
-  - scikit-learn
-  - einops
-  - timm
+  - torchvision=0.20.1
+  - torchaudio=2.5.1
+  - numpy=1.26.4
+  - pandas=1.5.3
+  - pyyaml=6.0.3
+  - matplotlib=3.7.1
+  - scikit-learn=1.6.1
+  - einops=0.8.1
+  - timm=0.3.2
   - pip
   - pip:
-      - reformer-pytorch
+      - reformer-pytorch==1.4.4
