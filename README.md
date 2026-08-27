@@ -55,7 +55,7 @@ explicit `RECONSTRUCTED_CONTROL` implementations. The POC workflow is
 configs/                         Protocol configurations
 data/                            Dataset instructions; data never committed
 docs/                            Experiment map, provenance, and audit notes
-results/                         Frozen paper summaries and generated outputs
+outputs/                         Local run outputs; ignored by Git
 scripts/                         Reproduction and audit entrypoints
 src/                             Training, evaluation, metrics, and patching
 third_party/time_series_library/ Time-Series-Library fork snapshot
@@ -141,8 +141,9 @@ architecture into one incompatible tensor shape.
 
 Datasets, checkpoints, logs, archives, and generated outputs are excluded from
 Git. Put datasets below `data/` or point `DATA_ROOT` to an external directory.
-Frozen paper summaries are archival records and are not regenerated from
-guessed values.
+Run outputs are written below `outputs/` and are not committed. The manuscript
+and its tables remain the authoritative presentation of the numerical results;
+this repository does not duplicate paper result tables.
 
 Formal metrics retain the paper definitions:
 
@@ -153,6 +154,35 @@ G_interior = (max(MSE_r,r>=1) - min(MSE_r,r>=1)) / min(MSE_r,r>=1) * 100
 
 Visualization-only mean normalization is never substituted for either formal
 gap. Full provenance rules are in [docs/reproducibility.md](docs/reproducibility.md).
+
+## Repository scope and verification
+
+This repository is a code-and-provenance supplement. It does not contain the
+manuscript source, datasets, checkpoints, or a second copy of the paper's
+results. The included source-backed runners cover the canonical measurement,
+overlap and H=192 audits, training-origin strategies, the isolated official
+PatchTST adapter, patch-length analysis, and the native model source harness.
+
+The optimization, mask-head, and no-PE entries are explicitly marked
+`RECONSTRUCTED_CONTROL`; they are executable controls and are not identity
+claims for the historical frozen values. The full-split Transformer/MLP/Conv
+comparison remains `FROZEN_ARTIFACT_ONLY`, and the POC workflow is
+`ARTIFACT_DEPENDENT` because it requires external schedules/checkpoints. The
+runner fails closed for these cases instead of silently replacing manuscript
+values.
+
+During repository assembly, no training, inference, or re-evaluation was
+started, and frozen paper values were not edited. The following checks were
+performed without training: Python compilation, shell syntax, YAML parsing,
+phase reconstruction, padding-mask sentinel behavior, artifact and aggregate
+audits, deterministic empty-output checks, anonymity scanning, and native
+model import/forward smoke tests. Vendored source SHA-256 manifests were also
+verified.
+
+For the exact experiment-to-code map, source provenance, and reproducibility
+boundaries, see [docs/experiments.md](docs/experiments.md),
+[docs/source_audit.md](docs/source_audit.md), and
+[docs/reproducibility.md](docs/reproducibility.md).
 
 ## License
 

@@ -7,8 +7,8 @@ from pathlib import Path
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", default="results/aggregate.csv")
-    parser.add_argument("--output", default="results/figures")
+    parser.add_argument("--input", default="outputs/aggregate.csv")
+    parser.add_argument("--output", default="outputs/figures")
     args = parser.parse_args()
     try:
         import matplotlib.pyplot as plt

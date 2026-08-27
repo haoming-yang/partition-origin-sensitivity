@@ -35,8 +35,8 @@ from torch.utils.data import DataLoader, Dataset
 
 
 HERE = Path(__file__).resolve().parent
-OUT_ROOT = HERE / "results"
 REPO_ROOT = Path(__file__).resolve().parents[3]
+OUT_ROOT = Path(os.environ.get("OUTPUT_ROOT", str(REPO_ROOT / "outputs")))
 SOURCE_ROOT = Path(os.environ.get("TIME_SERIES_LIBRARY_ROOT", str(REPO_ROOT / "third_party" / "time_series_library")))
 DATASET_PATHS = {
     "ETTh1": SOURCE_ROOT / "dataset" / "ETT-small" / "ETTh1.csv",

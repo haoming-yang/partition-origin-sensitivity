@@ -9,7 +9,7 @@ from pathlib import Path
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default="outputs")
-    parser.add_argument("--out", default="results/aggregate.csv")
+    parser.add_argument("--out", default="outputs/aggregate.csv")
     args = parser.parse_args()
     rows = []
     root = Path(args.root)

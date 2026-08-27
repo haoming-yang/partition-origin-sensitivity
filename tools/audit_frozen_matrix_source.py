@@ -198,7 +198,7 @@ def main() -> None:
         "",
         "## Failure archive",
         "",
-        "Any failed or superseded artifacts remain in place and are not silently deleted. The known first H=192 split-bug attempt is retained under `results/horizon192/seed42_failed_split_bug/`.",
+        "Any failed or superseded artifacts remain in place and are not silently deleted. The known first H=192 split-bug attempt is retained under `outputs/horizon192/seed42_failed_split_bug/`.",
         "",
         "## Process state",
         "",

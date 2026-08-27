@@ -182,7 +182,7 @@ partition-origin-sensitivity/
 ├─ configs/
 ├─ data/
 ├─ docs/
-├─ results/
+├─ outputs/
 ├─ scripts/
 ├─ src/
 │  ├─ run.py
