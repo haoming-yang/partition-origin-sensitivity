@@ -7,8 +7,8 @@ from pathlib import Path
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", default="results/aggregate.csv")
-    parser.add_argument("--output", default="results/table_core.csv")
+    parser.add_argument("--input", default="outputs/aggregate.csv")
+    parser.add_argument("--output", default="outputs/table_core.csv")
     args = parser.parse_args()
     source = Path(args.input)
     target = Path(args.output)
