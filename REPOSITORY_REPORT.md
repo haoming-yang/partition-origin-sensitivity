@@ -37,7 +37,8 @@ Source-backed runners are present for the canonical measurement, overlap audit, 
 
 ## Static verification
 
-The following checks passed in `E:\Anaconda\envs\sdsd_torch\python.exe` without starting training:
+The following checks passed in the tested Python 3.9/CUDA 12.1 environment
+described by `environment.yml`, without starting training:
 
 | Check | Result |
 |---|---|
@@ -54,7 +55,7 @@ The following checks passed in `E:\Anaconda\envs\sdsd_torch\python.exe` without 
 | Six-model native import/forward smoke | PASS; model-specific native input lengths |
 | Vendored SHA-256 manifests | PASS; 381 Tier-1 files and 10 fork-snapshot files |
 
-Observed validation environment: Python 3.9.16, NumPy 1.26.4, pandas 1.5.3, Matplotlib 3.7.1, PyTorch 2.5.1+cu121, PyYAML 6.0.3.
+Observed validation stack: Python 3.9.16, NumPy 1.26.4, pandas 1.5.3, Matplotlib 3.7.1, PyTorch 2.5.1+cu121, PyYAML 6.0.3.
 
 The release dependency files now pin the validated non-CUDA package versions;
 `environment.yml` pins the validated Python/PyTorch/CUDA stack and installs

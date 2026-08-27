@@ -1,4 +1,4 @@
-# Validated in the sdsd_torch environment used for repository smoke tests.
+# Non-CUDA Python dependencies for the public reproduction environment.
 # Install PyTorch/CUDA through environment.yml rather than this pip file.
 numpy==1.26.4
 pandas==1.5.3
