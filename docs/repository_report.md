@@ -16,7 +16,7 @@ See `docs/experiments.md` for the experiment-by-experiment mapping. Exact source
 
 Static checks cover Python compilation, shell syntax, configuration parsing, package help, layout reconstruction, padding-mask sentinel behavior, artifact summary audit, aggregate generation, and repository anonymity scanning. The final command results are recorded in the handoff response and should be refreshed before publication after the environment is installed.
 
-The validated environment is `sdsd_torch`: Python 3.9.16, PyTorch 2.5.1+cu121,
+The validated stack is specified in `environment.yml`: Python 3.9.16, PyTorch 2.5.1+cu121,
 NumPy 1.26.4, pandas 1.5.3, PyYAML 6.0.3, Matplotlib 3.7.1,
 scikit-learn 1.6.1, einops 0.8.1, reformer-pytorch 1.4.4, and timm 0.3.2.
 

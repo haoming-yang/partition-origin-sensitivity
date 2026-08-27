@@ -1,6 +1,6 @@
 <div align="center">
 
-# ✦ Same Observations, Different Forecasts
+# Same Observations, Different Forecasts
 
 ### Partition-Origin Sensitivity in Patch-Based Time-Series Forecasting
 
@@ -13,43 +13,43 @@
 
 </div>
 
-> 🔬 **Scientific object**  Partition-origin sensitivity under an observation-equivalent, fixed-observation intervention.
+> **Scientific object:** Partition-origin sensitivity under an observation-equivalent, fixed-observation intervention.
 >
-> 🎯 **Primary evidence**  Canonical five-dataset measurement.
+> **Primary evidence:** Canonical five-dataset measurement.
 >
-> 🧭 **Secondary evidence**  Optimization, mixer, head, ranking, and consistency diagnostics with explicit provenance boundaries.
+> **Secondary evidence:** Optimization, mixer, head, ranking, and consistency diagnostics with explicit provenance boundaries.
 
-## ◈ The central question
+## The central question
 
 ```text
 same observed history X
-          │
-          ▼
+          |
+          v
 different partition origin r
-          │  same forecaster, same target, same observations
-          ▼
-possibly different forecast  Ŷr
+          |  same forecaster, same target, same observations
+          v
+possibly different forecast Yr
 ```
 
 This repository provides the code, configurations, source snapshots, metric
 definitions, and audits needed to study that intervention without silently
 replacing frozen manuscript values.
 
-## ✧ Evidence status at a glance
+## Evidence status at a glance
 
-| Mark | Meaning |
+| Status | Meaning |
 |---|---|
-| ✅ `SOURCE_PRESENT` | Runner and required model/data protocol are included |
-| 🧪 `RECONSTRUCTED_CONTROL` | Executable control; not an identity claim for historical frozen values |
-| 🧩 `ARTIFACT_DEPENDENT` | Source is included but external schedules/checkpoints are required |
-| 🔒 `FROZEN_ARTIFACT_ONLY` | Historical records are preserved; exact training source was not identified |
+| `SOURCE_PRESENT` | Runner and required model/data protocol are included |
+| `RECONSTRUCTED_CONTROL` | Executable control; not an identity claim for historical frozen values |
+| `ARTIFACT_DEPENDENT` | Source is included but external schedules/checkpoints are required |
+| `FROZEN_ARTIFACT_ONLY` | Historical records are preserved; exact training source was not identified |
 
 The full-split Transformer/MLP/Conv comparison is intentionally fail-closed as
 `FROZEN_ARTIFACT_ONLY`. Optimization, mask-head, and no-PE entries are
 explicit `RECONSTRUCTED_CONTROL` implementations. The POC workflow is
 `ARTIFACT_DEPENDENT`. See the complete [experiment execution matrix](docs/experiment_execution_matrix.md).
 
-## ⌘ Repository map
+## Repository map
 
 ```text
 configs/                         Protocol configurations
@@ -63,10 +63,10 @@ third_party/patch_models/        Six isolated Tier-1 model snapshots
 tools/                           Static audits and post-processing utilities
 ```
 
-## ⚙ Environment: validated against `sdsd_torch`
+## Environment setup
 
-Yes—this release is based on your current `sdsd_torch` environment. The
-validated versions are:
+The repository provides a public, reproducible environment specification. The
+tested package versions are:
 
 ```text
 Python        3.9.16
@@ -81,21 +81,21 @@ reformer      1.4.4
 timm          0.3.2
 ```
 
-`requirements.txt` pins these non-CUDA Python packages to the versions
-validated in `sdsd_torch`. PyTorch/CUDA is intentionally handled by
-`environment.yml`, because pip installation of CUDA wheels depends on the
-machine and package index.
+`requirements.txt` pins the non-CUDA Python packages listed above.
+`environment.yml` additionally specifies Python, PyTorch, and CUDA. Keeping
+the CUDA stack in the environment file avoids machine-specific pip wheel
+selection.
 
 ```bash
 conda env create -f environment.yml
-conda activate sdsd_torch
+conda activate partition-origin-sensitivity
 python -m pip install -r requirements.txt
 ```
 
 Set `DATA_ROOT`, `OUTPUT_ROOT`, and optionally `DEVICE=cpu` or `DEVICE=cuda`.
 Expected dataset paths are documented in [data/README.md](data/README.md).
 
-## ▶ Reproduction entrypoints
+## Reproduction entrypoints
 
 ```bash
 # source-backed experiments
@@ -124,7 +124,7 @@ The commands execute training only when explicitly selected. Repository
 assembly and validation did not start training; validation used dry-runs,
 static checks, and import/forward smoke tests.
 
-## ◉ Model-source audit
+## Model-source audit
 
 The six Tier-1 snapshots preserve their recorded repository URLs, commits,
 licenses, and copied-file SHA-256 manifest in
@@ -137,7 +137,7 @@ Pathformer, HDMixer, DeformableTST, and the isolated official PatchTST adapter.
 It uses protocol-valid model-specific input lengths rather than forcing every
 architecture into one incompatible tensor shape.
 
-## ▣ Data, outputs, and frozen evidence
+## Data, outputs, and frozen evidence
 
 Datasets, checkpoints, logs, archives, and generated outputs are excluded from
 Git. Put datasets below `data/` or point `DATA_ROOT` to an external directory.
@@ -154,7 +154,7 @@ G_interior = (max(MSE_r,r>=1) - min(MSE_r,r>=1)) / min(MSE_r,r>=1) * 100
 Visualization-only mean normalization is never substituted for either formal
 gap. Full provenance rules are in [docs/reproducibility.md](docs/reproducibility.md).
 
-## ✎ License
+## License
 
 Repository-level code is released under the MIT License. Files under
 `third_party/` retain their source provenance and must be used in accordance

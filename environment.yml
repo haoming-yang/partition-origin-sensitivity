@@ -1,4 +1,4 @@
-name: sdsd_torch
+name: partition-origin-sensitivity
 channels:
   - pytorch
   - nvidia
