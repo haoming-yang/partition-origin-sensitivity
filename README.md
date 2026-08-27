@@ -32,22 +32,21 @@ possibly different forecast Yr
 ```
 
 This repository provides the code, configurations, source snapshots, metric
-definitions, and audits needed to study that intervention without silently
-replacing frozen manuscript values.
+definitions, and audits needed to study that intervention.
 
-## Evidence status at a glance
+## What can be reproduced
 
-| Status | Meaning |
+| Label | Simple meaning |
 |---|---|
-| `SOURCE_PRESENT` | Runner and required model/data protocol are included |
-| `RECONSTRUCTED_CONTROL` | Executable control; not an identity claim for historical frozen values |
-| `ARTIFACT_DEPENDENT` | Source is included but external schedules/checkpoints are required |
-| `FROZEN_ARTIFACT_ONLY` | Historical records are preserved; exact training source was not identified |
+| `SOURCE_PRESENT` | The code and configuration needed to run the experiment are included. |
+| `RECONSTRUCTED_CONTROL` | A runnable control version is included; it is not the original historical run. |
+| `ARTIFACT_DEPENDENT` | The code is included, but external checkpoints or training schedules are needed. |
+| `FROZEN_ARTIFACT_ONLY` | The historical result is described in the paper, but the exact original training source was not found. |
 
-The full-split Transformer/MLP/Conv comparison is intentionally fail-closed as
+The full-split Transformer/MLP/Conv comparison is marked
 `FROZEN_ARTIFACT_ONLY`. Optimization, mask-head, and no-PE entries are
-explicit `RECONSTRUCTED_CONTROL` implementations. The POC workflow is
-`ARTIFACT_DEPENDENT`. See the complete [experiment execution matrix](docs/experiment_execution_matrix.md).
+`RECONSTRUCTED_CONTROL` implementations. The POC workflow is
+`ARTIFACT_DEPENDENT`. See the [experiment execution matrix](docs/experiment_execution_matrix.md).
 
 ## Repository map
 
@@ -168,8 +167,7 @@ The optimization, mask-head, and no-PE entries are explicitly marked
 claims for the historical frozen values. The full-split Transformer/MLP/Conv
 comparison remains `FROZEN_ARTIFACT_ONLY`, and the POC workflow is
 `ARTIFACT_DEPENDENT` because it requires external schedules/checkpoints. The
-runner fails closed for these cases instead of silently replacing manuscript
-values.
+runner reports these cases separately from directly runnable experiments.
 
 During repository assembly, no training, inference, or re-evaluation was
 started, and frozen paper values were not edited. The following checks were
