@@ -56,6 +56,10 @@ The following checks passed in `E:\Anaconda\envs\sdsd_torch\python.exe` without 
 
 Observed validation environment: Python 3.9.16, NumPy 1.26.4, pandas 1.5.3, Matplotlib 3.7.1, PyTorch 2.5.1+cu121, PyYAML 6.0.3.
 
+The release dependency files now pin the validated non-CUDA package versions;
+`environment.yml` pins the validated Python/PyTorch/CUDA stack and installs
+`reformer-pytorch` through pip.
+
 ## Reproduction caveat
 
 The runnable commands are source reproduction entrypoints only where the configuration is marked `SOURCE_PRESENT`. `RECONSTRUCTED_CONTROL` outputs are explicitly separated from frozen manuscript values. Data and external Stage-4 artifacts must be supplied separately. The exact protocol and artifact identity must be audited before any frozen result is replaced.

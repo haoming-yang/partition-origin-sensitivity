@@ -1,65 +1,161 @@
-# Same Observations, Different Forecasts
+<div align="center">
 
-This repository contains the reproducibility package for **Same Observations, Different Forecasts: Partition-Origin Sensitivity in Patch-Based Time-Series Forecasting**.
+# ✦ Same Observations, Different Forecasts
 
-The scientific object is partition-origin sensitivity under an observation-equivalent fixed-observation intervention. The primary evidence is the canonical five-dataset measurement. Optimization, mixer, head, ranking, and consistency analyses are bounded diagnostics or probes.
+### Partition-Origin Sensitivity in Patch-Based Time-Series Forecasting
 
-## Scope
+<a href="https://github.com/haoming-yang/partition-origin-sensitivity"><img src="https://img.shields.io/badge/reproducibility-source--conservative-1f6feb?style=for-the-badge" alt="source conservative"></a>
+<a href="environment.yml"><img src="https://img.shields.io/badge/Python-3.9-3776ab?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.9"></a>
+<a href="environment.yml"><img src="https://img.shields.io/badge/PyTorch-2.5.1%2BCUDA%2012.1-ee4c2c?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch CUDA"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2ea44f?style=for-the-badge" alt="MIT license"></a>
 
-The repository is intentionally source-conservative. It includes the verified controlled runner, phase reconstruction audit, metric schema, isolated snapshots of the six Tier-1 model sources, paper summaries, configurations, and audit utilities. Configurations distinguish source-backed runners from reconstructed controls and artifact-dependent workflows; missing historical source is never silently inferred from frozen numbers.
+**A controlled audit of one hidden degree of freedom in discrete forecasting representations.**
 
-## Layout
+</div>
+
+> 🔬 **Scientific object**  Partition-origin sensitivity under an observation-equivalent, fixed-observation intervention.
+>
+> 🎯 **Primary evidence**  Canonical five-dataset measurement.
+>
+> 🧭 **Secondary evidence**  Optimization, mixer, head, ranking, and consistency diagnostics with explicit provenance boundaries.
+
+## ◈ The central question
+
+```text
+same observed history X
+          │
+          ▼
+different partition origin r
+          │  same forecaster, same target, same observations
+          ▼
+possibly different forecast  Ŷr
+```
+
+This repository provides the code, configurations, source snapshots, metric
+definitions, and audits needed to study that intervention without silently
+replacing frozen manuscript values.
+
+## ✧ Evidence status at a glance
+
+| Mark | Meaning |
+|---|---|
+| ✅ `SOURCE_PRESENT` | Runner and required model/data protocol are included |
+| 🧪 `RECONSTRUCTED_CONTROL` | Executable control; not an identity claim for historical frozen values |
+| 🧩 `ARTIFACT_DEPENDENT` | Source is included but external schedules/checkpoints are required |
+| 🔒 `FROZEN_ARTIFACT_ONLY` | Historical records are preserved; exact training source was not identified |
+
+The full-split Transformer/MLP/Conv comparison is intentionally fail-closed as
+`FROZEN_ARTIFACT_ONLY`. Optimization, mask-head, and no-PE entries are
+explicit `RECONSTRUCTED_CONTROL` implementations. The POC workflow is
+`ARTIFACT_DEPENDENT`. See the complete [experiment execution matrix](docs/experiment_execution_matrix.md).
+
+## ⌘ Repository map
 
 ```text
 configs/                         Protocol configurations
-data/                            User-provided datasets, never committed
+data/                            Dataset instructions; data never committed
 docs/                            Experiment map, provenance, and audit notes
-results/                         Paper-facing summaries and generated outputs
+results/                         Frozen paper summaries and generated outputs
 scripts/                         Reproduction and audit entrypoints
-src/                             Controlled training, evaluation, metrics, patching
-  third_party/time_series_library/ Time-Series-Library fork snapshot
-  third_party/patch_models/      Isolated Tier-1 model snapshots
+src/                             Training, evaluation, metrics, and patching
+third_party/time_series_library/ Time-Series-Library fork snapshot
+third_party/patch_models/        Six isolated Tier-1 model snapshots
 tools/                           Static audits and post-processing utilities
 ```
 
-## Environment
+## ⚙ Environment: validated against `sdsd_torch`
 
-The validated environment is the user's `sdsd_torch` environment. Install the declared dependencies with:
+Yes—this release is based on your current `sdsd_torch` environment. The
+validated versions are:
+
+```text
+Python        3.9.16
+PyTorch       2.5.1+cu121
+NumPy         1.26.4
+pandas        1.5.3
+PyYAML        6.0.3
+Matplotlib    3.7.1
+scikit-learn  1.6.1
+einops        0.8.1
+reformer      1.4.4
+timm          0.3.2
+```
+
+`requirements.txt` pins these non-CUDA Python packages to the versions
+validated in `sdsd_torch`. PyTorch/CUDA is intentionally handled by
+`environment.yml`, because pip installation of CUDA wheels depends on the
+machine and package index.
 
 ```bash
+conda env create -f environment.yml
+conda activate sdsd_torch
 python -m pip install -r requirements.txt
 ```
 
-Set `DATA_ROOT`, `OUTPUT_ROOT`, and optionally `DEVICE=cpu` or `DEVICE=cuda`. The expected datasets are documented in `data/README.md`.
+Set `DATA_ROOT`, `OUTPUT_ROOT`, and optionally `DEVICE=cpu` or `DEVICE=cuda`.
+Expected dataset paths are documented in [data/README.md](data/README.md).
 
-## Reproduction
-
-The following commands are available:
+## ▶ Reproduction entrypoints
 
 ```bash
+# source-backed experiments
 bash scripts/reproduce_all.sh core
 bash scripts/reproduce_all.sh overlap
 bash scripts/reproduce_all.sh h192
 bash scripts/reproduce_all.sh training-policy
 bash scripts/reproduce_all.sh patchtst
+bash scripts/reproduce_all.sh patch-length
+
+# no-training source/model audit
+bash scripts/reproduce_all.sh tier1-smoke
 bash scripts/reproduce_all.sh audits
+
+# explicit reconstructed controls
+bash scripts/reproduce_all.sh optimization
+bash scripts/reproduce_all.sh heads
+bash scripts/reproduce_all.sh pe-control
+
+# post-processing
 bash scripts/reproduce_all.sh tables
 bash scripts/reproduce_all.sh figures
-bash scripts/run_tier1_smoke.sh
 ```
 
-The runnable commands execute training when explicitly selected. No command is run during repository assembly. The audit-only commands do not train.
+The commands execute training only when explicitly selected. Repository
+assembly and validation did not start training; validation used dry-runs,
+static checks, and import/forward smoke tests.
 
-The full-split Transformer/MLP/Conv mixer comparison remains `SOURCE_UNAVAILABLE` because its exact historical runner was not identified. Optimization, mask-head, and no-PE entries are runnable `RECONSTRUCTED_CONTROL` implementations and are not replacements for frozen paper values. The POC source is `ARTIFACT_DEPENDENT` and requires external schedules/checkpoints. See `docs/source_audit.md`.
+## ◉ Model-source audit
 
-## Data and outputs
+The six Tier-1 snapshots preserve their recorded repository URLs, commits,
+licenses, and copied-file SHA-256 manifest in
+[third_party/patch_models/PROVENANCE.md](third_party/patch_models/PROVENANCE.md).
+The Time-Series-Library fork snapshot has separate provenance in
+[third_party/time_series_library/PROVENANCE.md](third_party/time_series_library/PROVENANCE.md).
 
-Datasets are not redistributed. Place them below `data/` or point `DATA_ROOT` to an external directory. Generated checkpoints and outputs are ignored by Git. Paper summaries copied from the manuscript project are marked as frozen summaries and are not regenerated from guessed values.
+The no-training native smoke command checks PatchTST, PatchMixer, PatchMLP,
+Pathformer, HDMixer, DeformableTST, and the isolated official PatchTST adapter.
+It uses protocol-valid model-specific input lengths rather than forcing every
+architecture into one incompatible tensor shape.
 
-## Paper mapping
+## ▣ Data, outputs, and frozen evidence
 
-The complete paper-to-code mapping is in `docs/experiments.md`. Reproducibility and provenance rules are in `docs/reproducibility.md`.
+Datasets, checkpoints, logs, archives, and generated outputs are excluded from
+Git. Put datasets below `data/` or point `DATA_ROOT` to an external directory.
+Frozen paper summaries are archival records and are not regenerated from
+guessed values.
 
-## License
+Formal metrics retain the paper definitions:
 
-The repository-level code is released under the MIT License. Files under `third_party/` retain their source provenance; see the corresponding provenance files and use each snapshot in accordance with its source license.
+```text
+G_origin   = (max(MSE_r) - min(MSE_r)) / min(MSE_r) * 100
+G_interior = (max(MSE_r,r>=1) - min(MSE_r,r>=1)) / min(MSE_r,r>=1) * 100
+```
+
+Visualization-only mean normalization is never substituted for either formal
+gap. Full provenance rules are in [docs/reproducibility.md](docs/reproducibility.md).
+
+## ✎ License
+
+Repository-level code is released under the MIT License. Files under
+`third_party/` retain their source provenance and must be used in accordance
+with their respective source licenses.
