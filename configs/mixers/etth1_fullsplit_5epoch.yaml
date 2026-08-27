@@ -1,0 +1,13 @@
+experiment_id: CROSS_MODEL_PHASE_V1
+dataset: ETTh1
+context: 512
+horizon: 96
+patch_len: 12
+stride: 12
+models: [Transformer, MLP, Conv]
+split: full_canonical
+train_windows: 8033
+validation_windows: 2785
+test_windows: 5805
+epochs: 5
+source_status: FROZEN_ARTIFACT_ONLY

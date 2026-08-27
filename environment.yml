@@ -1,0 +1,19 @@
+name: sdsd_torch
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pytorch
+  - pytorch-cuda=12.1
+  - numpy
+  - pandas
+  - pyyaml
+  - matplotlib
+  - scikit-learn
+  - einops
+  - timm
+  - pip
+  - pip:
+      - reformer-pytorch

@@ -1,0 +1,4 @@
+experiment_id: OPTIMIZATION_TRAJECTORY_V1
+dataset: ETTh1
+epochs: [5, 10, 15, 20, 25, 30]
+source_status: RECONSTRUCTED_CONTROL

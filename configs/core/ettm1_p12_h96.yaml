@@ -1,0 +1,17 @@
+experiment_id: CANONICAL_PHENOMENON_27_V1
+dataset: ETTm1
+context: 512
+horizon: 96
+patch_len: 12
+stride: 12
+origins: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+seeds: [42, 43, 44]
+epochs: 15
+batch_size: 32
+optimizer: AdamW
+learning_rate: 0.0001
+weight_decay: 0.0001
+gradient_clip: 1.0
+standardization: train_rows_only
+padding: zero_with_observation_mask
+formal_gap_denominator: minimum_mse

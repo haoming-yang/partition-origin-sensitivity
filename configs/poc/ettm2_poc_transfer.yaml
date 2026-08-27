@@ -1,0 +1,4 @@
+experiment_id: POC_ETTM2_V1
+dataset: ETTm2
+source_status: ARTIFACT_DEPENDENT
+conditions: [A, B, C]
