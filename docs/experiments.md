@@ -1,0 +1,19 @@
+# Paper to code map
+
+## Canonical primary evidence
+
+The canonical measurement uses `L=512`, `H=96`, `p=12`, non-overlapping stride `12`, origins `0..11`, three independent replicates, train/validation/test windows from the controlled loader, train-row standardization, zero outer padding with an observation mask, and minimum-MSE denominators for formal gaps. The runnable entrypoint is `scripts/run_core.sh` and the configuration family is `configs/core/`.
+
+The six-model native phase harness is a separate source audit. Use `tools/smoke_native_models.py` for a no-training import/forward check and `src/experiments/cross_model/run_tier1_matrix.py` only when a full native-model matrix is explicitly requested.
+
+## Targeted supplementary extensions
+
+The overlap audit uses stride `6` as a relaxed six-origin lattice and is available through `scripts/run_overlap.sh`. The `H=192` diagnostic is available through `scripts/run_h192.sh`. Training-origin strategies are available through `scripts/run_training_policy.sh`. The official-source PatchTST adapter is available through `scripts/run_patchtst.sh` and uses the isolated adapter documented in its output provenance.
+
+## Frozen evidence with unavailable exact runners
+
+The paper's full-split Transformer/MLP/Conv comparison remains frozen-artifact-only and is represented by `scripts/run_mixers.sh`, which stops with an explicit source-unavailable status. Optimization, mask-head, and no-PE commands run explicit `RECONSTRUCTED_CONTROL` configurations; their outputs are runnable controls, not silent replacements for historical values. The POC command runs the included Stage-4 source when the external schedules/checkpoints are supplied; otherwise it fails closed. The patch-length matrix is source-backed through the canonical runner.
+
+## Post-processing
+
+`scripts/reproduce_all.sh audits` runs reconstruction, sentinel, artifact, and determinism checks. `scripts/reproduce_all.sh tables` aggregates available output summaries. `scripts/reproduce_all.sh figures` creates a simple non-paper diagnostic plot from available aggregates. It does not alter manuscript figures or frozen values.

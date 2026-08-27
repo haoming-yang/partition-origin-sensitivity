@@ -1,0 +1,4 @@
+experiment_id: PATCH_LENGTH_AUDIT_V1
+datasets: [ETTh1, Weather]
+patch_lengths: [8, 12, 16]
+source_status: SOURCE_PRESENT

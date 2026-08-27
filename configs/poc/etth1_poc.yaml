@@ -1,0 +1,5 @@
+experiment_id: POC_ETTH1_V1
+dataset: ETTh1
+source_status: ARTIFACT_DEPENDENT
+conditions: [A, B, C]
+lambda_candidates: [0.01, 0.03, 0.1, 0.3, 1.0]

@@ -1,0 +1,4 @@
+experiment_id: MASK_HEAD_FACTORIAL_V1
+dataset: ETTh1
+source_status: RECONSTRUCTED_CONTROL
+diagnostic_split: capped_test_setting
