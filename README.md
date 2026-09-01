@@ -1,4 +1,30 @@
+<div align="center">
+
 # Same Observations, Different Forecasts
+
+### Partition-Origin Effects in Patch-Based Time-Series Forecasting
+
+<p>
+  <a href="https://github.com/haoming-yang/partition-origin-sensitivity">
+    <img src="https://img.shields.io/badge/Code-GitHub-181717?style=for-the-badge&logo=github" alt="GitHub repository">
+  </a>
+  <a href=".github/workflows/tests.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/haoming-yang/partition-origin-sensitivity/tests.yml?branch=main&style=for-the-badge&label=tests" alt="Tests">
+  </a>
+  <a href="environment.yml">
+    <img src="https://img.shields.io/badge/Python-3.9-3776ab?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.9">
+  </a>
+  <a href="environment.yml">
+    <img src="https://img.shields.io/badge/PyTorch-2.5.1%20%7C%20CUDA%2012.1-ee4c2c?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch and CUDA">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-2ea44f?style=for-the-badge" alt="MIT license">
+  </a>
+</p>
+
+<p><strong>A controlled study of one overlooked coordinate choice in discrete time-series representations.</strong></p>
+
+</div>
 
 Code and configuration for the paper **“Same Observations, Different
 Forecasts: Partition-Origin Effects in Patch-Based Time-Series Forecasting.”**
