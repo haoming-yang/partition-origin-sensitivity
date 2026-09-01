@@ -1,8 +1,8 @@
 """Run the four frozen-protocol supplementary origin audits.
 
 This file is intentionally isolated from both the Time-Series-Library source
-tree and the existing KDD experiment tree.  It reads the E: drive inputs but
-writes only below the directory containing this file.
+tree and the manuscript project. It reads data from ``DATA_ROOT`` and writes
+only below the configured ``OUTPUT_ROOT``.
 
 No existing experiment code or result is modified.  The official PatchTST
 experiment uses the public model components with a mask-aware outer protocol

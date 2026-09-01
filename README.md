@@ -1,89 +1,35 @@
-<div align="center">
-
 # Same Observations, Different Forecasts
 
-### Partition-Origin Sensitivity in Patch-Based Time-Series Forecasting
+Code and configuration for the paper **“Same Observations, Different
+Forecasts: Partition-Origin Effects in Patch-Based Time-Series Forecasting.”**
 
-<a href="https://github.com/haoming-yang/partition-origin-sensitivity"><img src="https://img.shields.io/badge/reproducibility-source--conservative-1f6feb?style=for-the-badge" alt="source conservative"></a>
-<a href="environment.yml"><img src="https://img.shields.io/badge/Python-3.9-3776ab?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.9"></a>
-<a href="environment.yml"><img src="https://img.shields.io/badge/PyTorch-2.5.1%2BCUDA%2012.1-ee4c2c?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch CUDA"></a>
-<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2ea44f?style=for-the-badge" alt="MIT license"></a>
+The repository studies whether changing only the origin of a one-dimensional
+patch lattice can change a forecast when the observed history, target, and
+forecasting model are fixed.
 
-**A controlled audit of one hidden degree of freedom in discrete forecasting representations.**
+Paper: the accompanying manuscript and its frozen numerical results are
+released separately from this code repository.
 
-</div>
+## What is included
 
-> **Scientific object:** Partition-origin sensitivity under an observation-equivalent, fixed-observation intervention.
->
-> **Primary evidence:** Canonical five-dataset measurement.
->
-> **Secondary evidence:** Optimization, mixer, head, ranking, and consistency diagnostics with explicit provenance boundaries.
+- the canonical five-dataset origin-sensitivity protocol;
+- controlled extensions for optimization, training-origin policy, overlap,
+  horizon 192, patch length, positional encoding, and the official PatchTST
+  adapter;
+- the patching, masking, evaluation, and formal metric implementations;
+- isolated third-party model snapshots used by the native source audit;
+- configuration files and audit tools for checking protocol behavior.
 
-## The central question
+The repository does not include datasets, checkpoints, full prediction dumps,
+or a second copy of the paper's result tables. Historical results that depend
+on unavailable training artifacts are identified in the
+[experiment matrix](docs/experiment_execution_matrix.md); they are never
+silently replaced by a new run.
 
-```text
-same observed history X
-          |
-          v
-different partition origin r
-          |  same forecaster, same target, same observations
-          v
-possibly different forecast Yr
-```
+## Install
 
-This repository provides the code, configurations, source snapshots, metric
-definitions, and audits needed to study that intervention.
-
-## What can be reproduced
-
-| Label | Simple meaning |
-|---|---|
-| `SOURCE_PRESENT` | The code and configuration needed to run the experiment are included. |
-| `RECONSTRUCTED_CONTROL` | A runnable control version is included; it is not the original historical run. |
-| `ARTIFACT_DEPENDENT` | The code is included, but external checkpoints or training schedules are needed. |
-| `FROZEN_ARTIFACT_ONLY` | The historical result is described in the paper, but the exact original training source was not found. |
-
-The full-split Transformer/MLP/Conv comparison is marked
-`FROZEN_ARTIFACT_ONLY`. Optimization, mask-head, and no-PE entries are
-`RECONSTRUCTED_CONTROL` implementations. The POC workflow is
-`ARTIFACT_DEPENDENT`. See the [experiment execution matrix](docs/experiment_execution_matrix.md).
-
-## Repository map
-
-```text
-configs/                         Protocol configurations
-data/                            Dataset instructions; data never committed
-docs/                            Experiment map, provenance, and audit notes
-outputs/                         Local run outputs; ignored by Git
-scripts/                         Reproduction and audit entrypoints
-src/                             Training, evaluation, metrics, and patching
-third_party/time_series_library/ Time-Series-Library fork snapshot
-third_party/patch_models/        Six isolated Tier-1 model snapshots
-tools/                           Static audits and post-processing utilities
-```
-
-## Environment setup
-
-The repository provides a public, reproducible environment specification. The
-tested package versions are:
-
-```text
-Python        3.9.16
-PyTorch       2.5.1+cu121
-NumPy         1.26.4
-pandas        1.5.3
-PyYAML        6.0.3
-Matplotlib    3.7.1
-scikit-learn  1.6.1
-einops        0.8.1
-reformer      1.4.4
-timm          0.3.2
-```
-
-`requirements.txt` pins the non-CUDA Python packages listed above.
-`environment.yml` additionally specifies Python, PyTorch, and CUDA. Keeping
-the CUDA stack in the environment file avoids machine-specific pip wheel
-selection.
+The public environment specification is in [environment.yml](environment.yml).
+For a Conda installation:
 
 ```bash
 conda env create -f environment.yml
@@ -91,99 +37,85 @@ conda activate partition-origin-sensitivity
 python -m pip install -r requirements.txt
 ```
 
-Set `DATA_ROOT`, `OUTPUT_ROOT`, and optionally `DEVICE=cpu` or `DEVICE=cuda`.
-Expected dataset paths are documented in [data/README.md](data/README.md).
+Put the public datasets under `data/`, or set `DATA_ROOT` to an external data
+directory. The expected layout and split definitions are documented in
+[data/README.md](data/README.md).
 
-## Reproduction entrypoints
+## Verify the checkout
+
+The following checks do not train a model and do not require datasets:
 
 ```bash
-# source-backed experiments
-bash scripts/reproduce_all.sh core
-bash scripts/reproduce_all.sh overlap
-bash scripts/reproduce_all.sh h192
-bash scripts/reproduce_all.sh training-policy
-bash scripts/reproduce_all.sh patchtst
-bash scripts/reproduce_all.sh patch-length
-
-# no-training source/model audit
-bash scripts/reproduce_all.sh tier1-smoke
-bash scripts/reproduce_all.sh audits
-
-# explicit reconstructed controls
-bash scripts/reproduce_all.sh optimization
-bash scripts/reproduce_all.sh heads
-bash scripts/reproduce_all.sh pe-control
-
-# post-processing
-bash scripts/reproduce_all.sh tables
-bash scripts/reproduce_all.sh figures
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+python -m src.run --config configs/core/canonical.yaml --dry-run
+bash scripts/smoke_test.sh
 ```
 
-The commands execute training only when explicitly selected. Repository
-assembly and validation did not start training; validation used dry-runs,
-static checks, and import/forward smoke tests.
+The smoke script performs protocol tests, a dry-run, reconstruction checks,
+and padding-sentinel checks. The separate native source smoke check performs
+import/forward validation only:
 
-## Model-source audit
+```bash
+bash scripts/run_tier1_smoke.sh
+```
 
-The six Tier-1 snapshots preserve their recorded repository URLs, commits,
-licenses, and copied-file SHA-256 manifest in
-[third_party/patch_models/PROVENANCE.md](third_party/patch_models/PROVENANCE.md).
-The Time-Series-Library fork snapshot has separate provenance in
-[third_party/time_series_library/PROVENANCE.md](third_party/time_series_library/PROVENANCE.md).
+## Reproduce experiments
 
-The no-training native smoke command checks PatchTST, PatchMixer, PatchMLP,
-Pathformer, HDMixer, DeformableTST, and the isolated official PatchTST adapter.
-It uses protocol-valid model-specific input lengths rather than forcing every
-architecture into one incompatible tensor shape.
+After the datasets are available, use the explicit entrypoints below. Training
+starts only when one of these commands is selected.
 
-## Data, outputs, and frozen evidence
+```bash
+bash scripts/run_core.sh
+bash scripts/run_overlap.sh
+bash scripts/run_h192.sh
+bash scripts/run_training_policy.sh
+bash scripts/run_patch_length.sh
+bash scripts/run_patchtst.sh
+```
 
-Datasets, checkpoints, logs, archives, and generated outputs are excluded from
-Git. Put datasets below `data/` or point `DATA_ROOT` to an external directory.
-Run outputs are written below `outputs/` and are not committed. The manuscript
-and its tables remain the authoritative presentation of the numerical results;
-this repository does not duplicate paper result tables.
+These controls are intentionally separate from the historical paper records:
 
-Formal metrics retain the paper definitions:
+```bash
+bash scripts/run_optimization.sh
+bash scripts/run_heads.sh
+bash scripts/run_pe_control.sh
+bash scripts/run_poc.sh
+```
+
+See [docs/experiments.md](docs/experiments.md) for the experiment-to-code
+map, [docs/reproducibility.md](docs/reproducibility.md) for metric and
+provenance details, and [docs/source_audit.md](docs/source_audit.md) for the
+source-availability boundary.
+
+## Formal metrics
+
+The reported origin gaps use the minimum-MSE denominator:
 
 ```text
 G_origin   = (max(MSE_r) - min(MSE_r)) / min(MSE_r) * 100
 G_interior = (max(MSE_r,r>=1) - min(MSE_r,r>=1)) / min(MSE_r,r>=1) * 100
 ```
 
-Visualization-only mean normalization is never substituted for either formal
-gap. Full provenance rules are in [docs/reproducibility.md](docs/reproducibility.md).
+The run-mean normalization used by visual diagnostics is a separate quantity
+and is not substituted for either formal gap.
 
-## Repository scope and verification
+## Repository layout
 
-This repository is a code-and-provenance supplement. It does not contain the
-manuscript source, datasets, checkpoints, or a second copy of the paper's
-results. The included source-backed runners cover the canonical measurement,
-overlap and H=192 audits, training-origin strategies, the isolated official
-PatchTST adapter, patch-length analysis, and the native model source harness.
+```text
+configs/                  Protocol configurations
+data/                     Dataset layout instructions; data is ignored
+docs/                     Reproduction, source, and experiment documentation
+scripts/                  Reproduction entrypoints
+src/                      Core runners, patching, evaluation, and metrics
+tests/                    Fast protocol and release-contract tests
+third_party/              Isolated source snapshots with provenance notices
+tools/                    Static audits and post-processing utilities
+```
 
-The optimization, mask-head, and no-PE entries are explicitly marked
-`RECONSTRUCTED_CONTROL`; they are executable controls and are not identity
-claims for the historical frozen values. The full-split Transformer/MLP/Conv
-comparison remains `FROZEN_ARTIFACT_ONLY`, and the POC workflow is
-`ARTIFACT_DEPENDENT` because it requires external schedules/checkpoints. The
-runner reports these cases separately from directly runnable experiments.
+## Citation and license
 
-During repository assembly, no training, inference, or re-evaluation was
-started, and frozen paper values were not edited. The following checks were
-performed without training: Python compilation, shell syntax, YAML parsing,
-phase reconstruction, padding-mask sentinel behavior, artifact and aggregate
-audits, deterministic empty-output checks, anonymity scanning, and native
-model import/forward smoke tests. Vendored source SHA-256 manifests were also
-verified.
-
-For the exact experiment-to-code map, source provenance, and reproducibility
-boundaries, see [docs/experiments.md](docs/experiments.md),
-[docs/source_audit.md](docs/source_audit.md), and
-[docs/reproducibility.md](docs/reproducibility.md).
-
-## License
-
+If you use this repository, cite the paper using [CITATION.cff](CITATION.cff).
 Repository-level code is released under the MIT License. Files under
-`third_party/` retain their source provenance and must be used in accordance
-with their respective source licenses.
+`third_party/` retain their upstream provenance and licensing requirements;
+see [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).

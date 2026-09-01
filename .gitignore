@@ -34,5 +34,8 @@ figures/generated/**
 wandb/
 mlruns/
 tensorboard/
+.coverage
+htmlcov/
+.pytest_cache/
 .DS_Store
 Thumbs.db
