@@ -1,7 +1,7 @@
 {
   "experiment_id": "CANONICAL_CONTROLLED_V2",
   "dataset": "ETTh1",
-  "dataset_file": "E:\\Deep Learning\\Code\\Time-Series-Library\\dataset\\ETT-small\\ETTh1.csv",
+  "dataset_file": "data/ETT-small/ETTh1.csv",
   "train_rows": [0, 8640],
   "validation_rows": [8640, 11520],
   "test_rows": [11520, 17420],
