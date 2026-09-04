@@ -33,6 +33,12 @@ The repository studies whether changing only the origin of a one-dimensional
 patch lattice can change a forecast when the observed history, target, and
 forecasting model are fixed.
 
+<p align="center">
+  <img src="docs/figures/partition_origin_effect_case.png" alt="Figure 1: same observations assigned to different partition origins can yield different forecasts" width="100%">
+</p>
+
+<p align="center"><em>Figure 1. Same observations, different partition origins, and different forecasts from a fixed model.</em></p>
+
 Paper: the accompanying manuscript and its frozen numerical results are
 released separately from this code repository.
 
