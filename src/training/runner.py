@@ -20,6 +20,7 @@ import json
 import math
 import os
 import random
+import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
@@ -64,6 +65,22 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def current_git_commit() -> str | None:
+    """Return the repository commit used to generate a result, if available."""
+    try:
+        completed = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=REPO_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    commit = completed.stdout.strip()
+    return commit if len(commit) == 40 else None
 
 
 def seed_all(seed: int) -> None:
@@ -261,11 +278,14 @@ def save_run_artifacts(out: Path, config: dict, train_rows: list[dict],
         assert a["origin"] == b["origin"]
         assert abs(a["MSE"] - b["MSE"]) < 1e-12
         assert abs(a["MAE"] - b["MAE"]) < 1e-12
+    commit = current_git_commit()
     summary = {**config, **summary_extra, **recomputed,
+               "git_commit": commit,
                "metric_recomputation_pass": True,
                "finite_predictions_pass": all(np.isfinite(v).all() for v in predictions.values())}
     write_json(out / "summary.json", summary)
     provenance = {
+        "git_commit": commit,
         "runner": str(Path(__file__).resolve()),
         "runner_sha256": sha256(Path(__file__).resolve()),
         "source_files": {str(p): sha256(p) for p in source_files if p.exists()},

@@ -5,7 +5,7 @@ import numpy as np, pandas as pd, torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
-from ...training.runner import seed_all  # reuse repository seed semantics
+from ...training.runner import current_git_commit, seed_all  # reuse repository seed semantics
 
 ROOT = Path(__file__).resolve().parent
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -115,10 +115,10 @@ def run(name, p, seed, out):
         with (out/fn).open("w",newline="",encoding="utf8") as f: w=csv.DictWriter(f,fieldnames=list(data[0])); w.writeheader(); w.writerows(data)
     cfg={"experiment_id":"CANONICAL_PHENOMENON_27_V1","dataset":name,"p":p,"stride":p,"seed":seed,"context":CONTEXT,"horizon":HORIZON,"epochs":EPOCHS,"batch_size":BATCH,"optimizer":"AdamW","learning_rate":1e-4,"weight_decay":1e-4,"scheduler":"none","gradient_clipping":1.0,"origin_sampling":"one uniformly sampled origin per batch","split":split,"model":"Controlled-Transformer-V2","source_status":"SOURCE_PRESENT"}
     (out/"config.json").write_text(json.dumps(cfg,indent=2),encoding="utf8")
-    summary={"experiment_id":"CANONICAL_PHENOMENON_27_V1","dataset":name,"p":p,"stride":p,"seed":seed,"n_train":len(train),"n_validation":len(val),"n_test":len(test),"selected_epoch":selected,"best_val_avg_mse":best_val,**metrics}
+    summary={"experiment_id":"CANONICAL_PHENOMENON_27_V1","dataset":name,"p":p,"stride":p,"seed":seed,"n_train":len(train),"n_validation":len(val),"n_test":len(test),"selected_epoch":selected,"best_val_avg_mse":best_val,"git_commit":current_git_commit(),**metrics}
     (out/"summary.json").write_text(json.dumps(summary,indent=2),encoding="utf8")
     total = ((CONTEXT + 2*p - 2) // p) * p
-    prov={"experiment_id":"CANONICAL_PHENOMENON_27_V1","dataset":name,"p":p,"seed":seed,"python":sys.version,"pytorch":torch.__version__,"cuda":torch.version.cuda,"gpu":torch.cuda.get_device_name(0) if torch.cuda.is_available() else "NONE","code_sha256":sha256(ROOT/"phenomenon_run.py"),"checkpoint_sha256":sha256(out/"checkpoint.pt"),"config_sha256":sha256(out/"config.json"),"tokens":total//p,"padded_length":total,"padding_slots":total-CONTEXT}
+    prov={"experiment_id":"CANONICAL_PHENOMENON_27_V1","dataset":name,"p":p,"seed":seed,"git_commit":current_git_commit(),"python":sys.version,"pytorch":torch.__version__,"cuda":torch.version.cuda,"gpu":torch.cuda.get_device_name(0) if torch.cuda.is_available() else "NONE","code_sha256":sha256(ROOT/"phenomenon_run.py"),"checkpoint_sha256":sha256(out/"checkpoint.pt"),"config_sha256":sha256(out/"config.json"),"tokens":total//p,"padded_length":total,"padding_slots":total-CONTEXT}
     (out/"PROVENANCE.json").write_text(json.dumps(prov,indent=2),encoding="utf8")
     print(json.dumps(summary),flush=True)
 
