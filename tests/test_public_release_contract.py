@@ -58,3 +58,12 @@ def test_formal_gap_definitions_are_explicit():
     text = (ROOT / "docs" / "reproducibility.md").read_text(encoding="utf-8")
     assert "(max_r MSE_r - min_r MSE_r) / min_r MSE_r" in text
     assert "(max_{r>=1} MSE_r - min_{r>=1} MSE_r) / min_{r>=1} MSE_r" in text
+
+
+def test_git_commit_provenance_is_available():
+    from src.training.runner import current_git_commit
+
+    commit = current_git_commit()
+    assert commit is not None
+    assert len(commit) == 40
+    assert all(character in "0123456789abcdef" for character in commit)

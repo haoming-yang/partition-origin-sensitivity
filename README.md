@@ -92,6 +92,23 @@ import/forward validation only:
 bash scripts/run_tier1_smoke.sh
 ```
 
+For the shortest end-to-end entry point, validate the canonical configuration
+without starting training:
+
+```bash
+python -m src.run --config configs/core/canonical.yaml --dry-run
+```
+
+To start that registered experiment after placing the datasets under `data/`:
+
+```bash
+python -m src.run --config configs/core/canonical.yaml
+```
+
+Each completed run writes its configuration, training and validation logs,
+per-origin metrics, summary, provenance, and checkpoints below `outputs/`.
+The summary and provenance record the Git commit used for the run.
+
 ## Reproduce experiments
 
 After the datasets are available, use the explicit entrypoints below. Training
