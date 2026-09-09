@@ -1,0 +1,45 @@
+{
+  "dataset": "ETTh1",
+  "checkpoint": "C:\\Users\\\u6768\u660a\u660e\\Documents\\KDD 2027\\supplement_v1\\results\\patchtst_origin\\seed43\\checkpoint.pt",
+  "protocol": "official_Time-Series-Library_PatchTST_with_mask_aware_outer_adapter",
+  "input_scale": "raw ETTh1 values",
+  "origins": [
+    0,
+    6
+  ],
+  "windows": 5805,
+  "complete_tokens_per_window": [
+    42
+  ],
+  "raw_input_max_abs_difference": 0.0,
+  "median_spectral_l1": 0.18118745224059596,
+  "median_prediction_mse": 26.3996639251709,
+  "spearman_spectral_vs_prediction": 0.3446677046388754,
+  "spearman_bootstrap_95_ci": [
+    0.32169499952970654,
+    0.3652880034795326
+  ],
+  "bands": {
+    "dc_l1": {
+      "median_l1": 0.6718470414683397,
+      "spearman_vs_prediction": 0.3823418361887635
+    },
+    "non_dc_low_l1": {
+      "median_l1": 0.16234626622148474,
+      "spearman_vs_prediction": 0.20027313364376162
+    },
+    "low_band_l1": {
+      "median_l1": 0.23662690199877665,
+      "spearman_vs_prediction": 0.30402897763420544
+    },
+    "mid_band_l1": {
+      "median_l1": 0.11012643084954139,
+      "spearman_vs_prediction": 0.1045846400546903
+    },
+    "high_band_l1": {
+      "median_l1": 0.18562434719152837,
+      "spearman_vs_prediction": 0.3357507950116129
+    }
+  },
+  "interpretation": "Protocol-bound representation-level association only; not a causal mediation test and not numerically comparable to standardized controlled-model MSE."
+}

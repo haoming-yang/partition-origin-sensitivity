@@ -1,0 +1,39 @@
+{
+  "dataset": "ETTh1",
+  "checkpoint": "C:\\Users\\\u6768\u660a\u660e\\Documents\\KDD 2027\\CANONICAL_PHENOMENON_27_V1\\runs\\ETTh1_p12_seed43\\checkpoint.pt",
+  "origins": [
+    0,
+    6
+  ],
+  "windows": 5805,
+  "complete_tokens_per_window": [
+    42
+  ],
+  "layers": {
+    "layer0": {
+      "median_spectral_l1": 0.10512650708391845,
+      "spearman_spectral_vs_prediction": 0.562960314747714,
+      "spearman_bootstrap_95_ci": [
+        0.5429006892149035,
+        0.5806162623745952
+      ]
+    },
+    "layer1": {
+      "median_spectral_l1": 0.13345701711335975,
+      "spearman_spectral_vs_prediction": 0.5320141424791575,
+      "spearman_bootstrap_95_ci": [
+        0.5120595273622163,
+        0.5498227070351668
+      ]
+    },
+    "layer2": {
+      "median_spectral_l1": 0.09644182509544831,
+      "spearman_spectral_vs_prediction": 0.5329469474022989,
+      "spearman_bootstrap_95_ci": [
+        0.5153409747312484,
+        0.5498647202363107
+      ]
+    }
+  },
+  "interpretation": "Layer 0 is the post-position encoder input; Layers 1 and 2 are the first-block and final-normalized outputs. This is associative, not causal mediation evidence."
+}

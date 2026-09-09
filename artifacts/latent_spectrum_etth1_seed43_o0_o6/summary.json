@@ -1,0 +1,30 @@
+{
+  "dataset": "ETTh1",
+  "checkpoint": "C:\\Users\\\u6768\u660a\u660e\\Documents\\KDD 2027\\CANONICAL_PHENOMENON_27_V1\\runs\\ETTh1_p12_seed43\\checkpoint.pt",
+  "origins": [
+    0,
+    6
+  ],
+  "windows": 5805,
+  "complete_tokens_per_window": [
+    42
+  ],
+  "raw_input_max_abs_difference": 0.0,
+  "median_spectral_l1": 0.09644182509544831,
+  "median_prediction_mse": 0.16827215254306793,
+  "dc": {
+    "median_l1": 0.6174364662145431,
+    "spearman_vs_prediction": 0.28876276293714653
+  },
+  "non_dc_low": {
+    "median_l1": 0.05292345288851016,
+    "spearman_vs_prediction": 0.350388085445648
+  },
+  "spearman_spectral_vs_prediction": 0.5329469474022989,
+  "spearman_bootstrap_95_ci": [
+    0.5153409747312484,
+    0.5498647202363107
+  ],
+  "supportive_signal": true,
+  "interpretation": "Exploratory representation-level association only; not a causal mediation test."
+}

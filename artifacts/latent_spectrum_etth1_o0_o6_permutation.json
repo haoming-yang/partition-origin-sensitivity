@@ -1,0 +1,32 @@
+[
+  {
+    "input": "E:\\Deep Learning\\Code\\partition-origin-sensitivity\\artifacts\\latent_spectrum_etth1_seed42_o0_o6\\window_metrics.csv",
+    "windows": 5805,
+    "observed_rho": 0.49394614270487275,
+    "permutation_mean": -0.00021961073860151788,
+    "permutation_sd": 0.013016484648191221,
+    "exceedances": 0,
+    "permutations": 1000,
+    "p_two_sided": 0.000999000999000999
+  },
+  {
+    "input": "E:\\Deep Learning\\Code\\partition-origin-sensitivity\\artifacts\\latent_spectrum_etth1_seed43_o0_o6\\window_metrics.csv",
+    "windows": 5805,
+    "observed_rho": 0.5329469474022989,
+    "permutation_mean": 4.1073758087065065e-05,
+    "permutation_sd": 0.01256307235337107,
+    "exceedances": 0,
+    "permutations": 1000,
+    "p_two_sided": 0.000999000999000999
+  },
+  {
+    "input": "E:\\Deep Learning\\Code\\partition-origin-sensitivity\\artifacts\\latent_spectrum_etth1_seed44_o0_o6\\window_metrics.csv",
+    "windows": 5805,
+    "observed_rho": 0.560852160373662,
+    "permutation_mean": -0.00011533503066899548,
+    "permutation_sd": 0.012649916860608654,
+    "exceedances": 0,
+    "permutations": 1000,
+    "p_two_sided": 0.000999000999000999
+  }
+]
