@@ -66,7 +66,7 @@ def render_paired_pca_figure(
         vmax *= 1.1
     norm = LogNorm(vmin=vmin, vmax=vmax)
     cmap = plt.get_cmap("viridis")
-    figure = plt.figure(figsize=(11.4, 3.75), constrained_layout=True)
+    figure = plt.figure(figsize=(11.4, 3.55), constrained_layout=True)
     axes = []
     for panel_index, layer in enumerate(LAYER_NAMES, start=1):
         record = records[layer]
@@ -85,8 +85,8 @@ def render_paired_pca_figure(
                 (first[1], second[1]),
                 (first[2], second[2]),
                 color=color,
-                alpha=0.42,
-                linewidth=0.55,
+                alpha=0.28,
+                linewidth=0.45,
                 zorder=1,
             )
         origin_zero = record.coordinates[:72]
@@ -94,28 +94,31 @@ def render_paired_pca_figure(
         colors = cmap(norm(disagreement))
         axis.scatter(
             origin_zero[:, 0], origin_zero[:, 1], origin_zero[:, 2],
-            c=colors, marker="o", s=15, edgecolors="none", alpha=0.9, depthshade=False, zorder=3,
+            c=colors, marker="o", s=11, edgecolors="none", alpha=0.84, depthshade=False, zorder=3,
         )
         axis.scatter(
             origin_six[:, 0], origin_six[:, 1], origin_six[:, 2],
-            facecolors="white", edgecolors=colors, marker="^", s=24, linewidths=0.7,
-            alpha=0.95, depthshade=False, zorder=4,
+            facecolors="white", edgecolors=colors, marker="o", s=17, linewidths=0.75,
+            alpha=0.92, depthshade=False, zorder=4,
         )
-        axis.set_title(PANEL_TITLES[layer], fontsize=9, pad=8)
-        axis.set_xlabel("PC1", fontsize=8, labelpad=-5)
-        axis.set_ylabel("PC2", fontsize=8, labelpad=-5)
-        axis.set_zlabel("PC3", fontsize=8, labelpad=-4)
-        axis.tick_params(labelsize=6, pad=-1)
+        axis.set_title(PANEL_TITLES[layer], fontsize=8.5, pad=7)
+        axis.set_xlabel("PC1", fontsize=7.5, labelpad=-5)
+        axis.set_ylabel("PC2", fontsize=7.5, labelpad=-5)
+        axis.set_zlabel("PC3", fontsize=7.5, labelpad=-4)
+        axis.tick_params(labelsize=5.5, pad=-1)
         axis.view_init(elev=20, azim=-55)
         axis.set_facecolor("white")
         axis.xaxis.pane.fill = False
         axis.yaxis.pane.fill = False
         axis.zaxis.pane.fill = False
-        axis.grid(True, alpha=0.18)
+        axis.grid(True, alpha=0.08, linewidth=0.35)
+        for axis_dimension in (axis.xaxis, axis.yaxis, axis.zaxis):
+            axis_dimension._axinfo["grid"]["color"] = (0.70, 0.70, 0.70, 0.35)
+            axis_dimension._axinfo["grid"]["linewidth"] = 0.35
     axes[0].legend(
         handles=[
             Line2D([0], [0], marker="o", color="none", markerfacecolor="#595959", markeredgecolor="none", markersize=5, label="Origin $r=0$"),
-            Line2D([0], [0], marker="^", color="none", markerfacecolor="white", markeredgecolor="#595959", markersize=5, label="Origin $r=6$"),
+            Line2D([0], [0], marker="o", color="none", markerfacecolor="white", markeredgecolor="#595959", markersize=5, label="Origin $r=6$"),
         ],
         loc="upper left", fontsize=7, frameon=False, handletextpad=0.3, borderpad=0.2,
     )
