@@ -109,51 +109,66 @@ def render_latent_summary_figure(summary: dict[str, object], output: Path) -> No
     layers = summary["layers"]
     if len(seeds) != 3 or list(frequency) != list(FREQUENCY_COLUMNS) or list(layers) != list(LAYER_COLUMNS):
         raise ValueError("summary must preserve the configured three seeds and panel orders")
-    figure, (frequency_axis, layer_axis) = plt.subplots(1, 2, figsize=(7.2, 3.0), constrained_layout=True)
+    figure, (frequency_axis, layer_axis) = plt.subplots(
+        1, 2, figsize=(7.2, 2.65), gridspec_kw={"wspace": 0.30}
+    )
     jitter = np.array((-0.12, 0.0, 0.12))
     frequency_positions = np.arange(len(frequency))
     for seed_index, seed in enumerate(seeds):
         values = [frequency[label]["seed_values"][seed_index] for label in frequency]
         frequency_axis.scatter(
             frequency_positions + jitter[seed_index], values,
-            s=24, color=SEED_COLORS[seed_index], edgecolors="white", linewidths=0.35, zorder=3,
+            s=17, color=SEED_COLORS[seed_index], edgecolors="white", linewidths=0.35,
+            alpha=0.82, zorder=3,
         )
     frequency_axis.errorbar(
         frequency_positions,
         [frequency[label]["mean"] for label in frequency],
         yerr=[frequency[label]["sample_sd"] for label in frequency],
-        fmt="D", color="#202020", markersize=4.3, capsize=2.3, linewidth=0.9, zorder=4,
+        fmt="o", color="#202020", markerfacecolor="#202020", markeredgecolor="white",
+        markersize=4.2, capsize=2.2, linewidth=0.85, zorder=4,
     )
     frequency_axis.set_xticks(frequency_positions, list(frequency))
-    frequency_axis.set_ylabel("Spearman $\\rho$ with forecast disagreement")
-    frequency_axis.set_title("(a) Frequency-wise association", loc="left", fontweight="bold", fontsize=9)
+    frequency_axis.set_ylabel("Spearman $\\rho$ with forecast MSE")
+    frequency_axis.set_title("(a) Association by frequency band", loc="left", fontweight="bold", fontsize=8.5)
     frequency_axis.set_ylim(0.0, 0.65)
     layer_positions = np.arange(len(layers))
     for seed_index, seed in enumerate(seeds):
         values = [layers[label]["seed_values"][seed_index] for label in layers]
-        layer_axis.plot(layer_positions, values, color=SEED_COLORS[seed_index], linewidth=1.0, alpha=0.8, zorder=2)
-        layer_axis.scatter(layer_positions, values, s=24, color=SEED_COLORS[seed_index], edgecolors="white", linewidths=0.35, zorder=3)
+        layer_axis.plot(layer_positions, values, color=SEED_COLORS[seed_index], linewidth=0.8, alpha=0.48, zorder=2)
+        layer_axis.scatter(
+            layer_positions, values, s=17, color=SEED_COLORS[seed_index],
+            edgecolors="white", linewidths=0.35, alpha=0.82, zorder=3,
+        )
+    layer_means = [layers[label]["mean"] for label in layers]
+    layer_axis.plot(layer_positions, layer_means, color="#202020", linewidth=1.45, zorder=4)
     layer_axis.errorbar(
         layer_positions,
-        [layers[label]["mean"] for label in layers],
+        layer_means,
         yerr=[layers[label]["sample_sd"] for label in layers],
-        fmt="D", color="#202020", markersize=4.3, capsize=2.3, linewidth=0.9, zorder=4,
+        fmt="o", color="#202020", markerfacecolor="#202020", markeredgecolor="white",
+        markersize=4.2, capsize=2.2, linewidth=0.85, zorder=5,
     )
     layer_axis.set_xticks(layer_positions, ["Post-position\ninput", "First encoder\nblock", "Final normalized\noutput"])
-    layer_axis.set_ylabel("Median token-spectrum discrepancy")
-    layer_axis.set_title("(b) Layer-wise discrepancy", loc="left", fontweight="bold", fontsize=9)
+    layer_axis.set_ylabel("Median spectral discrepancy")
+    layer_axis.set_title("(b) Evolution across encoder locations", loc="left", fontweight="bold", fontsize=8.5)
     for axis in (frequency_axis, layer_axis):
         axis.set_facecolor("white")
         axis.grid(axis="y", color="#D9D9D9", linewidth=0.55, alpha=0.8)
         axis.spines[["top", "right"]].set_visible(False)
-        axis.tick_params(labelsize=7)
-    frequency_axis.legend(
+        axis.tick_params(labelsize=6.8)
+    figure.legend(
         handles=[
-            *(Line2D([0], [0], marker="o", color="none", markerfacecolor=color, markeredgecolor="white", markersize=5, label=f"Seed {seed}") for color, seed in zip(SEED_COLORS, seeds)),
-            Line2D([0], [0], marker="D", color="#202020", markersize=4, label="Mean $\\pm$ SD"),
+            *(Line2D([0], [0], marker="o", color="none", markerfacecolor=color,
+                     markeredgecolor="white", markersize=4.5, label=f"Seed {seed}")
+              for color, seed in zip(SEED_COLORS, seeds)),
+            Line2D([0], [0], marker="o", color="#202020", markerfacecolor="#202020",
+                   markeredgecolor="white", markersize=4.2, linewidth=1.4, label="Mean $\\pm$ SD"),
         ],
-        fontsize=6.8, frameon=False, loc="lower left", ncol=2, columnspacing=0.8, handletextpad=0.3,
+        loc="upper center", bbox_to_anchor=(0.5, 0.995), ncol=4, fontsize=6.6,
+        frameon=False, columnspacing=1.0, handletextpad=0.35,
     )
+    figure.subplots_adjust(top=0.82, bottom=0.22, left=0.10, right=0.985)
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, format="pdf", bbox_inches="tight")
