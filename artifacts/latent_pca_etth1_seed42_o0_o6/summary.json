@@ -1,0 +1,22 @@
+{
+  "dataset": "ETTh1",
+  "checkpoint": "C:\\Users\\\u6768\u660a\u660e\\Documents\\KDD 2027\\CANONICAL_PHENOMENON_27_V1\\runs\\ETTh1_p12_seed42\\checkpoint.pt",
+  "origins": [
+    0,
+    6
+  ],
+  "test_windows": 5805,
+  "selected_windows": 72,
+  "per_tercile": 24,
+  "sampling_seed": 42,
+  "complete_tokens_per_window": [
+    42
+  ],
+  "layers": [
+    "layer0",
+    "layer1",
+    "layer2"
+  ],
+  "figure": "E:\\Deep Learning\\Code\\partition-origin-sensitivity\\docs\\figures\\paired_latent_pca_etth1_seed42_o0_o6.pdf",
+  "interpretation": "Qualitative, layer-specific PCA projections of pooled complete-token representations; not a full-dimensional distance or causal analysis."
+}
