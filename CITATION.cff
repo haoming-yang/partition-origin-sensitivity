@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this repository, please cite the accompanying paper."
-title: "Same Observations, Different Forecasts: Partition-Origin Effects in Patch-Based Time-Series Forecasting"
+title: "Same Observations, Different Forecasts: Partition-Origin Sensitivity in Patch-Based Time-Series Forecasting"
 type: software
 authors:
   - family-names: Yang
