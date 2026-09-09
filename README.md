@@ -39,7 +39,8 @@ forecasting model are fixed.
 
 <p align="center"><em>Figure 1. Same observations, different partition origins, and different forecasts from a fixed model.</em></p>
 
-The manuscript PDF is maintained separately. This repository includes the
+The current anonymous manuscript PDF is available as
+[`docs/manuscript.pdf`](docs/manuscript.pdf). This repository also includes the
 frozen, compact diagnostic artifacts used by the latent-representation
 analyses; it does not include datasets, checkpoints, or full prediction dumps.
 
@@ -170,12 +171,26 @@ python tools/make_paired_latent_pca.py \
   --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
   --output artifacts/latent_pca_etth1_seed42_o0_o6 \
   --figure-output docs/figures/paired_latent_pca_etth1_seed42_o0_o6.pdf
+
+python tools/make_latent_summary_figure.py \
+  --spectrum artifacts/latent_spectrum_etth1_seed42_o0_o6/window_metrics.csv \
+  --spectrum artifacts/latent_spectrum_etth1_seed43_o0_o6/window_metrics.csv \
+  --spectrum artifacts/latent_spectrum_etth1_seed44_o0_o6/window_metrics.csv \
+  --layers artifacts/latent_layers_etth1_seed42_o0_o6/window_metrics.csv \
+  --layers artifacts/latent_layers_etth1_seed43_o0_o6/window_metrics.csv \
+  --layers artifacts/latent_layers_etth1_seed44_o0_o6/window_metrics.csv \
+  --output docs/figures/latent_frequency_layer_summary.pdf \
+  --summary-output artifacts/latent_frequency_layer_summary_etth1_o0_o6.json
 ```
 
 The paired-PCA figure is an appendix-only qualitative diagnostic for the
 frozen ETTh1 primary seed-42 checkpoint. It deterministically samples 72
 windows (24 per forecast-disagreement tercile), fits a separate PCA per layer,
 and does not constitute a cross-seed aggregate result or a causal analysis.
+
+The frequency-and-layer summary figure aggregates the existing three primary
+ETTh1 seeds. It visualizes the reported window-level associations and
+layer-specific median discrepancies without adding a model run or a new test.
 
 To test whether the saved spectral--forecast association could arise from
 random window pairing, run the two-sided Monte Carlo permutation audit on one
