@@ -165,7 +165,17 @@ python tools/analyze_latent_layers.py \
 python tools/analyze_patchtst_latent_spectrum.py \
   --checkpoint /path/to/patchtst_checkpoint.pt --data-root /path/to/data \
   --output artifacts/patchtst_latent_spectrum_etth1_seed42_o0_o6
+
+python tools/make_paired_latent_pca.py \
+  --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
+  --output artifacts/latent_pca_etth1_seed42_o0_o6 \
+  --figure-output docs/figures/paired_latent_pca_etth1_seed42_o0_o6.pdf
 ```
+
+The paired-PCA figure is an appendix-only qualitative diagnostic for the
+frozen ETTh1 primary seed-42 checkpoint. It deterministically samples 72
+windows (24 per forecast-disagreement tercile), fits a separate PCA per layer,
+and does not constitute a cross-seed aggregate result or a causal analysis.
 
 To test whether the saved spectral--forecast association could arise from
 random window pairing, run the two-sided Monte Carlo permutation audit on one
@@ -199,7 +209,7 @@ and is not substituted for either formal gap.
 ## Repository layout
 
 ```text
-artifacts/                Frozen, compact latent-diagnostic records; no predictions
+artifacts/                Frozen compact records, including seed-42 PCA coordinates; no predictions
 configs/                  Protocol configurations
 data/                     Dataset layout instructions; data is ignored
 docs/                     Reproduction, source, and experiment documentation
