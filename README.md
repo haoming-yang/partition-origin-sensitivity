@@ -39,8 +39,9 @@ forecasting model are fixed.
 
 <p align="center"><em>Figure 1. Same observations, different partition origins, and different forecasts from a fixed model.</em></p>
 
-Paper: the accompanying manuscript and its frozen numerical results are
-released separately from this code repository.
+The manuscript PDF is maintained separately. This repository includes the
+frozen, compact diagnostic artifacts used by the latent-representation
+analyses; it does not include datasets, checkpoints, or full prediction dumps.
 
 ## What is included
 
@@ -48,13 +49,17 @@ released separately from this code repository.
 - controlled extensions for optimization, training-origin policy, overlap,
   horizon 192, patch length, positional encoding, and the official PatchTST
   adapter;
+- read-only token-axis spectrum and layerwise diagnostics for frozen controlled
+  Transformer checkpoints, plus a protocol-adapted PatchTST diagnostic;
+- the saved per-window diagnostic differences and the three-seed permutation
+  audit used to test the spectral--forecast association against random pairing;
 - the patching, masking, evaluation, and formal metric implementations;
 - isolated third-party model snapshots used by the native source audit;
 - configuration files and audit tools for checking protocol behavior.
 
-The repository does not include datasets, checkpoints, full prediction dumps,
-or a second copy of the paper's result tables. Historical results that depend
-on unavailable training artifacts are identified in the
+The repository does not include datasets, checkpoints, or full prediction
+dumps. Historical results that depend on unavailable training artifacts are
+identified in the
 [experiment matrix](docs/experiment_execution_matrix.md); they are never
 silently replaced by a new run.
 
@@ -137,6 +142,48 @@ map, [docs/reproducibility.md](docs/reproducibility.md) for metric and
 provenance details, and [docs/source_audit.md](docs/source_audit.md) for the
 source-availability boundary.
 
+## Latent-representation diagnostics
+
+The diagnostic scripts are post-hoc and read-only: they compare origin 0 and
+origin 6 on the same ETTh1 test windows using frozen checkpoints. They do not
+retrain a model. The controlled Transformer tools retain only fully observed
+patch tokens, apply the FFT along the ordered token axis (never the embedding
+axis), and save per-window spectral and forecast discrepancies. The
+Protocol-Adapted PatchTST tool preserves its raw-scale, mask-aware adapter
+protocol, so its values are not numerically interchangeable with the
+standardized controlled-Transformer values.
+
+```bash
+python tools/analyze_latent_spectrum.py \
+  --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
+  --output artifacts/latent_spectrum_etth1_seed42_o0_o6
+
+python tools/analyze_latent_layers.py \
+  --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
+  --output artifacts/latent_layers_etth1_seed42_o0_o6
+
+python tools/analyze_patchtst_latent_spectrum.py \
+  --checkpoint /path/to/patchtst_checkpoint.pt --data-root /path/to/data \
+  --output artifacts/patchtst_latent_spectrum_etth1_seed42_o0_o6
+```
+
+To test whether the saved spectral--forecast association could arise from
+random window pairing, run the two-sided Monte Carlo permutation audit on one
+saved `window_metrics.csv` per seed:
+
+```bash
+python tools/permutation_latent_spectrum.py \
+  --input artifacts/latent_spectrum_etth1_seed42_o0_o6/window_metrics.csv \
+  --input artifacts/latent_spectrum_etth1_seed43_o0_o6/window_metrics.csv \
+  --input artifacts/latent_spectrum_etth1_seed44_o0_o6/window_metrics.csv \
+  --output artifacts/latent_spectrum_etth1_o0_o6_permutation.json \
+  --permutations 1000 --seed 0
+```
+
+The test holds forecast discrepancies fixed and randomly permutes the paired
+token-spectrum discrepancies across windows. It assesses random pairing, not
+causal mediation.
+
 ## Formal metrics
 
 The reported origin gaps use the minimum-MSE denominator:
@@ -152,14 +199,16 @@ and is not substituted for either formal gap.
 ## Repository layout
 
 ```text
+artifacts/                Frozen, compact latent-diagnostic records; no predictions
 configs/                  Protocol configurations
 data/                     Dataset layout instructions; data is ignored
 docs/                     Reproduction, source, and experiment documentation
-scripts/                  Reproduction entrypoints
+scripts/                  Training and reproduction entrypoints
+src/analysis/             Token-spectrum, layerwise, and PatchTST latent helpers
 src/                      Core runners, patching, evaluation, and metrics
-tests/                    Fast protocol and release-contract tests
+tests/                    Fast protocol, analysis, and release-contract tests
 third_party/              Isolated source snapshots with provenance notices
-tools/                    Static audits and post-processing utilities
+tools/                    Static audits and read-only post-hoc diagnostics
 ```
 
 ## Citation and license
