@@ -168,7 +168,10 @@ the ETTh1 data are available. Its default batch uses seeds `42,43,44`; set
 the dataset. Outputs are written under
 `outputs/fullsplit_cross_backbone/<model>/etth1/seed<seed>/`.
 Each full-split output directory must be new or empty; the runner refuses to
-overwrite a non-empty run directory.
+overwrite a non-empty run directory. The recovered comparison fixes the paper
+protocol at `L=512`, `H=96`, `p=12`, stride `12`, five epochs, batch size `32`,
+and AdamW with learning rate `1e-4` and weight decay `1e-4`; unsupported
+overrides fail explicitly.
 
 ### POC Stage3 inputs
 
