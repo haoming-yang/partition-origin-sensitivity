@@ -20,8 +20,22 @@ permutation_args=()
 for seed in "${seeds[@]}"; do
   spectrum="$SPECTRUM_ROOT/seed${seed}/latent_spectrum_origin0_o6_p12_L512_H96.csv"
   layers="$LAYERS_ROOT/seed${seed}/latent_layers_origin0_o6_p12_L512_H96.csv"
-  [[ -f "$spectrum" ]] || { echo "Missing spectrum artifact: $spectrum" >&2; exit 1; }
-  [[ -f "$layers" ]] || { echo "Missing layer artifact: $layers" >&2; exit 1; }
+  if [[ ! -f "$spectrum" ]]; then
+    legacy_spectrum="$ROOT/artifacts/latent_spectrum_etth1_seed${seed}_o0_o6/window_metrics.csv"
+    [[ -f "$legacy_spectrum" ]] || {
+      echo "Missing spectrum artifact for seed${seed}: checked $spectrum and $legacy_spectrum" >&2
+      exit 1
+    }
+    spectrum="$legacy_spectrum"
+  fi
+  if [[ ! -f "$layers" ]]; then
+    legacy_layers="$ROOT/artifacts/latent_layers_etth1_seed${seed}_o0_o6/window_metrics.csv"
+    [[ -f "$legacy_layers" ]] || {
+      echo "Missing layer artifact for seed${seed}: checked $layers and $legacy_layers" >&2
+      exit 1
+    }
+    layers="$legacy_layers"
+  fi
   spectrum_args+=(--spectrum "$spectrum")
   layer_args+=(--layers "$layers")
   permutation_args+=(--input "$spectrum")

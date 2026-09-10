@@ -70,3 +70,18 @@ def test_average_rank_spearman_handles_ties_without_artificial_ordering():
 def test_spearman_rejects_constant_series():
     with pytest.raises(ValueError, match="nonconstant"):
         _spearman(np.array([1.0, 1.0, 1.0]), np.array([1.0, 2.0, 3.0]))
+
+
+def test_frozen_legacy_artifacts_remain_readable():
+    root = Path(__file__).resolve().parents[1] / "artifacts"
+    spectrum_paths = [
+        root / f"latent_spectrum_etth1_seed{seed}_o0_o6" / "window_metrics.csv"
+        for seed in (42, 43, 44)
+    ]
+    layer_paths = [
+        root / f"latent_layers_etth1_seed{seed}_o0_o6" / "window_metrics.csv"
+        for seed in (42, 43, 44)
+    ]
+    summary = summarize_latent_artifacts(spectrum_paths, layer_paths)
+    assert summary["seeds"] == [42, 43, 44]
+    assert summary["frequency"]["DC"]["mean"] == pytest.approx(0.36399385963234293)

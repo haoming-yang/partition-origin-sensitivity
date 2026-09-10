@@ -147,6 +147,14 @@ map, [docs/reproducibility.md](docs/reproducibility.md) for metric and
 provenance details, and [docs/source_audit.md](docs/source_audit.md) for the
 source-availability boundary.
 
+Reproduction has three levels in this release. The canonical, overlap,
+horizon, training-policy, PatchTST, and patch-length runners can generate new
+runs after the public datasets are supplied. The optimization, mask-head, and
+no-PE entries are reconstructed controls and must not be used as replacements
+for frozen historical values. The full-split mixer comparison and the POC
+schedule remain artifact-only or artifact-dependent; their exact historical
+training inputs are not redistributed.
+
 ## Latent-representation diagnostics
 
 The diagnostic scripts are post-hoc and read-only: they compare origin 0 and
@@ -191,6 +199,9 @@ The summary wrapper aggregates existing replicate CSV records into JSON and
 runs the optional random-pairing audit. It performs no model run and does not
 render a new figure. Override the replicate set with, for example,
 `SEEDS=42,43,44 bash scripts/summarize_latent.sh`.
+
+The wrapper accepts both the current seed-subdirectory layout and the legacy
+frozen artifact layout committed in this repository.
 
 The test holds forecast discrepancies fixed and randomly permutes the paired
 token-spectrum discrepancies across windows. It assesses random pairing, not
