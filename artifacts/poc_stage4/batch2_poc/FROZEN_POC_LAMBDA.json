@@ -1,0 +1,93 @@
+{
+  "experiment_id": "STAGE4_BATCH2_POC_LAMBDA_FREEZE_V1",
+  "status": "FROZEN_POC_LAMBDA",
+  "frozen": true,
+  "selected_lambda": 1.0,
+  "candidate_lambdas": [
+    0.01,
+    0.03,
+    0.1,
+    0.3,
+    1.0
+  ],
+  "selection_dataset": "ETTh1",
+  "selection_seed": 42,
+  "test_evaluation_before_freeze": false,
+  "b_validation_avg_mse": 0.7489891514129009,
+  "eligibility_threshold": 0.7564790429270299,
+  "selection_rule": "among eligible candidates, choose minimum validation S_theta; if exactly tied to 1e-12, choose smaller lambda",
+  "candidates": [
+    {
+      "lambda": 0.01,
+      "validation_avg_mse": 0.7460707897921313,
+      "validation_avg_mae": 0.5982618950461728,
+      "validation_S_theta": 0.06358901553752179,
+      "validation_G_origin": 9.885031716190047,
+      "validation_CV_origin": 0.031180115906086246,
+      "validation_Delta_origin": 0.0715734551276388,
+      "validation_identity_absolute_error": 1.7814756614331628e-10,
+      "eligible": true,
+      "summary_sha256": "f5d6f23e3186ab99e17511879676c4bfa00caf6ddf9a9826ff32fc9df06c9c5c"
+    },
+    {
+      "lambda": 0.03,
+      "validation_avg_mse": 0.7451424041948996,
+      "validation_avg_mae": 0.5978545872246747,
+      "validation_S_theta": 0.061729524271224946,
+      "validation_G_origin": 9.739383461574109,
+      "validation_CV_origin": 0.030606749220096843,
+      "validation_Delta_origin": 0.0704528176887449,
+      "validation_identity_absolute_error": 4.680477394547466e-10,
+      "eligible": true,
+      "summary_sha256": "2994a6b1b883b3e7ba4bcb90ef02cac57894131b122700bcec236ce044b6d525"
+    },
+    {
+      "lambda": 0.1,
+      "validation_avg_mse": 0.7423905604169176,
+      "validation_avg_mae": 0.596865072220743,
+      "validation_S_theta": 0.05633008715494317,
+      "validation_G_origin": 9.481083768122547,
+      "validation_CV_origin": 0.029205421890886638,
+      "validation_Delta_origin": 0.06837709716642937,
+      "validation_identity_absolute_error": 2.733622425643567e-10,
+      "eligible": true,
+      "summary_sha256": "15a1a98a7ad124f42b0302c3bb3185641bb5e38f683493f7641cf917c94a58a1"
+    },
+    {
+      "lambda": 0.3,
+      "validation_avg_mse": 0.7343386581952266,
+      "validation_avg_mae": 0.594793956881933,
+      "validation_S_theta": 0.043622574825475206,
+      "validation_G_origin": 8.793894311258232,
+      "validation_CV_origin": 0.025562972418470224,
+      "validation_Delta_origin": 0.062914079395616,
+      "validation_identity_absolute_error": 4.757086877194006e-10,
+      "eligible": true,
+      "summary_sha256": "ec7338615408f29d1a86ed91a0daad31e4ada5e05c79aa32bed9538731eba21f"
+    },
+    {
+      "lambda": 1.0,
+      "validation_avg_mse": 0.7356608956759226,
+      "validation_avg_mae": 0.5986844493998266,
+      "validation_S_theta": 0.025626783733736034,
+      "validation_G_origin": 8.553724647274512,
+      "validation_CV_origin": 0.023968947334227834,
+      "validation_Delta_origin": 0.06137601570807083,
+      "validation_identity_absolute_error": 1.1454948448119673e-10,
+      "eligible": true,
+      "summary_sha256": "168765446202ec7412324eed3c98f6440d91caeff806251e1e950b4c9f5b8131"
+    }
+  ],
+  "origin_pair_schedule": "artifacts/poc_stage3/attribution_abc/origin_pair_schedule_seed42.json",
+  "origin_pair_schedule_sha256": "3820a1290156e81c0547c4652f07a319286ed04d66418b7e0b0ddbce9e67350f",
+  "lambda_selection_protocol_sha256": "f00c0facfc1f0d0fb104992b96873aec8b02e8dd476638ec2bc0f915c7572ee6",
+  "pilot_runner_sha256": "b7d9eca698b054e87596f3e11499429453fff204840c707207b37e8f3d3d0b19",
+  "evaluator_sha256": "2720e15307228c8319d1858bd1644078e25474d7e50f33599ad05890b17ee75b",
+  "created_at_utc": "2026-08-19T06:32:23.230209+00:00",
+  "provenance": {
+    "all_candidates_validation_only": true,
+    "seed43_or_seed44_used_for_selection": false,
+    "test_metrics_used_for_selection": false,
+    "candidate_set_expanded": false
+  }
+}

@@ -11,7 +11,7 @@ Each configuration declares one of these states:
 - `FROZEN_ARTIFACT_ONLY`: only frozen records were available; no training source is claimed.
 - `ARTIFACT_DEPENDENT`: source code is present, but the run additionally requires external frozen schedules/checkpoints supplied through environment variables.
 
-The canonical measurement, overlap/H=192 extensions, origin-training strategies, isolated PatchTST adapter, and patch-length runner are source-backed. The optimization trajectory, mask-by-head factorial, and no-PE control are runnable reconstructed controls. The full-split Transformer/MLP/Conv mixer comparison remains frozen-artifact-only because the exact historical runner was not identified. The POC schedule is artifact-dependent: the Stage-4 source is included, but its external schedules/checkpoints are not redistributed.
+The canonical measurement, overlap/H=192 extensions, origin-training strategies, isolated PatchTST adapter, and patch-length runner are source-backed. The optimization trajectory, mask-by-head factorial, and no-PE control are runnable reconstructed controls. The full-split Transformer/MLP/Conv mixer comparison remains frozen-artifact-only because the exact historical runner was not identified. The POC source and schedules are included under `artifacts/poc_stage3/` and `artifacts/poc_stage4/`; the eight binary checkpoints remain external and are verified by the repository SHA256 manifest.
 
 ## Policy
 

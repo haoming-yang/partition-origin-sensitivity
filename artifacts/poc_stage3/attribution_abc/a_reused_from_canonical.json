@@ -1,0 +1,17 @@
+{
+  "experiment_id": "CANONICAL_STAGE3_ABC_ATTRIBUTION_ETTH1_P12_V1",
+  "condition": "A_single_view_random_origin_supervised",
+  "status": "REUSED_FROM_CANONICAL",
+  "source_experiment_id": "CANONICAL_PHENOMENON_27_V1",
+  "source_protocol": "CANONICAL_CONTROLLED_V2",
+  "dataset": "ETTh1",
+  "patch": 12,
+  "seeds": [42, 43, 44],
+  "reason": "The existing ETTh1 p12 seed42/43/44 runs match the frozen canonical protocol exactly; no retraining is permitted.",
+  "source_runs": [
+    "artifacts/canonical_phenomenon_27/ETTh1_p12_seed42",
+    "artifacts/canonical_phenomenon_27/ETTh1_p12_seed43",
+    "artifacts/canonical_phenomenon_27/ETTh1_p12_seed44"
+  ],
+  "verification": "pending_stage_B_report"
+}

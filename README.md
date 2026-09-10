@@ -88,6 +88,8 @@ python -m pip install -r requirements-dev.txt
 python -m pytest -q
 python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44 --dry-run
 bash scripts/smoke_test.sh
+python tools/verify_poc_stage3.py
+python tools/check_anonymity.py --root .
 ```
 
 The smoke script performs protocol tests, a dry-run, reconstruction checks,
@@ -97,6 +99,15 @@ import/forward validation only:
 ```bash
 bash scripts/run_tier1_smoke.sh
 ```
+
+The POC manifest verifier checks every tracked provenance record. It reports
+missing downloaded checkpoints by default; use
+`python tools/verify_poc_stage3.py --strict` after placing the checkpoints to
+require all external hashes to be present and correct.
+
+For a double-blind submission copy, run
+`python tools/check_anonymity.py --root . --double-blind`; the public release
+metadata intentionally retains its citation and repository identity.
 
 For the shortest end-to-end entry point, validate the canonical configuration
 without starting training:
@@ -153,7 +164,42 @@ runs after the public datasets are supplied. The optimization, mask-head, and
 no-PE entries are reconstructed controls and must not be used as replacements
 for frozen historical values. The full-split mixer comparison and the POC
 schedule remain artifact-only or artifact-dependent; their exact historical
-training inputs are not redistributed.
+training inputs are not silently replaced by a new run.
+
+### POC Stage3 inputs
+
+The repository includes the historical Stage3 source snapshots, origin-pair
+schedules, and non-checkpoint provenance records needed to audit the POC in
+`tools/poc_stage3/` and `artifacts/poc_stage3/`. The eight PyTorch checkpoint
+files are intentionally not committed. After downloading the frozen checkpoint
+bundle, place the files at these paths relative to the repository root:
+
+```text
+checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed42/checkpoint.pt
+checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed42/final_checkpoint.pt
+checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed43/checkpoint.pt
+checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed43/final_checkpoint.pt
+checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed44/checkpoint.pt
+checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed44/final_checkpoint.pt
+checkpoints/poc_stage4/batch2_poc/lambda_selection/lambda_1p0/checkpoint.pt
+checkpoints/poc_stage4/batch2_poc/lambda_selection/lambda_1p0/final_checkpoint.pt
+```
+
+The checkpoint bundle is not distributed by this repository; its download
+location must be supplied separately by the authors. Without these binary
+files, the tracked POC records remain auditable but the checkpoint-dependent
+historical reruns cannot be reproduced from a fresh checkout alone.
+
+Expected SHA256 values for both repository-tracked files and these external
+checkpoints are recorded in
+[`artifacts/poc_stage3/SHA256SUMS.txt`](artifacts/poc_stage3/SHA256SUMS.txt).
+The `[external]` files remain absent until the checkpoint bundle is placed in
+the paths above. The frozen lambda-selection and protocol records are tracked
+under `artifacts/poc_stage4/`; the Stage4 formal runner writes newly generated
+outputs under `outputs/poc_stage4/`. The copied scripts preserve the historical
+Stage3/Stage4 protocol; they are included for provenance and auditability,
+while the main repository runners remain the recommended entry points for new
+experiments.
 
 ## Latent-representation diagnostics
 
@@ -211,6 +257,8 @@ causal mediation.
 
 ```text
 artifacts/                Frozen compact records, including frozen-checkpoint PCA coordinates; no predictions
+artifacts/poc_stage3/     Stage3 POC schedules, provenance records, and SHA256 manifest; no checkpoints
+artifacts/poc_stage4/     Frozen POC lambda-selection and protocol records; no checkpoints
 configs/                  Protocol configurations
 data/                     Dataset layout instructions; data is ignored
 docs/                     Reproduction, source, and experiment documentation
@@ -219,7 +267,7 @@ src/analysis/             Token-spectrum, layerwise, and PatchTST latent helpers
 src/                      Core runners, patching, evaluation, and metrics
 tests/                    Fast protocol, analysis, and release-contract tests
 third_party/              Isolated source snapshots with provenance notices
-tools/                    Static audits and read-only post-hoc diagnostics
+tools/                    Static audits, read-only diagnostics, and POC Stage3 source snapshots
 ```
 
 ## Citation and license

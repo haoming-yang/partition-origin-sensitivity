@@ -1,0 +1,13 @@
+{
+  "experiment_id": "CANONICAL_STAGE3_ABC_ATTRIBUTION_ETTH1_P12_V1",
+  "condition": "B_two_view_supervised",
+  "seed": 44,
+  "python": "3.9.16 (main, Mar  8 2023, 10:39:24) [MSC v.1916 64 bit (AMD64)]",
+  "pytorch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "runner": "tools/poc_stage3/stage3_b_runner.py",
+  "schedule_sha256": "499bddadc8e5a4e9480cc86498d65d5e85c9ae7bca1eb5dab381339c92f0924b",
+  "checkpoint_sha256": "76174a7f9507764a7cc4746a95d202d81b85809cd2340888aaab14061627b74b",
+  "final_checkpoint_sha256": "c69b677a03df66af5ad8375efa5c70c35eb533c280eeb9f88ed516b2705f9b66"
+}

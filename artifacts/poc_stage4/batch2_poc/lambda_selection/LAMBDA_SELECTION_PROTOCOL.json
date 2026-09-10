@@ -1,0 +1,56 @@
+{
+  "experiment_id": "STAGE4_BATCH2_LAMBDA_SELECTION_V1",
+  "stage4_root": "artifacts/poc_stage4",
+  "created_at": "2026-08-19T14:05:16.1941903+08:00",
+  "status": "FROZEN_BEFORE_PILOT",
+  "dataset": "ETTh1",
+  "context": 512,
+  "horizon": 96,
+  "patch": 12,
+  "stride": 12,
+  "origins": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+  "seed": 42,
+  "epochs": 15,
+  "batch_size": 32,
+  "optimizer": "AdamW",
+  "learning_rate": 0.0001,
+  "weight_decay": 0.0001,
+  "scheduler": "none",
+  "gradient_clipping_max_norm": 1.0,
+  "checkpoint_rule": "minimum mean validation MSE across all 12 origins; ties select later epoch",
+  "evaluation_space": "standardized",
+  "scaler_fit": "train_rows_only",
+  "model": "Controlled-Transformer-V2",
+  "condition": "C_two_view_supervised_plus_consistency",
+  "loss": {
+    "prediction": "0.5 * (MSE(prediction_origin_a, target) + MSE(prediction_origin_b, target))",
+    "consistency": "MSE(prediction_origin_a, prediction_origin_b)",
+    "total": "L_pred + lambda * L_cons"
+  },
+  "candidate_lambdas": [0.01, 0.03, 0.1, 0.3, 1.0],
+  "selection_data": {
+    "dataset": "ETTh1",
+    "seed": 42,
+    "uses_test": false,
+    "test_evaluation_before_freeze": false
+  },
+  "matched_controls": {
+    "condition_b": "Stage3 B two-view supervised seed42",
+    "origin_pair_schedule_path": "artifacts/poc_stage3/attribution_abc/origin_pair_schedule_seed42.json",
+    "origin_pair_schedule_sha256": "3820a1290156e81c0547c4652f07a319286ed04d66418b7e0b0ddbce9e67350f",
+    "same_initialization": true,
+    "same_data_order": true,
+    "same_optimizer": true,
+    "same_training_steps": true,
+    "same_validation_evaluator": true
+  },
+  "eligibility_rule": "ValAvgMSE_C <= 1.01 * ValAvgMSE_B",
+  "selection_rule": "among eligible candidates, choose minimum validation S_theta; if exactly tied to 1e-12, choose smaller lambda",
+  "failure_rule": "if no candidate is eligible, record NO_ACCEPTABLE_LAMBDA, stop Batch2, and do not run formal C or Batch3",
+  "prohibitions": [
+    "do not evaluate test metrics before lambda freeze",
+    "do not add candidate lambda values",
+    "do not use seed43 or seed44 for lambda selection",
+    "do not select by test metric, training loss, G_origin, or any post-freeze quantity"
+  ]
+}

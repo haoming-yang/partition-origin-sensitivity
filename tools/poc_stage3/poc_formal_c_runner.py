@@ -19,11 +19,13 @@ import poc_lambda_pilot as pilot  # noqa: E402
 
 
 STAGE = base.STAGE
+INPUT_STAGE4 = base.INPUT_STAGE4
 FORMAL_ROOT = STAGE / "batch2_poc" / "formal_C"
-FROZEN = base.INPUT_STAGE4 / "batch2_poc" / "FROZEN_POC_LAMBDA.json"
-PROTOCOL = base.INPUT_STAGE4 / "batch2_poc" / "lambda_selection" / "LAMBDA_SELECTION_PROTOCOL.json"
+FROZEN = INPUT_STAGE4 / "batch2_poc" / "FROZEN_POC_LAMBDA.json"
+PROTOCOL = INPUT_STAGE4 / "batch2_poc" / "lambda_selection" / "LAMBDA_SELECTION_PROTOCOL.json"
 SCHEDULE_ROOT = base.E_STAGE3 / "attribution_abc"
 B_ROOT = SCHEDULE_ROOT / "b_two_view_supervised"
+LAMBDA_INPUT = INPUT_STAGE4 / "batch2_poc" / "lambda_selection" / "lambda_1p0"
 LAMBDA_CHECKPOINT_ROOT = Path(os.environ.get("PARTITION_ORIGIN_POC_LAMBDA_CHECKPOINT_ROOT", base.REPO_ROOT / "checkpoints" / "poc_stage4" / "batch2_poc" / "lambda_selection" / "lambda_1p0"))
 DEVICE = pilot.DEVICE
 
@@ -122,18 +124,18 @@ def train_formal(seed: int, lam: float, schedule: dict, schedule_path: Path, sch
 
 
 def reuse_seed42(lam: float, schedule_path: Path, schedule_hash: str, out: Path):
-    src=base.INPUT_STAGE4/"batch2_poc"/"lambda_selection"/"lambda_1p0"
-    checkpoint = LAMBDA_CHECKPOINT_ROOT / "checkpoint.pt"
-    if not (src/"summary.json").exists() or not checkpoint.exists(): raise FileNotFoundError(checkpoint)
+    src=LAMBDA_INPUT
+    checkpoint=LAMBDA_CHECKPOINT_ROOT/"checkpoint.pt"
+    if not (src/"summary.json").exists() or not checkpoint.exists(): raise FileNotFoundError(src)
     pilot_summary=json.loads((src/"summary.json").read_text(encoding="utf-8"))
     if pilot_summary.get("test_evaluation_performed") is not False or float(pilot_summary["lambda"]) != lam:
         raise RuntimeError("Selected seed42 pilot is not eligible for formal reuse")
     out.mkdir(parents=True,exist_ok=True)
     for p in src.iterdir():
         if p.is_file(): shutil.copy2(p,out/p.name)
-    shutil.copy2(checkpoint, out/"checkpoint.pt")
-    final_checkpoint = LAMBDA_CHECKPOINT_ROOT / "final_checkpoint.pt"
-    if final_checkpoint.exists(): shutil.copy2(final_checkpoint, out/"final_checkpoint.pt")
+    shutil.copy2(checkpoint,out/"checkpoint.pt")
+    final_checkpoint=LAMBDA_CHECKPOINT_ROOT/"final_checkpoint.pt"
+    if final_checkpoint.exists(): shutil.copy2(final_checkpoint,out/"final_checkpoint.pt")
     shutil.copy2(schedule_path,out/"origin_pair_schedule.json")
     model, initial_hash=pilot.make_model(42,base.load_data("ETTh1")[0].shape[1])
     if initial_hash != pilot_summary.get("initial_parameter_hash"):
@@ -157,10 +159,10 @@ def evaluate(seed: int, lam: float, schedule_path: Path, schedule_hash: str, bpr
     return result
 
 
-def main(seeds: list[int]):
+def main():
     frozen=load_frozen(); lam=float(frozen["selected_lambda"]); FORMAL_ROOT.mkdir(parents=True,exist_ok=True)
     outputs=[]
-    for seed in seeds:
+    for seed in (42,43,44):
         schedule,schedule_path,schedule_hash,bprov=b_schedule_check(seed)
         out=FORMAL_ROOT/f"seed{seed}"
         if seed==42:
@@ -173,11 +175,7 @@ def main(seeds: list[int]):
             source_kind="NEW_FORMAL_TRAINING"
         result=evaluate(seed,lam,schedule_path,schedule_hash,bprov,out,source_kind); outputs.append(result)
         print(json.dumps({"seed":seed,"source_kind":source_kind,"test_avg_mse":result["test"]["avg_mse"],"test_S_theta":result["test"]["S_theta"]}),flush=True)
-    dump(FORMAL_ROOT/"FORMAL_C_STATUS.json",{"experiment_id":"STAGE4_BATCH2_FORMAL_POC_C_V1","status":"POC_C_COMPLETE","seeds":seeds,"lambda":lam,"test_evaluation_after_lambda_freeze":True,"all_initial_hash_matches":all(x["initial_parameter_hash_match"] for x in outputs),"all_schedule_hash_matches":all(x["B_schedule_hash_match"] for x in outputs)})
+    dump(FORMAL_ROOT/"FORMAL_C_STATUS.json",{"experiment_id":"STAGE4_BATCH2_FORMAL_POC_C_V1","status":"POC_C_COMPLETE","seeds":[42,43,44],"lambda":lam,"test_evaluation_after_lambda_freeze":True,"all_initial_hash_matches":all(x["initial_parameter_hash_match"] for x in outputs),"all_schedule_hash_matches":all(x["B_schedule_hash_match"] for x in outputs)})
 
 
-if __name__=="__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--seeds", required=True, help="Comma-separated formal POC seeds")
-    main([int(item.strip()) for item in parser.parse_args().seeds.split(",") if item.strip()])
+if __name__=="__main__": main()

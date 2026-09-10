@@ -12,7 +12,7 @@ The overlap audit uses stride `6` as a relaxed six-origin lattice and is availab
 
 ## Frozen evidence with unavailable exact runners
 
-The paper's full-split Transformer/MLP/Conv comparison remains frozen-artifact-only and is represented by `scripts/run_mixers.sh`, which stops with an explicit source-unavailable status. Optimization, mask-head, and no-PE commands run explicit `RECONSTRUCTED_CONTROL` configurations; their outputs are runnable controls, not silent replacements for historical values. The POC command runs the included Stage-4 source when the external schedules/checkpoints are supplied; otherwise it fails closed. The patch-length matrix is source-backed through the canonical runner.
+The paper's full-split Transformer/MLP/Conv comparison remains frozen-artifact-only and is represented by `scripts/run_mixers.sh`, which stops with an explicit source-unavailable status. Optimization, mask-head, and no-PE commands run explicit `RECONSTRUCTED_CONTROL` configurations; their outputs are runnable controls, not silent replacements for historical values. The POC command runs the included Stage-4 source when the eight external checkpoints are supplied; schedules and frozen protocol records are tracked under `artifacts/poc_stage3/` and `artifacts/poc_stage4/`, and the SHA256 manifest verifies the external files. The patch-length matrix is source-backed through the canonical runner.
 
 ## Post-processing
 
