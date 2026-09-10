@@ -1,6 +1,6 @@
 {
   "dataset": "ETTh1",
-  "checkpoint": "C:\\Users\\\u6768\u660a\u660e\\Documents\\KDD 2027\\CANONICAL_PHENOMENON_27_V1\\runs\\ETTh1_p12_seed42\\checkpoint.pt",
+  "checkpoint": "frozen-checkpoint.pt",
   "origins": [
     0,
     6
@@ -22,9 +22,10 @@
   },
   "spearman_spectral_vs_prediction": 0.49394614270487275,
   "spearman_bootstrap_95_ci": [
-    0.47397354321656965,
-    0.5143398943228569
+    0.47397348025619435,
+    0.514339833829154
   ],
   "supportive_signal": true,
-  "interpretation": "Exploratory representation-level association only; not a causal mediation test."
+  "interpretation": "Exploratory representation-level association only; not a causal mediation test.",
+  "checkpoint_sha256": "ac4a9428eca07ef6524c2f1e3c7d1219e236a27b58b6e5c2d787330974c046de"
 }

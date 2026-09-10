@@ -5,6 +5,5 @@ horizon: 96
 patch_len: 12
 stride: 12
 strategies: [boundary_only, random_origin, all_origins]
-seeds: [42, 43, 44]
 epochs: 15
 formal_gap_denominator: minimum_mse

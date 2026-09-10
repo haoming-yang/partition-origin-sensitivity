@@ -1,6 +1,6 @@
 {
   "dataset": "ETTh1",
-  "checkpoint": "C:\\Users\\\u6768\u660a\u660e\\Documents\\KDD 2027\\CANONICAL_PHENOMENON_27_V1\\runs\\ETTh1_p12_seed42\\checkpoint.pt",
+  "checkpoint": "frozen-checkpoint.pt",
   "origins": [
     0,
     6
@@ -17,6 +17,7 @@
     "layer1",
     "layer2"
   ],
-  "figure": "E:\\Deep Learning\\Code\\partition-origin-sensitivity\\docs\\figures\\paired_latent_pca_etth1_seed42_o0_o6.pdf",
-  "interpretation": "Qualitative, layer-specific PCA projections of pooled complete-token representations; not a full-dimensional distance or causal analysis."
+  "figure": "docs/figures/paired_latent_pca_etth1_seed42_o0_o6.pdf",
+  "interpretation": "Qualitative, layer-specific PCA projections of pooled complete-token representations; not a full-dimensional distance or causal analysis.",
+  "checkpoint_sha256": "ac4a9428eca07ef6524c2f1e3c7d1219e236a27b58b6e5c2d787330974c046de"
 }

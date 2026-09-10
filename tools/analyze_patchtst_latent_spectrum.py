@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -23,6 +24,15 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.analysis.latent_spectral import summarize_latent_pair
+from src.utils.artifact_naming import artifact_path, metric_filename
+
+
+def checkpoint_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for block in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 from src.analysis.patchtst import full_patchtst_token_latents
 from src.training import runner
 from tools.analyze_latent_spectrum import (
@@ -104,7 +114,8 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             for index in range(first.shape[0]):
                 rows.append(
                     {
-                        "window": float(len(rows) + index),
+                        "seed": "" if args.seed is None else int(args.seed),
+                        "window": float(len(rows)),
                         "spectral_l1": float(spectrum["spectral_l1"][index]),
                         "dc_l1": float(spectrum["dc_l1"][index]),
                         "non_dc_low_l1": float(spectrum["non_dc_low_l1"][index]),
@@ -129,7 +140,9 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     }
     result = {
         "dataset": "ETTh1",
-        "checkpoint": str(Path(args.checkpoint).resolve()),
+        "seed": args.seed,
+        "checkpoint": "frozen-checkpoint.pt",
+        "checkpoint_sha256": checkpoint_sha256(args.checkpoint),
         "protocol": "official_Time-Series-Library_PatchTST_with_mask_aware_outer_adapter",
         "input_scale": "raw ETTh1 values",
         "origins": [args.origin_a, args.origin_b],
@@ -143,13 +156,26 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         "bands": bands,
         "interpretation": "Protocol-bound representation-level association only; not a causal mediation test and not numerically comparable to standardized controlled-model MSE.",
     }
-    output = Path(args.output).resolve()
-    output.mkdir(parents=True, exist_ok=True)
-    with (output / "window_metrics.csv").open("w", newline="", encoding="utf-8") as file:
+    output = artifact_path(
+        Path(args.output).resolve(),
+        args.seed,
+        metric_filename(
+            "patchtst_latent_spectrum",
+            origin_a=args.origin_a,
+            origin_b=args.origin_b,
+            patch_length=args.patch_length,
+            stride=args.stride,
+            context=args.context,
+            horizon=args.horizon,
+        ),
+    )
+    with output.open("w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-    (output / "summary.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    output.with_name(output.stem.replace("patchtst_latent_spectrum", "summary") + ".json").write_text(
+        json.dumps(result, indent=2), encoding="utf-8"
+    )
     return result
 
 
@@ -158,6 +184,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True, help="Directory containing ETT-small/ETTh1.csv")
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--seed", type=int, default=None, help="Training seed recorded for this frozen checkpoint")
     parser.add_argument("--origin-a", type=int, default=0)
     parser.add_argument("--origin-b", type=int, default=6)
     parser.add_argument("--context", type=int, default=512)

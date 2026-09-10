@@ -5,7 +5,6 @@ horizon: 96
 patch_len: 12
 stride: 12
 origins: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-seeds: [42, 43, 44]
 epochs: 15
 batch_size: 32
 optimizer: AdamW

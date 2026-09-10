@@ -35,12 +35,25 @@ def _seed_from_path(path: Path) -> int:
     return int(matches[-1])
 
 
-def _read_rows(path: Path) -> list[dict[str, float]]:
+def _read_rows(path: Path) -> list[dict[str, object]]:
     with Path(path).open(newline="", encoding="utf-8") as handle:
-        rows = [{name: float(value) for name, value in row.items()} for row in csv.DictReader(handle)]
+        rows = []
+        for row in csv.DictReader(handle):
+            parsed = {
+                name: (None if name == "seed" and value == "" else float(value))
+                for name, value in row.items()
+            }
+            rows.append(parsed)
     if not rows:
         raise ValueError(f"artifact contains no rows: {path}")
     return rows
+
+
+def _seed_from_rows(path: Path, rows: list[dict[str, object]]) -> int:
+    value = rows[0].get("seed")
+    if value not in (None, ""):
+        return int(value)
+    return _seed_from_path(path)
 
 
 def _rank(values: np.ndarray) -> np.ndarray:
@@ -71,8 +84,14 @@ def summarize_latent_artifacts(
     """Compute per-seed frequency associations and layer median discrepancies."""
     if len(spectrum_paths) != 3 or len(layer_paths) != 3:
         raise ValueError("exactly three spectrum and three layer artifacts are required")
-    spectrum_by_seed = {_seed_from_path(Path(path)): _read_rows(Path(path)) for path in spectrum_paths}
-    layer_by_seed = {_seed_from_path(Path(path)): _read_rows(Path(path)) for path in layer_paths}
+    spectrum_by_seed = {}
+    for path in spectrum_paths:
+        rows = _read_rows(Path(path))
+        spectrum_by_seed[_seed_from_rows(Path(path), rows)] = rows
+    layer_by_seed = {}
+    for path in layer_paths:
+        rows = _read_rows(Path(path))
+        layer_by_seed[_seed_from_rows(Path(path), rows)] = rows
     if set(spectrum_by_seed) != set(layer_by_seed) or len(spectrum_by_seed) != 3:
         raise ValueError("spectrum and layer artifacts must contain the same three unique seeds")
     seeds = sorted(spectrum_by_seed)

@@ -4,7 +4,6 @@ context: 512
 horizon: 96
 patch_len: 12
 stride: 12
-seeds: [42, 43, 44]
 epochs: 15
 batch_size: 32
 optimizer: AdamW

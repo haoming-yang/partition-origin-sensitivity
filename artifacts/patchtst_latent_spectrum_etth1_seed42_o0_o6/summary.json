@@ -1,6 +1,6 @@
 {
   "dataset": "ETTh1",
-  "checkpoint": "C:\\Users\\\u6768\u660a\u660e\\Documents\\KDD 2027\\supplement_v1\\results\\patchtst_origin\\seed42\\checkpoint.pt",
+  "checkpoint": "frozen-checkpoint.pt",
   "protocol": "official_Time-Series-Library_PatchTST_with_mask_aware_outer_adapter",
   "input_scale": "raw ETTh1 values",
   "origins": [
@@ -16,8 +16,8 @@
   "median_prediction_mse": 21.26341438293457,
   "spearman_spectral_vs_prediction": 0.1886863617973687,
   "spearman_bootstrap_95_ci": [
-    0.16584624832856038,
-    0.2091277765295122
+    0.16584614497227604,
+    0.2091276808804911
   ],
   "bands": {
     "dc_l1": {
@@ -41,5 +41,6 @@
       "spearman_vs_prediction": 0.28898833796071877
     }
   },
-  "interpretation": "Protocol-bound representation-level association only; not a causal mediation test and not numerically comparable to standardized controlled-model MSE."
+  "interpretation": "Protocol-bound representation-level association only; not a causal mediation test and not numerically comparable to standardized controlled-model MSE.",
+  "checkpoint_sha256": "b7d30f4078980da573c7268644e79766c610721b8e72bcd48c12eebc2f668936"
 }
