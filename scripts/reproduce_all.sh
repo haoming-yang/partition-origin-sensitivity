@@ -15,7 +15,6 @@ case "${1:-}" in
   patch-length) exec "$ROOT/scripts/run_patch_length.sh" ;;
   audits) exec "$ROOT/scripts/run_audits.sh" ;;
   tables) exec "$ROOT/scripts/reproduce_tables.sh" ;;
-  figures) exec "$ROOT/scripts/reproduce_figures.sh" ;;
   tier1-smoke) exec "$ROOT/scripts/run_tier1_smoke.sh" ;;
-  *) printf 'Usage: %s {core|overlap|h192|training-policy|patchtst|mixers|optimization|heads|pe-control|poc|patch-length|audits|tables|figures|tier1-smoke}\n' "$0"; exit 2 ;;
+  *) printf 'Usage: %s {core|overlap|h192|training-policy|patchtst|mixers|optimization|heads|pe-control|poc|patch-length|audits|tables|tier1-smoke}\n' "$0"; exit 2 ;;
 esac

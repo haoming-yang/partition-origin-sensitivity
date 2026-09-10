@@ -6,7 +6,6 @@ from src.analysis.paired_latent_pca import (
     select_tercile_windows,
     validate_paired_latents,
 )
-from tools.make_paired_latent_pca import render_paired_pca_figure
 
 
 def test_select_tercile_windows_is_deterministic_and_balanced():
@@ -44,18 +43,3 @@ def test_validate_paired_latents_rejects_partial_token_counts_and_misaligned_win
 
     with pytest.raises(ValueError, match="complete token count"):
         validate_paired_latents(np.array([10, 11]), first[:, :-1], second[:, :-1], complete_token_count=42)
-
-
-def test_render_paired_pca_figure_writes_a_vector_pdf(tmp_path):
-    windows = np.arange(72, dtype=np.int64)
-    base = np.arange(72 * 5, dtype=np.float64).reshape(72, 5)
-    records = {
-        name: paired_pca_coordinates(windows, base + offset, base + offset + 0.5)
-        for name, offset in (("layer0", 0.0), ("layer1", 2.0), ("layer2", 4.0))
-    }
-    output = tmp_path / "paired_latent_pca.pdf"
-
-    render_paired_pca_figure(records, np.linspace(0.01, 1.0, 72), output)
-
-    assert output.exists()
-    assert output.stat().st_size > 0

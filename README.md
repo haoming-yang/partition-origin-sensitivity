@@ -171,26 +171,20 @@ python tools/analyze_patchtst_latent_spectrum.py \
   --checkpoint /path/to/patchtst_checkpoint.pt --data-root /path/to/data \
   --seed 42 --output artifacts/patchtst_latent_spectrum_etth1_o0_o6_p12_s12_L512_H96
 
-python tools/make_paired_latent_pca.py \
-  --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
-  --seed 42 --output artifacts/latent_pca_etth1_o0_o6_p12 \
-  --figure-output docs/figures/paired_latent_pca_o0_o6_p12.pdf
-
-python tools/make_latent_summary_figure.py \
+python tools/summarize_latent_artifacts.py \
   --spectrum artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed42/latent_spectrum_origin0_o6_p12_L512_H96.csv \
   --spectrum artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed43/latent_spectrum_origin0_o6_p12_L512_H96.csv \
   --spectrum artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed44/latent_spectrum_origin0_o6_p12_L512_H96.csv \
   --layers artifacts/latent_layers_etth1_o0_o6_p12_L512_H96/seed42/latent_layers_origin0_o6_p12_L512_H96.csv \
   --layers artifacts/latent_layers_etth1_o0_o6_p12_L512_H96/seed43/latent_layers_origin0_o6_p12_L512_H96.csv \
   --layers artifacts/latent_layers_etth1_o0_o6_p12_L512_H96/seed44/latent_layers_origin0_o6_p12_L512_H96.csv \
-  --output docs/figures/latent_frequency_layer_summary.pdf \
-  --summary-output artifacts/latent_frequency_layer_summary_etth1_o0_o6.json
+  --output artifacts/latent_summary_etth1_o0_o6.json
 ```
 
-The paired-PCA figure is an appendix-only qualitative diagnostic for one
-frozen ETTh1 primary checkpoint. It deterministically samples 72
-windows (24 per forecast-disagreement tercile), fits a separate PCA per layer,
-and does not constitute a cross-replicate aggregate result or a causal analysis.
+The repository retains the frozen appendix PCA coordinates and the matching
+PDF asset as release artifacts. The PCA generator is intentionally not a
+reproduction entry point: it was a one-off qualitative diagnostic, not a
+repeated aggregate analysis.
 
 The checked-in artifact directory names retain seed identifiers as reproducibility
 keys. The prose uses replicate terminology so these identifiers are not read as
@@ -200,9 +194,8 @@ New analysis runs place results under a seed-specific subdirectory such as
 `seed42/`. CSV names contain only the analysis purpose and its hyperparameters;
 the seed is recorded in the file contents and summary metadata.
 
-The frequency-and-layer summary figure aggregates the existing three primary
-ETTh1 replicates. It visualizes the reported window-level associations and
-layer-specific median discrepancies without adding a model run or a new test.
+The summary command aggregates existing three-replicate CSV records into JSON
+only. It performs no model run and does not render a new figure.
 
 To test whether the saved spectral--forecast association could arise from
 random window pairing, run the two-sided Monte Carlo permutation audit on one

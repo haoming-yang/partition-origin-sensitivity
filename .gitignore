@@ -31,6 +31,9 @@ checkpoints/**
 *.tar.gz
 *.7z
 figures/generated/**
+tmp/
+_backup_*/
+artifacts/*_smoke*/
 wandb/
 mlruns/
 tensorboard/

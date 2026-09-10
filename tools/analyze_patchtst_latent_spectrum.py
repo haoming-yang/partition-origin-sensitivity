@@ -173,7 +173,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         writer = csv.DictWriter(file, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-    output.with_name(output.stem.replace("patchtst_latent_spectrum", "summary") + ".json").write_text(
+    output.with_name(output.stem + "_summary.json").write_text(
         json.dumps(result, indent=2), encoding="utf-8"
     )
     return result
@@ -184,7 +184,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True, help="Directory containing ETT-small/ETTh1.csv")
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--seed", type=int, default=None, help="Training seed recorded for this frozen checkpoint")
+    parser.add_argument("--seed", type=int, required=True, help="Training seed recorded for this frozen checkpoint")
     parser.add_argument("--origin-a", type=int, default=0)
     parser.add_argument("--origin-b", type=int, default=6)
     parser.add_argument("--context", type=int, default=512)
