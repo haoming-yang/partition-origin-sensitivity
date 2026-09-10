@@ -17,7 +17,7 @@ OUT = base.STAGE / "batch2_poc" / "formal_C" / "B_reused_evaluation_corrected"
 
 def evaluate_b(seed: int, out: Path):
     values, _, val, _, split = base.load_data("ETTh1")
-    source = base.E_STAGE3 / "attribution_abc" / "B_two_view_supervised" / f"seed{seed}"
+    source = base.E_STAGE3 / "attribution_abc" / "b_two_view_supervised" / f"seed{seed}"
     ckpt = source / "checkpoint.pt"
     summary_path = source / "summary.json"
     schedule_path = base.E_STAGE3 / "attribution_abc" / f"origin_pair_schedule_seed{seed}.json"

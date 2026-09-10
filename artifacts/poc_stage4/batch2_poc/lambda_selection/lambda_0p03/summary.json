@@ -1,0 +1,110 @@
+{
+  "experiment_id": "STAGE4_BATCH2_LAMBDA_PILOT_V1",
+  "condition": "C_two_view_supervised_plus_consistency",
+  "dataset": "ETTh1",
+  "p": 12,
+  "seed": 42,
+  "lambda": 0.03,
+  "epochs": 15,
+  "batch_size": 32,
+  "optimizer": "AdamW",
+  "learning_rate": 0.0001,
+  "weight_decay": 0.0001,
+  "gradient_clipping_max_norm": 1.0,
+  "scheduler": "none",
+  "test_evaluation_performed": false,
+  "origin_pair_schedule": "artifacts/poc_stage3/attribution_abc/origin_pair_schedule_seed42.json",
+  "origin_pair_schedule_sha256": "3820a1290156e81c0547c4652f07a319286ed04d66418b7e0b0ddbce9e67350f",
+  "protocol_sha256": "f00c0facfc1f0d0fb104992b96873aec8b02e8dd476638ec2bc0f915c7572ee6",
+  "initial_parameter_hash": "76e3f012f582d0291cdb3501298aabaab433d7730d0f051876da5b0e7e729285",
+  "checkpoint_rule": "minimum mean validation MSE across all origins; ties later epoch",
+  "loss": "L_pred + lambda * L_cons",
+  "selected_epoch": 11,
+  "best_val_avg_mse": 0.7451424041948996,
+  "validation": {
+    "per_origin": [
+      {
+        "origin": 0,
+        "MSE": 0.7764805189368968,
+        "MAE": 0.6133803355303485
+      },
+      {
+        "origin": 1,
+        "MSE": 0.7272974906889427,
+        "MAE": 0.5884514262638123
+      },
+      {
+        "origin": 2,
+        "MSE": 0.7368042236292903,
+        "MAE": 0.5948008226901943
+      },
+      {
+        "origin": 3,
+        "MSE": 0.7739155608160309,
+        "MAE": 0.6150739650558363
+      },
+      {
+        "origin": 4,
+        "MSE": 0.7938334912879554,
+        "MAE": 0.6268929510123915
+      },
+      {
+        "origin": 5,
+        "MSE": 0.7320738202701871,
+        "MAE": 0.5900315151588014
+      },
+      {
+        "origin": 6,
+        "MSE": 0.7233806735992105,
+        "MAE": 0.5853926619576768
+      },
+      {
+        "origin": 7,
+        "MSE": 0.7280401214285876,
+        "MAE": 0.587125911388151
+      },
+      {
+        "origin": 8,
+        "MSE": 0.7280135179102049,
+        "MAE": 0.5874731705169796
+      },
+      {
+        "origin": 9,
+        "MSE": 0.730709010025798,
+        "MAE": 0.5891235589797633
+      },
+      {
+        "origin": 10,
+        "MSE": 0.7347667628621978,
+        "MAE": 0.5920239455966733
+      },
+      {
+        "origin": 11,
+        "MSE": 0.756393658883492,
+        "MAE": 0.6044847825454669
+      }
+    ],
+    "avg_mse": 0.7451424041948996,
+    "avg_mae": 0.5978545872246747,
+    "G_origin": 9.739383461574109,
+    "CV_origin": 0.030606749220096843,
+    "Delta_origin": 0.0704528176887449,
+    "G_interior": 9.739383461574109,
+    "min_mse_origin": 6,
+    "max_mse_origin": 4,
+    "S_theta": 0.061729524271224946,
+    "origin_prediction_variance": 0.028292698409789555,
+    "identity_rhs": 0.06172952380317721,
+    "identity_absolute_error": 4.680477394547466e-10,
+    "identity_relative_error": 7.582234675878197e-09
+  },
+  "preflight": {
+    "geometry_pass": true,
+    "reconstruction_pass": true,
+    "reconstruction_max_abs": 0.0,
+    "sentinel_random_pass": true,
+    "sentinel_plus1000_pass": true,
+    "sentinel_random_max_abs": 0.0,
+    "sentinel_plus1000_max_abs": 0.0
+  }
+}

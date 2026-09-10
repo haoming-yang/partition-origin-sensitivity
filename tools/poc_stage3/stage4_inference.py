@@ -10,13 +10,13 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
 CONTEXT, HORIZON, PATCH, BATCH = 512, 96, 12, 32
-REPO_ROOT = Path(__file__).resolve().parents[3]
-DATA_ROOT = Path(os.environ.get("DATA_ROOT", str(REPO_ROOT / "data")))
-STAGE = Path(os.environ.get("STAGE_ROOT", str(REPO_ROOT / "outputs" / "poc_stage4")))
-INPUT_STAGE4 = Path(os.environ.get("STAGE4_INPUT_ROOT", str(REPO_ROOT / "artifacts" / "poc_stage4")))
-E_STAGE3 = Path(os.environ.get("STAGE3_ROOT", str(REPO_ROOT / "artifacts" / "poc_stage3")))
-E_KDD = Path(os.environ.get("KDD_ARTIFACT_ROOT", str(REPO_ROOT / "artifacts")))
-C_KDD = E_KDD
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA_ROOT = Path(os.environ.get("PARTITION_ORIGIN_DATA_ROOT", REPO_ROOT / "data"))
+STAGE = Path(os.environ.get("PARTITION_ORIGIN_STAGE4_ROOT", REPO_ROOT / "outputs" / "poc_stage4"))
+INPUT_STAGE4 = Path(os.environ.get("PARTITION_ORIGIN_STAGE4_INPUT_ROOT", REPO_ROOT / "artifacts" / "poc_stage4"))
+E_STAGE3 = Path(os.environ.get("PARTITION_ORIGIN_STAGE3_ROOT", REPO_ROOT / "artifacts" / "poc_stage3"))
+E_KDD = Path(os.environ.get("PARTITION_ORIGIN_EVIDENCE_ROOT", REPO_ROOT / "artifacts"))
+C_KDD = Path(os.environ.get("PARTITION_ORIGIN_EVIDENCE_ROOT", REPO_ROOT / "artifacts"))
 
 
 def sha256(path: Path) -> str:

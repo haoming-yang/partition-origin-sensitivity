@@ -18,8 +18,9 @@ import stage4_inference as base  # noqa: E402
 
 
 STAGE = base.STAGE
+INPUT_STAGE4 = base.INPUT_STAGE4
 LAMBDA_DIR = STAGE / "batch2_poc" / "lambda_selection"
-PROTOCOL = base.INPUT_STAGE4 / "batch2_poc" / "lambda_selection" / "LAMBDA_SELECTION_PROTOCOL.json"
+PROTOCOL = INPUT_STAGE4 / "batch2_poc" / "lambda_selection" / "LAMBDA_SELECTION_PROTOCOL.json"
 SCHEDULE_ROOT = base.E_STAGE3 / "attribution_abc"
 B_ROOT = SCHEDULE_ROOT / "b_two_view_supervised"
 CHECKPOINT_ROOT = Path(os.environ.get("PARTITION_ORIGIN_POC_CHECKPOINT_ROOT", base.REPO_ROOT / "checkpoints" / "poc_stage3" / "attribution_abc" / "b_two_view_supervised"))

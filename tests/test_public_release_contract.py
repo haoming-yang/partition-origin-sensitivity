@@ -87,3 +87,15 @@ def test_git_commit_provenance_is_available():
     assert commit is not None
     assert len(commit) == 40
     assert all(character in "0123456789abcdef" for character in commit)
+
+
+def test_poc_entrypoint_uses_tracked_inputs_and_external_checkpoint_roots():
+    from src.experiments.stage4 import poc_formal_c_runner as formal
+    from src.experiments.stage4 import poc_lambda_pilot as pilot
+
+    assert formal.FROZEN == ROOT / "artifacts" / "poc_stage4" / "batch2_poc" / "FROZEN_POC_LAMBDA.json"
+    assert formal.PROTOCOL == ROOT / "artifacts" / "poc_stage4" / "batch2_poc" / "lambda_selection" / "LAMBDA_SELECTION_PROTOCOL.json"
+    assert formal.B_ROOT == ROOT / "artifacts" / "poc_stage3" / "attribution_abc" / "b_two_view_supervised"
+    assert pilot.B_ROOT == formal.B_ROOT
+    assert "checkpoints" in str(formal.LAMBDA_CHECKPOINT_ROOT)
+    assert "checkpoints" in str(pilot.CHECKPOINT_ROOT)
