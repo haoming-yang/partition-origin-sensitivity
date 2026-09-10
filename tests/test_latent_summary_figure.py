@@ -36,6 +36,7 @@ def _write_layers(path, offset):
 
 def test_seed_inference_reads_seed_from_artifact_parent_directory():
     assert _seed_from_path(Path("artifacts/latent_spectrum_etth1_seed42_o0_o6/window_metrics.csv")) == 42
+    assert _seed_from_path(Path("artifacts/latent_spectrum_o0_o6/seed43/latent_spectrum_origin0_o6_p12.csv")) == 43
 
 
 def test_summarize_latent_artifacts_preserves_frequency_and_layer_panel_order(tmp_path):

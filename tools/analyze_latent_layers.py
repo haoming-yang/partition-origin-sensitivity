@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -17,6 +18,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.analysis.layerwise import dense_token_tensor, summarize_layer_pairs
+from src.utils.artifact_naming import artifact_path, metric_filename
 from tools.analyze_latent_spectrum import (
     _bootstrap_spearman_ci,
     _full_token_latents,
@@ -33,6 +35,14 @@ from src.experiments.canonical.phenomenon_run import (
 )
 
 LAYER_NAMES = ("layer0", "layer1", "layer2")
+
+
+def checkpoint_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for block in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def _register_hooks(model: ControlledTransformerV2Family, captured: dict[str, torch.Tensor]):
@@ -99,7 +109,11 @@ def run(args: argparse.Namespace) -> dict[str, object]:
                 layer_summary = summarize_layer_pairs({name: (first[name], second[name]) for name in LAYER_NAMES})
                 prediction_mse = (prediction_a - prediction_b).square().mean(dim=(1, 2)).cpu().numpy()
                 for index in range(prediction_mse.size):
-                    row = {"window": float(len(rows) + index), "prediction_mse": float(prediction_mse[index])}
+                    row = {
+                        "seed": "" if args.seed is None else int(args.seed),
+                        "window": float(len(rows)),
+                        "prediction_mse": float(prediction_mse[index]),
+                    }
                     row.update({f"{name}_spectral_l1": float(layer_summary[name]["spectral_l1"][index]) for name in LAYER_NAMES})
                     rows.append(row)
     finally:
@@ -119,20 +133,34 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         }
     result = {
         "dataset": "ETTh1",
-        "checkpoint": str(Path(args.checkpoint).resolve()),
+        "seed": args.seed,
+        "checkpoint": "frozen-checkpoint.pt",
+        "checkpoint_sha256": checkpoint_sha256(args.checkpoint),
         "origins": [args.origin_a, args.origin_b],
         "windows": len(rows),
         "complete_tokens_per_window": sorted(set(complete_token_counts)),
         "layers": summary_layers,
         "interpretation": "Layer 0 is the post-position encoder input; Layers 1 and 2 are the first-block and final-normalized outputs. This is associative, not causal mediation evidence.",
     }
-    output = Path(args.output).resolve()
-    output.mkdir(parents=True, exist_ok=True)
-    with (output / "window_metrics.csv").open("w", newline="", encoding="utf-8") as file:
+    output = artifact_path(
+        Path(args.output).resolve(),
+        args.seed,
+        metric_filename(
+            "latent_layers",
+            origin_a=args.origin_a,
+            origin_b=args.origin_b,
+            patch_length=args.patch_length,
+            context=512,
+            horizon=96,
+        ),
+    )
+    with output.open("w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-    (output / "summary.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    output.with_name(output.stem.replace("latent_layers", "summary") + ".json").write_text(
+        json.dumps(result, indent=2), encoding="utf-8"
+    )
     return result
 
 
@@ -141,6 +169,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--seed", type=int, default=None, help="Training seed recorded for this frozen checkpoint")
     parser.add_argument("--origin-a", type=int, default=0)
     parser.add_argument("--origin-b", type=int, default=6)
     parser.add_argument("--patch-length", type=int, default=12)

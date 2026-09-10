@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -17,6 +18,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.analysis.layerwise import dense_token_tensor
+from src.utils.artifact_naming import artifact_path, seed_directory
 from src.analysis.paired_latent_pca import (
     PairedPCA,
     paired_pca_coordinates,
@@ -38,6 +40,14 @@ PANEL_TITLES = {
     "layer1": "(b) First encoder block",
     "layer2": "(c) Final normalized latent",
 }
+
+
+def checkpoint_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for block in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def render_paired_pca_figure(
@@ -216,6 +226,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         for index, (window, origin, point) in enumerate(zip(record.window_ids, record.origins, record.coordinates)):
             source_index = index % selection.window_ids.size
             coordinate_rows.append({
+                "seed": "" if args.seed is None else int(args.seed),
                 "layer": layer,
                 "window_id": int(window),
                 "origin": int(origin),
@@ -225,22 +236,32 @@ def run(args: argparse.Namespace) -> dict[str, object]:
                 "pc2": float(point[1]),
                 "pc3": float(point[2]),
             })
-    output = Path(args.output).resolve()
+    output = seed_directory(Path(args.output).resolve(), args.seed)
     output.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(output / "pooled_latents_and_pca.npz", **saved_arrays)
-    with (output / "selected_windows.csv").open("w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=["window_id", "stratum", "forecast_mse"])
+    stem = f"paired_latent_pca_origin{args.origin_a}_o{args.origin_b}_p{args.patch_length}"
+    np.savez_compressed(output / f"{stem}.npz", **saved_arrays)
+    selected_path = output / f"selected_windows_origin{args.origin_a}_o{args.origin_b}_p{args.patch_length}.csv"
+    with selected_path.open("w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=["seed", "window_id", "stratum", "forecast_mse"])
         writer.writeheader()
-        writer.writerows({"window_id": int(window), "stratum": int(stratum), "forecast_mse": float(mse)} for window, stratum, mse in zip(selection.window_ids, selection.strata, selected_mse))
-    with (output / "pca_coordinates.csv").open("w", newline="", encoding="utf-8") as file:
+        writer.writerows({"seed": "" if args.seed is None else int(args.seed), "window_id": int(window), "stratum": int(stratum), "forecast_mse": float(mse)} for window, stratum, mse in zip(selection.window_ids, selection.strata, selected_mse))
+    coordinates_path = output / f"pca_coordinates_origin{args.origin_a}_o{args.origin_b}_p{args.patch_length}.csv"
+    with coordinates_path.open("w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=list(coordinate_rows[0]))
         writer.writeheader()
         writer.writerows(coordinate_rows)
-    figure_output = Path(args.figure_output).resolve()
+    figure_base = Path(args.figure_output).resolve()
+    figure_output = artifact_path(figure_base.parent, args.seed, figure_base.name)
     render_paired_pca_figure(records, selected_mse, figure_output)
+    try:
+        public_figure = str(figure_output.relative_to(REPO_ROOT)).replace("\\", "/")
+    except ValueError:
+        public_figure = str(figure_output)
     summary = {
         "dataset": "ETTh1",
-        "checkpoint": str(Path(args.checkpoint).resolve()),
+        "seed": args.seed,
+        "checkpoint": "frozen-checkpoint.pt",
+        "checkpoint_sha256": checkpoint_sha256(args.checkpoint),
         "origins": [args.origin_a, args.origin_b],
         "test_windows": int(forecast_mse.size),
         "selected_windows": int(selection.window_ids.size),
@@ -248,10 +269,10 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         "sampling_seed": int(args.sampling_seed),
         "complete_tokens_per_window": sorted(set(complete_counts)),
         "layers": list(LAYER_NAMES),
-        "figure": str(figure_output),
+        "figure": public_figure,
         "interpretation": "Qualitative, layer-specific PCA projections of pooled complete-token representations; not a full-dimensional distance or causal analysis.",
     }
-    (output / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output / f"summary_{stem}.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary
 
 
@@ -261,6 +282,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--figure-output", type=Path, required=True)
+    parser.add_argument("--seed", type=int, default=None, help="Training seed recorded for this frozen checkpoint")
     parser.add_argument("--origin-a", type=int, default=0)
     parser.add_argument("--origin-b", type=int, default=6)
     parser.add_argument("--patch-length", type=int, default=12)

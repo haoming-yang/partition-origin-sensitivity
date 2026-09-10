@@ -1,4 +1,5 @@
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -30,6 +31,23 @@ def test_public_text_has_no_machine_specific_paths():
         text = path.read_text(encoding="utf-8")
         if "E:\\Deep Learning" in text or "C:\\Users\\" in text or "杨昊明" in text:
             offenders.append(str(path.relative_to(ROOT)))
+            continue
+        if path.suffix.lower() == ".json":
+            try:
+                decoded = json.loads(text)
+            except json.JSONDecodeError:
+                continue
+            stack = [decoded]
+            while stack:
+                value = stack.pop()
+                if isinstance(value, dict):
+                    stack.extend(value.values())
+                elif isinstance(value, list):
+                    stack.extend(value)
+                elif isinstance(value, str) and (re.match(r"^[A-Za-z]:[\\/]", value) or "杨昊明" in value):
+                    offenders.append(str(path.relative_to(ROOT)))
+                    stack.clear()
+                    break
     assert offenders == []
 
 
@@ -43,6 +61,8 @@ def test_canonical_config_dry_run_is_side_effect_free(tmp_path):
             str(ROOT / "configs" / "core" / "canonical.yaml"),
             "--output-root",
             str(tmp_path / "outputs"),
+            "--seeds",
+            "42,43,44",
             "--dry-run",
         ],
         cwd=ROOT,

@@ -35,6 +35,26 @@ def parse_ints(value: str) -> list[int]:
     return [int(item.strip()) for item in value.split(",") if item.strip()]
 
 
+def resolve_seeds(config: dict, *, seed: int | None, seeds: str | None) -> list[int]:
+    """Resolve one explicit seed, a comma-separated batch, or config values."""
+    if seed is not None and seeds is not None:
+        raise ValueError("use either --seed or --seeds, not both")
+    if seed is not None:
+        return [int(seed)]
+    if seeds is not None:
+        values = parse_ints(seeds)
+        if values:
+            return values
+    configured = config.get("seed", config.get("seeds"))
+    if configured is None:
+        raise ValueError("a seed is required; pass --seed or --seeds")
+    if isinstance(configured, int):
+        return [configured]
+    if isinstance(configured, str):
+        return parse_ints(configured)
+    return [int(value) for value in configured]
+
+
 def config_jobs(config: dict, seeds: list[int], datasets: list[str]) -> list[tuple[str, int]]:
     configured_datasets = config.get("dataset") or config.get("datasets") or datasets
     if isinstance(configured_datasets, str):
@@ -56,7 +76,7 @@ def run_controlled(config: dict, dataset: str, seed: int, output_root: Path) -> 
     from .training import runner
 
     experiment_id = config["experiment_id"]
-    out = output_root / experiment_id.lower() / dataset.lower() / f"replicate{seed}"
+    out = output_root / experiment_id.lower() / dataset.lower() / f"seed{seed}"
     strategy = config.get("strategy", "random_origin")
     return runner.train_controlled(
         seed=seed,
@@ -79,7 +99,7 @@ def run_phenomenon(config: dict, dataset: str, seed: int, output_root: Path) -> 
     from .experiments.canonical.phenomenon_run import run
 
     patch = int(config.get("patch_len", config.get("patch_lengths", [12])[0]))
-    out = output_root / config["experiment_id"].lower() / dataset.lower() / f"p{patch}" / f"replicate{seed}"
+    out = output_root / config["experiment_id"].lower() / dataset.lower() / f"p{patch}" / f"seed{seed}"
     run(dataset, patch, seed, out)
     return json.loads((out / "summary.json").read_text(encoding="utf-8"))
 
@@ -111,18 +131,18 @@ def run_supplement(config: dict, dataset: str, seed: int, output_root: Path) -> 
     )
     if experiment_id == "SUPPLEMENT_PATCHTST_ORIGIN":
         return runner.train_patchtst(
-            seed, base / f"replicate{seed}", experiment_id=experiment_id, **common
+            seed, base / f"seed{seed}", experiment_id=experiment_id, **common
         )
     if experiment_id == "SUPPLEMENT_TRAIN_ORIGIN_STRATEGY":
         results = {}
         for strategy in config.get("strategies", ("boundary_only", "random_origin", "all_origins")):
             results[strategy] = runner.train_controlled(
-                seed, base / str(strategy) / f"replicate{seed}", strategy,
+                seed, base / str(strategy) / f"seed{seed}", strategy,
                 experiment_id=experiment_id, **common
             )
         return {"experiment_id": experiment_id, "dataset": dataset, "seed": seed, "strategies": results}
     return runner.train_controlled(
-        seed, base / f"replicate{seed}", str(config.get("strategy", "random_origin")),
+        seed, base / f"seed{seed}", str(config.get("strategy", "random_origin")),
         experiment_id=experiment_id, **common
     )
 
@@ -185,12 +205,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run a registered partition-origin experiment")
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--datasets", default="ETTh1,ETTh2,ETTm1,ETTm2,Weather")
-    parser.add_argument("--seeds", default="42,43,44")
+    seed_group = parser.add_mutually_exclusive_group()
+    seed_group.add_argument("--seed", type=int)
+    seed_group.add_argument("--seeds")
     parser.add_argument("--output-root", type=Path, default=ROOT / "outputs")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     config = load_config(args.config if args.config.is_absolute() else ROOT / args.config)
-    jobs = config_jobs(config, parse_ints(args.seeds), [item.strip() for item in args.datasets.split(",") if item.strip()])
+    selected_seeds = resolve_seeds(config, seed=args.seed, seeds=args.seeds)
+    jobs = config_jobs(config, selected_seeds, [item.strip() for item in args.datasets.split(",") if item.strip()])
     if args.dry_run:
         result = dry_run(config, jobs)
     else:
@@ -203,7 +226,7 @@ def main() -> None:
             )
             print(json.dumps({"status": status, "experiment_id": config["experiment_id"], "message": message}))
             raise SystemExit(2)
-        result = run(config, parse_ints(args.seeds), [item.strip() for item in args.datasets.split(",") if item.strip()], args.output_root)
+        result = run(config, selected_seeds, [item.strip() for item in args.datasets.split(",") if item.strip()], args.output_root)
     print(json.dumps(result, indent=2, default=str))
 
 

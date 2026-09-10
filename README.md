@@ -86,7 +86,7 @@ The following checks do not train a model and do not require datasets:
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m pytest -q
-python -m src.run --config configs/core/canonical.yaml --dry-run
+python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44 --dry-run
 bash scripts/smoke_test.sh
 ```
 
@@ -102,13 +102,13 @@ For the shortest end-to-end entry point, validate the canonical configuration
 without starting training:
 
 ```bash
-python -m src.run --config configs/core/canonical.yaml --dry-run
+python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44 --dry-run
 ```
 
 To start that registered experiment after placing the datasets under `data/`:
 
 ```bash
-python -m src.run --config configs/core/canonical.yaml
+python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44
 ```
 
 Each completed run writes its configuration, training and validation logs,
@@ -119,6 +119,10 @@ The summary and provenance record the Git commit used for the run.
 
 After the datasets are available, use the explicit entrypoints below. Training
 starts only when one of these commands is selected.
+
+The default replicate seeds used for the paper are 42, 43, and 44. They define
+the default reproducibility set and can be overridden through the `SEEDS`
+environment variable or the `--seed`/`--seeds` parameters.
 
 ```bash
 bash scripts/run_core.sh
@@ -157,28 +161,28 @@ standardized controlled-Transformer values.
 ```bash
 python tools/analyze_latent_spectrum.py \
   --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
-  --output artifacts/latent_spectrum_etth1_seed42_o0_o6
+  --seed 42 --output artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96
 
 python tools/analyze_latent_layers.py \
   --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
-  --output artifacts/latent_layers_etth1_seed42_o0_o6
+  --seed 42 --output artifacts/latent_layers_etth1_o0_o6_p12_L512_H96
 
 python tools/analyze_patchtst_latent_spectrum.py \
   --checkpoint /path/to/patchtst_checkpoint.pt --data-root /path/to/data \
-  --output artifacts/patchtst_latent_spectrum_etth1_seed42_o0_o6
+  --seed 42 --output artifacts/patchtst_latent_spectrum_etth1_o0_o6_p12_s12_L512_H96
 
 python tools/make_paired_latent_pca.py \
   --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
-  --output artifacts/latent_pca_etth1_seed42_o0_o6 \
-  --figure-output docs/figures/paired_latent_pca_etth1_seed42_o0_o6.pdf
+  --seed 42 --output artifacts/latent_pca_etth1_o0_o6_p12 \
+  --figure-output docs/figures/paired_latent_pca_o0_o6_p12.pdf
 
 python tools/make_latent_summary_figure.py \
-  --spectrum artifacts/latent_spectrum_etth1_seed42_o0_o6/window_metrics.csv \
-  --spectrum artifacts/latent_spectrum_etth1_seed43_o0_o6/window_metrics.csv \
-  --spectrum artifacts/latent_spectrum_etth1_seed44_o0_o6/window_metrics.csv \
-  --layers artifacts/latent_layers_etth1_seed42_o0_o6/window_metrics.csv \
-  --layers artifacts/latent_layers_etth1_seed43_o0_o6/window_metrics.csv \
-  --layers artifacts/latent_layers_etth1_seed44_o0_o6/window_metrics.csv \
+  --spectrum artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed42/latent_spectrum_origin0_o6_p12_L512_H96.csv \
+  --spectrum artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed43/latent_spectrum_origin0_o6_p12_L512_H96.csv \
+  --spectrum artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed44/latent_spectrum_origin0_o6_p12_L512_H96.csv \
+  --layers artifacts/latent_layers_etth1_o0_o6_p12_L512_H96/seed42/latent_layers_origin0_o6_p12_L512_H96.csv \
+  --layers artifacts/latent_layers_etth1_o0_o6_p12_L512_H96/seed43/latent_layers_origin0_o6_p12_L512_H96.csv \
+  --layers artifacts/latent_layers_etth1_o0_o6_p12_L512_H96/seed44/latent_layers_origin0_o6_p12_L512_H96.csv \
   --output docs/figures/latent_frequency_layer_summary.pdf \
   --summary-output artifacts/latent_frequency_layer_summary_etth1_o0_o6.json
 ```
@@ -192,6 +196,10 @@ The checked-in artifact directory names retain seed identifiers as reproducibili
 keys. The prose uses replicate terminology so these identifiers are not read as
 additional scientific conditions.
 
+New analysis runs place results under a seed-specific subdirectory such as
+`seed42/`. CSV names contain only the analysis purpose and its hyperparameters;
+the seed is recorded in the file contents and summary metadata.
+
 The frequency-and-layer summary figure aggregates the existing three primary
 ETTh1 replicates. It visualizes the reported window-level associations and
 layer-specific median discrepancies without adding a model run or a new test.
@@ -202,9 +210,9 @@ saved `window_metrics.csv` per replicate:
 
 ```bash
 python tools/permutation_latent_spectrum.py \
-  --input artifacts/latent_spectrum_etth1_seed42_o0_o6/window_metrics.csv \
-  --input artifacts/latent_spectrum_etth1_seed43_o0_o6/window_metrics.csv \
-  --input artifacts/latent_spectrum_etth1_seed44_o0_o6/window_metrics.csv \
+  --input artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed42/latent_spectrum_origin0_o6_p12_L512_H96.csv \
+  --input artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed43/latent_spectrum_origin0_o6_p12_L512_H96.csv \
+  --input artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed44/latent_spectrum_origin0_o6_p12_L512_H96.csv \
   --output artifacts/latent_spectrum_etth1_o0_o6_permutation.json \
   --permutations 1000 --seed 0
 ```
@@ -212,18 +220,6 @@ python tools/permutation_latent_spectrum.py \
 The test holds forecast discrepancies fixed and randomly permutes the paired
 token-spectrum discrepancies across windows. It assesses random pairing, not
 causal mediation.
-
-## Formal metrics
-
-The reported origin gaps use the minimum-MSE denominator:
-
-```text
-G_origin   = (max(MSE_r) - min(MSE_r)) / min(MSE_r) * 100
-G_interior = (max(MSE_r,r>=1) - min(MSE_r,r>=1)) / min(MSE_r,r>=1) * 100
-```
-
-The run-mean normalization used by visual diagnostics is a separate quantity
-and is not substituted for either formal gap.
 
 ## Repository layout
 

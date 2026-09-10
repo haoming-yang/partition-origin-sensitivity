@@ -151,10 +151,10 @@ def evaluate(seed: int, lam: float, schedule_path: Path, schedule_hash: str, bpr
     return result
 
 
-def main():
+def main(seeds: list[int]):
     frozen=load_frozen(); lam=float(frozen["selected_lambda"]); FORMAL_ROOT.mkdir(parents=True,exist_ok=True)
     outputs=[]
-    for seed in (42,43,44):
+    for seed in seeds:
         schedule,schedule_path,schedule_hash,bprov=b_schedule_check(seed)
         out=FORMAL_ROOT/f"seed{seed}"
         if seed==42:
@@ -167,7 +167,11 @@ def main():
             source_kind="NEW_FORMAL_TRAINING"
         result=evaluate(seed,lam,schedule_path,schedule_hash,bprov,out,source_kind); outputs.append(result)
         print(json.dumps({"seed":seed,"source_kind":source_kind,"test_avg_mse":result["test"]["avg_mse"],"test_S_theta":result["test"]["S_theta"]}),flush=True)
-    dump(FORMAL_ROOT/"FORMAL_C_STATUS.json",{"experiment_id":"STAGE4_BATCH2_FORMAL_POC_C_V1","status":"POC_C_COMPLETE","seeds":[42,43,44],"lambda":lam,"test_evaluation_after_lambda_freeze":True,"all_initial_hash_matches":all(x["initial_parameter_hash_match"] for x in outputs),"all_schedule_hash_matches":all(x["B_schedule_hash_match"] for x in outputs)})
+    dump(FORMAL_ROOT/"FORMAL_C_STATUS.json",{"experiment_id":"STAGE4_BATCH2_FORMAL_POC_C_V1","status":"POC_C_COMPLETE","seeds":seeds,"lambda":lam,"test_evaluation_after_lambda_freeze":True,"all_initial_hash_matches":all(x["initial_parameter_hash_match"] for x in outputs),"all_schedule_hash_matches":all(x["B_schedule_hash_match"] for x in outputs)})
 
 
-if __name__=="__main__": main()
+if __name__=="__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seeds", required=True, help="Comma-separated formal POC seeds")
+    main([int(item.strip()) for item in parser.parse_args().seeds.split(",") if item.strip()])

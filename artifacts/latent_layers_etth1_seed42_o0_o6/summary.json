@@ -1,6 +1,6 @@
 {
   "dataset": "ETTh1",
-  "checkpoint": "C:\\Users\\\u6768\u660a\u660e\\Documents\\KDD 2027\\CANONICAL_PHENOMENON_27_V1\\runs\\ETTh1_p12_seed42\\checkpoint.pt",
+  "checkpoint": "frozen-checkpoint.pt",
   "origins": [
     0,
     6
@@ -35,5 +35,6 @@
       ]
     }
   },
-  "interpretation": "Layer 0 is the post-position encoder input; Layers 1 and 2 are the first-block and final-normalized outputs. This is associative, not causal mediation evidence."
+  "interpretation": "Layer 0 is the post-position encoder input; Layers 1 and 2 are the first-block and final-normalized outputs. This is associative, not causal mediation evidence.",
+  "checkpoint_sha256": "ac4a9428eca07ef6524c2f1e3c7d1219e236a27b58b6e5c2d787330974c046de"
 }

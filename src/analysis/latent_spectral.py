@@ -11,8 +11,19 @@ def _mean_band_distance(distance: np.ndarray, start: int, stop: int) -> np.ndarr
 
 
 def _rank(values: np.ndarray) -> np.ndarray:
-    """Return stable ordinal ranks for continuous per-window diagnostics."""
-    return np.argsort(np.argsort(values, kind="mergesort"), kind="mergesort").astype(np.float64)
+    """Return average ranks, including ties created by bootstrap resampling."""
+    values = np.asarray(values, dtype=np.float64).reshape(-1)
+    order = np.argsort(values, kind="mergesort")
+    sorted_values = values[order]
+    ranks = np.empty(values.size, dtype=np.float64)
+    start = 0
+    while start < values.size:
+        stop = start + 1
+        while stop < values.size and sorted_values[stop] == sorted_values[start]:
+            stop += 1
+        ranks[order[start:stop]] = 0.5 * (start + stop - 1) + 1.0
+        start = stop
+    return ranks
 
 
 def _pearson(first: np.ndarray, second: np.ndarray) -> float:
@@ -31,7 +42,7 @@ def permutation_spearman_test(
     """Test a paired spectral--forecast association against random window matching.
 
     The test keeps forecast discrepancies fixed and permutes spectral discrepancies
-    across windows.  It returns a conservative two-sided Monte Carlo p value
+    across windows.  It returns a finite-resample-corrected two-sided Monte Carlo p value
     using the ``(exceedances + 1) / (permutations + 1)`` correction.
     """
     spectral = np.asarray(spectral_difference, dtype=np.float64).reshape(-1)
