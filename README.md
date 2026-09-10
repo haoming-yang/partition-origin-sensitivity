@@ -52,7 +52,7 @@ analyses; it does not include datasets, checkpoints, or full prediction dumps.
   adapter;
 - read-only token-axis spectrum and layerwise diagnostics for frozen controlled
   Transformer checkpoints, plus a protocol-adapted PatchTST diagnostic;
-- the saved per-window diagnostic differences and the three-seed permutation
+- the saved per-window diagnostic differences and the three-replicate permutation
   audit used to test the spectral--forecast association against random pairing;
 - the patching, masking, evaluation, and formal metric implementations;
 - isolated third-party model snapshots used by the native source audit;
@@ -183,18 +183,22 @@ python tools/make_latent_summary_figure.py \
   --summary-output artifacts/latent_frequency_layer_summary_etth1_o0_o6.json
 ```
 
-The paired-PCA figure is an appendix-only qualitative diagnostic for the
-frozen ETTh1 primary seed-42 checkpoint. It deterministically samples 72
+The paired-PCA figure is an appendix-only qualitative diagnostic for one
+frozen ETTh1 primary checkpoint. It deterministically samples 72
 windows (24 per forecast-disagreement tercile), fits a separate PCA per layer,
-and does not constitute a cross-seed aggregate result or a causal analysis.
+and does not constitute a cross-replicate aggregate result or a causal analysis.
+
+The checked-in artifact directory names retain seed identifiers as reproducibility
+keys. The prose uses replicate terminology so these identifiers are not read as
+additional scientific conditions.
 
 The frequency-and-layer summary figure aggregates the existing three primary
-ETTh1 seeds. It visualizes the reported window-level associations and
+ETTh1 replicates. It visualizes the reported window-level associations and
 layer-specific median discrepancies without adding a model run or a new test.
 
 To test whether the saved spectral--forecast association could arise from
 random window pairing, run the two-sided Monte Carlo permutation audit on one
-saved `window_metrics.csv` per seed:
+saved `window_metrics.csv` per replicate:
 
 ```bash
 python tools/permutation_latent_spectrum.py \
@@ -224,7 +228,7 @@ and is not substituted for either formal gap.
 ## Repository layout
 
 ```text
-artifacts/                Frozen compact records, including seed-42 PCA coordinates; no predictions
+artifacts/                Frozen compact records, including frozen-checkpoint PCA coordinates; no predictions
 configs/                  Protocol configurations
 data/                     Dataset layout instructions; data is ignored
 docs/                     Reproduction, source, and experiment documentation
