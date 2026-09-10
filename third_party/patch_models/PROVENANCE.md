@@ -15,10 +15,12 @@ official upstream dependencies of the main Time-Series-Library fork.
 | Pathformer | `https://github.com/decisionintelligence/pathformer.git` | `ea85d82932215e171357da47b3bc82d502344758` | local `experiments/kdd/patch_models/tier1/pathformer` |
 
 The original model trees had local cache deletions in their working trees;
-those cache files were not copied. The exact copied-file and SHA-256 list is
-`SOURCE_MANIFEST.csv`. Imports were changed only where Windows
-case-insensitive filenames required lowercase module names; these edits are
-listed in `docs/model_source_patches.md`.
+those cache files were not copied. The earlier copied-file and SHA-256 list is
+preserved in `SOURCE_MANIFEST.historical.csv`. `SOURCE_MANIFEST.csv` verifies
+the current release files, including import-path repairs, subsequent comment
+cleanup, and restored file-level legal notices. These edits and their limits
+are recorded in `docs/model_source_patches.md`.
 
 The manifest currently covers 381 copied files, including the available source
-license files.
+license files. For `hash_mode=lf`, the byte count and SHA256 cover the file after
+CRLF-to-LF normalization; no other bytes are normalized.

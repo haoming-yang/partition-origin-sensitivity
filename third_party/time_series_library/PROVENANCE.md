@@ -10,3 +10,9 @@ not labeled as canonical upstream Time-Series-Library.
   required layers/utilities
 
 The snapshot retains its upstream license notice in `UPSTREAM_LICENSE`.
+
+`SOURCE_MANIFEST.historical.csv` retains the earlier source hashes.
+`SOURCE_MANIFEST.csv` describes the current release after comment cleanup.
+For `hash_mode=lf`, the byte count and SHA256 normalize CRLF to LF only.
+Current release integrity does not assert byte identity with the recorded fork
+commit. See `docs/provenance_checks.md` for the verification procedure.

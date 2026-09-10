@@ -1,0 +1,3 @@
+artifacts/poc_stage3/SHA256SUMS.historical.txt -text
+third_party/patch_models/SOURCE_MANIFEST.historical.csv -text
+third_party/time_series_library/SOURCE_MANIFEST.historical.csv -text
