@@ -41,11 +41,11 @@ forecasting model are fixed.
 
 <p align="center">
   <a href="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.pdf">
-    <img src="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.png" alt="Figure 5: paired latent PCA diagnostic" width="100%">
+    <img src="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.png" alt="Figure 2: paired latent PCA diagnostic" width="100%">
   </a>
 </p>
 
-<p align="center"><em>Figure 5. Appendix-only qualitative visualization of origin-induced latent displacement for the frozen ETTh1 seed-42 diagnostic.</em></p>
+<p align="center"><em>Figure 2. Appendix-only qualitative visualization of origin-induced latent displacement for the frozen ETTh1 seed-42 diagnostic.</em></p>
 
 This repository also includes the frozen, compact diagnostic artifacts used by
 the latent-representation analyses; it does not include datasets, checkpoints,
@@ -96,6 +96,7 @@ python -m pytest -q
 python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44 --dry-run
 bash scripts/smoke_test.sh
 python tools/verify_poc_stage3.py
+python tools/verify_source_manifests.py
 python tools/check_anonymity.py --root .
 ```
 
@@ -111,6 +112,21 @@ The POC manifest verifier checks every tracked provenance record. It reports
 missing external checkpoints by default; use
 `python tools/verify_poc_stage3.py --strict` after placing the checkpoints to
 require all external hashes to be present and correct.
+
+Current release manifests normalize CRLF to LF for tracked text only; external
+checkpoint hashes always cover the exact binary bytes. Historical manifests
+remain separate and unchanged. Both verifiers run in CI; see
+[docs/provenance_checks.md](docs/provenance_checks.md) for the hashing rules.
+
+To check generated forecasting summaries without training or changing results:
+
+```bash
+python tools/audit_artifacts.py --root outputs --out audit_report.json
+```
+
+This command exits with an error for empty result directories, invalid JSON,
+missing required MSE/origin-gap fields, or nonfinite/negative metrics. It checks
+summary validity, not whether a new run reproduces the historical paper values.
 
 For a double-blind submission copy, run
 `python tools/check_anonymity.py --root . --double-blind`; the public release

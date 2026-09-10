@@ -21,3 +21,7 @@ jobs:
         run: python -m pytest -q
       - name: Validate canonical dry-run
         run: python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44 --dry-run
+      - name: Verify POC provenance and optional checkpoint hashes
+        run: python tools/verify_poc_stage3.py
+      - name: Verify vendored source manifests
+        run: python tools/verify_source_manifests.py
