@@ -20,4 +20,4 @@ jobs:
       - name: Run tests
         run: python -m pytest -q
       - name: Validate canonical dry-run
-        run: python -m src.run --config configs/core/canonical.yaml --dry-run
+        run: python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44 --dry-run

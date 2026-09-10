@@ -2,8 +2,9 @@ import csv
 from pathlib import Path
 
 import numpy as np
+import pytest
 
-from tools.make_latent_summary_figure import _seed_from_path, render_latent_summary_figure, summarize_latent_artifacts
+from tools.summarize_latent_artifacts import _seed_from_path, _spearman, summarize_latent_artifacts
 
 
 def _write_spectrum(path, multiplier):
@@ -43,8 +44,10 @@ def test_summarize_latent_artifacts_preserves_frequency_and_layer_panel_order(tm
     spectrum_paths = []
     layer_paths = []
     for seed, offset in ((42, 0.0), (43, 0.5), (44, 1.0)):
-        spectrum = tmp_path / f"spectrum_{seed}.csv"
-        layers = tmp_path / f"layers_{seed}.csv"
+        seed_root = tmp_path / f"seed{seed}"
+        seed_root.mkdir()
+        spectrum = seed_root / "latent_spectrum_origin0_o6_p12_s12_L512_H96.csv"
+        layers = seed_root / "latent_layers_origin0_o6_p12_s12_L512_H96.csv"
         _write_spectrum(spectrum, seed)
         _write_layers(layers, offset)
         spectrum_paths.append(spectrum)
@@ -55,24 +58,15 @@ def test_summarize_latent_artifacts_preserves_frequency_and_layer_panel_order(tm
     assert summary["seeds"] == [42, 43, 44]
     assert list(summary["frequency"]) == ["DC", "Non-DC low", "Mid", "High"]
     assert list(summary["layers"]) == ["Post-position input", "First encoder block", "Final normalized output"]
-    assert np.allclose(summary["frequency"]["DC"]["seed_values"], [1.0, 1.0, 1.0])
-    assert np.allclose(summary["frequency"]["Mid"]["seed_values"], [-1.0, -1.0, -1.0])
-    assert np.allclose(summary["layers"]["First encoder block"]["seed_values"], [3.5, 4.0, 4.5])
+    assert np.allclose(summary["frequency"]["DC"]["replicate_values"], [1.0, 1.0, 1.0])
+    assert np.allclose(summary["frequency"]["Mid"]["replicate_values"], [-1.0, -1.0, -1.0])
+    assert np.allclose(summary["layers"]["First encoder block"]["replicate_values"], [3.5, 4.0, 4.5])
 
 
-def test_render_latent_summary_figure_writes_vector_pdf(tmp_path):
-    spectrum_paths = []
-    layer_paths = []
-    for seed, offset in ((42, 0.0), (43, 0.5), (44, 1.0)):
-        spectrum = tmp_path / f"spectrum_{seed}.csv"
-        layers = tmp_path / f"layers_{seed}.csv"
-        _write_spectrum(spectrum, seed)
-        _write_layers(layers, offset)
-        spectrum_paths.append(spectrum)
-        layer_paths.append(layers)
-    output = tmp_path / "latent_summary.pdf"
+def test_average_rank_spearman_handles_ties_without_artificial_ordering():
+    assert _spearman(np.array([1.0, 1.0, 2.0]), np.array([10.0, 10.0, 20.0])) == pytest.approx(1.0)
 
-    render_latent_summary_figure(summarize_latent_artifacts(spectrum_paths, layer_paths), output)
 
-    assert output.exists()
-    assert output.stat().st_size > 0
+def test_spearman_rejects_constant_series():
+    with pytest.raises(ValueError, match="nonconstant"):
+        _spearman(np.array([1.0, 1.0, 1.0]), np.array([1.0, 2.0, 3.0]))

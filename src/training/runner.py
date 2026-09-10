@@ -428,22 +428,23 @@ def train_controlled(seed: int, out: Path, strategy: str, context: int, horizon:
                      patch_len: int, stride: int, epochs: int = CONTROLLED_EPOCHS,
                      dataset: str = "ETTh1", experiment_id: str = "SUPPLEMENT_CONTROLLED",
                      use_position: bool = True, head_geometry: str = "flattened",
-                     source_status: str = "SOURCE_PRESENT") -> dict:
+                     source_status: str = "SOURCE_PRESENT", batch_size: int = BATCH_SIZE,
+                     learning_rate: float = 1e-4, weight_decay: float = 1e-4) -> dict:
     seed_all(seed)
     data = load_data(dataset, horizon)
     dev = device()
     model = ControlledTransformerSupplement(context, horizon, patch_len, stride, data.channels,
                                             use_position=use_position,
                                             head_geometry=head_geometry).to(dev)
-    opt = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
+    opt = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     train_loader = DataLoader(Windows(data.standardized, data.train, context, horizon),
-                              batch_size=BATCH_SIZE, shuffle=True,
+                              batch_size=batch_size, shuffle=True,
                               pin_memory=dev.type == "cuda")
     val_loader = DataLoader(Windows(data.standardized, data.validation, context, horizon),
-                            batch_size=BATCH_SIZE, shuffle=False,
+                            batch_size=batch_size, shuffle=False,
                             pin_memory=dev.type == "cuda")
     test_loader = DataLoader(Windows(data.standardized, data.test, context, horizon),
-                             batch_size=BATCH_SIZE, shuffle=False,
+                             batch_size=batch_size, shuffle=False,
                              pin_memory=dev.type == "cuda")
     phases = list(range(phase_count(patch_len, stride)))
     config = {"experiment_id": experiment_id,
@@ -452,8 +453,8 @@ def train_controlled(seed: int, out: Path, strategy: str, context: int, horizon:
               "channels": data.channels, "split": data.split,
               "patch_len": patch_len, "stride": stride, "origins": phases,
               "train_windows": len(data.train), "validation_windows": len(data.validation),
-              "test_windows": len(data.test), "epochs": epochs, "batch_size": BATCH_SIZE,
-              "optimizer": "AdamW", "learning_rate": 1e-4, "weight_decay": 1e-4,
+              "test_windows": len(data.test), "epochs": epochs, "batch_size": batch_size,
+              "optimizer": "AdamW", "learning_rate": learning_rate, "weight_decay": weight_decay,
               "strategy": strategy, "input_scale": "train-row standardized",
               "use_position": use_position, "head_geometry": head_geometry,
               "source_status": source_status,
@@ -511,19 +512,20 @@ def train_patchtst(seed: int, out: Path, context: int = L512, horizon: int = H96
                    patch_len: int = PATCH_LEN, stride: int = PATCH_LEN,
                    epochs: int = 10, dataset: str = "ETTh1",
                    experiment_id: str = "SUPPLEMENT_PATCHTST_ORIGIN",
-                   source_status: str = "SOURCE_PRESENT") -> dict:
+                   source_status: str = "SOURCE_PRESENT", batch_size: int = BATCH_SIZE,
+                   learning_rate: float = 1e-4, weight_decay: float = 0.0) -> dict:
     seed_all(seed)
     data = load_data(dataset, horizon); dev = device()
     model = OfficialPatchTSTAdapter(context, horizon, patch_len, stride, data.channels).to(dev)
-    opt = torch.optim.Adam(model.parameters(), lr=1e-4)
+    opt = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     train_loader = DataLoader(Windows(data.raw, data.train, context, horizon),
-                              batch_size=BATCH_SIZE, shuffle=True,
+                              batch_size=batch_size, shuffle=True,
                               pin_memory=dev.type == "cuda")
     val_loader = DataLoader(Windows(data.raw, data.validation, context, horizon),
-                            batch_size=BATCH_SIZE, shuffle=False,
+                            batch_size=batch_size, shuffle=False,
                             pin_memory=dev.type == "cuda")
     test_loader = DataLoader(Windows(data.raw, data.test, context, horizon),
-                             batch_size=BATCH_SIZE, shuffle=False,
+                             batch_size=batch_size, shuffle=False,
                              pin_memory=dev.type == "cuda")
     phases = list(range(phase_count(patch_len, stride)))
     config = {"experiment_id": experiment_id,
@@ -532,8 +534,9 @@ def train_patchtst(seed: int, out: Path, context: int = L512, horizon: int = H96
               "channels": data.channels, "split": data.split,
               "patch_len": patch_len, "stride": stride, "origins": phases,
               "train_windows": len(data.train), "validation_windows": len(data.validation),
-              "test_windows": len(data.test), "epochs": epochs, "batch_size": BATCH_SIZE,
-              "optimizer": "Adam (official run.py default)", "learning_rate": 1e-4,
+              "test_windows": len(data.test), "epochs": epochs, "batch_size": batch_size,
+              "optimizer": "Adam (official run.py default)", "learning_rate": learning_rate,
+              "weight_decay": weight_decay,
               "normalization": "mask-aware per-window normalization on real observations only",
               "native_patchtst_inner_padding": "retained from official PatchEmbedding",
               "outer_protocol_adapter": "new isolated adapter; original source unchanged",
