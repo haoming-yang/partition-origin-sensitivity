@@ -1,7 +1,7 @@
 from __future__ import annotations
 import json, os, subprocess, sys
 from pathlib import Path
-STAGE=Path(os.environ.get("STAGE_ROOT", str(Path(__file__).resolve().parents[3] / "outputs" / "stage4")))
+STAGE=Path(os.environ.get("STAGE_ROOT", str(Path(__file__).resolve().parents[3] / "outputs" / "poc_stage4")))
 def main():
  log=STAGE/'logs'/'fixed_origin_all.log'; runner=STAGE/'scripts'/'fixed_origin_runner.py'
  with log.open('w',encoding='utf8') as lf:
