@@ -10,4 +10,7 @@ train_windows: 8033
 validation_windows: 2785
 test_windows: 5805
 epochs: 5
-source_status: FROZEN_ARTIFACT_ONLY
+source_status: SOURCE_PRESENT
+runner: tools/fullsplit/fullsplit_3run_runner.py
+data_root_env: PARTITION_ORIGIN_DATA_ROOT
+default_seeds: [42, 43, 44]

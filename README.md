@@ -39,10 +39,9 @@ forecasting model are fixed.
 
 <p align="center"><em>Figure 1. Same observations, different partition origins, and different forecasts from a fixed model.</em></p>
 
-The current anonymous manuscript PDF is available as
-[`docs/manuscript.pdf`](docs/manuscript.pdf). This repository also includes the
-frozen, compact diagnostic artifacts used by the latent-representation
-analyses; it does not include datasets, checkpoints, or full prediction dumps.
+This repository also includes the frozen, compact diagnostic artifacts used by
+the latent-representation analyses; it does not include datasets, checkpoints,
+or full prediction dumps.
 
 ## What is included
 
@@ -101,7 +100,7 @@ bash scripts/run_tier1_smoke.sh
 ```
 
 The POC manifest verifier checks every tracked provenance record. It reports
-missing downloaded checkpoints by default; use
+missing external checkpoints by default; use
 `python tools/verify_poc_stage3.py --strict` after placing the checkpoints to
 require all external hashes to be present and correct.
 
@@ -162,17 +161,21 @@ Reproduction has three levels in this release. The canonical, overlap,
 horizon, training-policy, PatchTST, and patch-length runners can generate new
 runs after the public datasets are supplied. The optimization, mask-head, and
 no-PE entries are reconstructed controls and must not be used as replacements
-for frozen historical values. The full-split mixer comparison and the POC
-schedule remain artifact-only or artifact-dependent; their exact historical
-training inputs are not silently replaced by a new run.
+for frozen historical values. The full-split mixer comparison is source-backed
+by `tools/fullsplit/` and can be launched with `scripts/run_mixers.sh` after
+the ETTh1 data are available. Its default batch uses seeds `42,43,44`; set
+`SEEDS=...` to override the batch and `PARTITION_ORIGIN_DATA_ROOT` to locate
+the dataset. Outputs are written under
+`outputs/fullsplit_cross_backbone/<model>/etth1/seed<seed>/`.
 
 ### POC Stage3 inputs
 
 The repository includes the historical Stage3 source snapshots, origin-pair
 schedules, and non-checkpoint provenance records needed to audit the POC in
-`tools/poc_stage3/` and `artifacts/poc_stage3/`. The eight PyTorch checkpoint
-files are intentionally not committed. After downloading the frozen checkpoint
-bundle, place the files at these paths relative to the repository root:
+`tools/poc_stage3/` and `artifacts/poc_stage3/`. Checkpoint-dependent POC
+inputs are not included in this repository. When those files are available
+through the authorized experiment record, place them at these paths relative to
+the repository root:
 
 ```text
 checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed42/checkpoint.pt
@@ -185,21 +188,14 @@ checkpoints/poc_stage4/batch2_poc/lambda_selection/lambda_1p0/checkpoint.pt
 checkpoints/poc_stage4/batch2_poc/lambda_selection/lambda_1p0/final_checkpoint.pt
 ```
 
-The checkpoint bundle is not distributed by this repository; its download
-location must be supplied separately by the authors. Without these binary
-files, the tracked POC records remain auditable but the checkpoint-dependent
-historical reruns cannot be reproduced from a fresh checkout alone.
-
 Expected SHA256 values for both repository-tracked files and these external
 checkpoints are recorded in
 [`artifacts/poc_stage3/SHA256SUMS.txt`](artifacts/poc_stage3/SHA256SUMS.txt).
-The `[external]` files remain absent until the checkpoint bundle is placed in
-the paths above. The frozen lambda-selection and protocol records are tracked
-under `artifacts/poc_stage4/`; the Stage4 formal runner writes newly generated
+The `[external]` files remain absent until the inputs are placed in the paths
+above. The frozen lambda-selection and protocol records are tracked under
+`artifacts/poc_stage4/`; the Stage4 formal runner writes newly generated
 outputs under `outputs/poc_stage4/`. The copied scripts preserve the historical
-Stage3/Stage4 protocol; they are included for provenance and auditability,
-while the main repository runners remain the recommended entry points for new
-experiments.
+Stage3/Stage4 protocol and are included for provenance and auditability.
 
 ## Latent-representation diagnostics
 

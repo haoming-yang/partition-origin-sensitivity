@@ -15,7 +15,7 @@ new run.
 | Optimization trajectory | `configs/optimization/etth1_epochs_5_30.yaml` / `scripts/run_optimization.sh` | `RECONSTRUCTED_CONTROL` | Executable control implementation; not an identity claim for frozen historical values |
 | Mask-head factorial | `configs/heads/*.yaml` / `scripts/run_heads.sh` | `RECONSTRUCTED_CONTROL` | Executable flattened/pooled control; not a replacement for frozen Table 5 values |
 | No-PE control | `configs/positional_encoding/etth1_no_pe.yaml` / `scripts/run_pe_control.sh` | `RECONSTRUCTED_CONTROL` | Executable control with position parameters disabled |
-| Full-split Transformer/MLP/Conv comparison | `configs/mixers/etth1_fullsplit_5epoch.yaml` / `scripts/run_mixers.sh` | `FROZEN_ARTIFACT_ONLY` | Fails closed because the exact historical training entrypoint was not identified |
+| Full-split Transformer/MLP/Conv comparison | `configs/mixers/etth1_fullsplit_5epoch.yaml` / `scripts/run_mixers.sh` | `SOURCE_PRESENT` | Complete ETTh1 runner under `tools/fullsplit/`; default batch uses seeds 42, 43, 44 and writes isolated model/seed outputs |
 | ETTh1/ETTm2 POC | `scripts/run_poc.sh` | `ARTIFACT_DEPENDENT` | Included Stage-4 source and schedules require eight external checkpoints |
 
 The six native Tier-1 sources have a no-training import/forward check:

@@ -10,9 +10,9 @@ The six-model native phase harness is a separate source audit. Use `tools/smoke_
 
 The overlap audit uses stride `6` as a relaxed six-origin lattice and is available through `scripts/run_overlap.sh`. The `H=192` diagnostic is available through `scripts/run_h192.sh`. Training-origin strategies are available through `scripts/run_training_policy.sh`. The official-source PatchTST adapter is available through `scripts/run_patchtst.sh` and uses the isolated adapter documented in its output provenance.
 
-## Frozen evidence with unavailable exact runners
+## Full-split mixer runner
 
-The paper's full-split Transformer/MLP/Conv comparison remains frozen-artifact-only and is represented by `scripts/run_mixers.sh`, which stops with an explicit source-unavailable status. Optimization, mask-head, and no-PE commands run explicit `RECONSTRUCTED_CONTROL` configurations; their outputs are runnable controls, not silent replacements for historical values. The POC command runs the included Stage-4 source when the eight external checkpoints are supplied; schedules and frozen protocol records are tracked under `artifacts/poc_stage3/` and `artifacts/poc_stage4/`, and the SHA256 manifest verifies the external files. The patch-length matrix is source-backed through the canonical runner.
+The paper's full-split Transformer/MLP/Conv comparison is source-backed by `tools/fullsplit/` and is launched through `scripts/run_mixers.sh`. The default batch uses seeds 42, 43, and 44; set `SEEDS=...` to override the batch and `PARTITION_ORIGIN_DATA_ROOT` to locate the datasets. Outputs are isolated by model and seed under `outputs/fullsplit_cross_backbone/`. The optimization, mask-head, and no-PE commands run explicit `RECONSTRUCTED_CONTROL` configurations; their outputs are runnable controls, not silent replacements for historical values. The POC command runs the included Stage-4 source when its required checkpoint files are already present; schedules and frozen protocol records are tracked under `artifacts/poc_stage3/` and `artifacts/poc_stage4/`, and the SHA256 manifest verifies the external files. The patch-length matrix is source-backed through the canonical runner.
 
 ## Post-processing
 
