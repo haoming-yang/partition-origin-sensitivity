@@ -47,6 +47,15 @@ def load_full_etth1():
     return values, train, validation, test
 
 
+def prepare_output(out: Path) -> None:
+    """Create an output directory without silently replacing a prior run."""
+    if out.exists() and any(out.iterdir()):
+        raise FileExistsError(
+            f"refusing to overwrite non-empty output directory: {out}; choose a new --out path"
+        )
+    out.mkdir(parents=True, exist_ok=True)
+
+
 @torch.inference_mode()
 def evaluate_full(model, loader, device):
     """Evaluate all origins while accumulating every target batch.
@@ -104,7 +113,7 @@ def run(model_name: str, seed: int, out: Path):
     train_loader = DataLoader(base.Windows(values, train), 32, shuffle=True, pin_memory=device.type == "cuda")
     validation_loader = DataLoader(base.Windows(values, validation), 32, shuffle=False)
     test_loader = DataLoader(base.Windows(values, test), 32, shuffle=False)
-    out.mkdir(parents=True, exist_ok=True)
+    prepare_output(out)
     experiment_id = f"FULLSPLIT_CONTROLLED_{model_name.upper()}_ETTH1_P12_S{seed}_V2"
     if (len(train), len(validation), len(test)) != (8033, 2785, 5805):
         raise RuntimeError(f"NONCANONICAL_ETTH1_COUNTS {(len(train), len(validation), len(test))}")

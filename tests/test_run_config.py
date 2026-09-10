@@ -47,3 +47,46 @@ def test_run_supplement_preserves_patchtst_zero_weight_decay_default(monkeypatch
     assert captured["batch_size"] == 11
     assert captured["learning_rate"] == 0.001
     assert captured["weight_decay"] == 0.0
+
+
+def test_mixer_config_uses_recovered_fullsplit_runner(monkeypatch, tmp_path):
+    calls = []
+
+    def fake_run(command, **kwargs):
+        calls.append((command, kwargs))
+
+    monkeypatch.setattr(run_module.subprocess, "run", fake_run)
+    config = {
+        "experiment_id": "CROSS_MODEL_PHASE_V1",
+        "models": ["Transformer", "MLP", "Conv"],
+        "dataset": "ETTH1",
+        "epochs": 5,
+    }
+
+    result = run_module.run_fullsplit(config, [17], tmp_path)
+
+    assert result["status"] == "COMPLETE"
+    assert len(calls) == 3
+    for model, (command, kwargs) in zip(config["models"], calls):
+        assert command[1].replace("\\", "/").endswith("tools/fullsplit/fullsplit_3run_runner.py")
+        assert command[command.index("--model") + 1] == model
+        assert command[command.index("--seed") + 1] == "17"
+        assert kwargs["cwd"] == run_module.ROOT
+
+
+def test_mixer_config_reads_default_seeds():
+    config = {"default_seeds": [42, 43, 44]}
+
+    assert run_module.resolve_seeds(config, seed=None, seeds=None) == [42, 43, 44]
+
+
+def test_fullsplit_runner_refuses_nonempty_output(tmp_path):
+    import pytest
+    from tools.fullsplit import fullsplit_3run_runner as runner
+
+    output = tmp_path / "existing-run"
+    output.mkdir()
+    (output / "partial.json").write_text("{}", encoding="utf-8")
+
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        runner.prepare_output(output)

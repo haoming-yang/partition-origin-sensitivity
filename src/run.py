@@ -45,7 +45,7 @@ def resolve_seeds(config: dict, *, seed: int | None, seeds: str | None) -> list[
         values = parse_ints(seeds)
         if values:
             return values
-    configured = config.get("seed", config.get("seeds"))
+    configured = config.get("seed", config.get("seeds", config.get("default_seeds")))
     if configured is None:
         raise ValueError("a seed is required; pass --seed or --seeds")
     if isinstance(configured, int):
@@ -164,12 +164,40 @@ def run_cross_model(config: dict, output_root: Path) -> dict:
     return {"experiment_id": config["experiment_id"], "status": "COMPLETE"}
 
 
+def run_fullsplit(config: dict, seeds: list[int], output_root: Path) -> dict:
+    """Launch the recovered complete-split ETTh1 mixer runner per model/seed."""
+    script = ROOT / "tools" / "fullsplit" / "fullsplit_3run_runner.py"
+    models = tuple(config.get("models", ("Transformer", "MLP", "Conv")))
+    dataset = config.get("dataset", "ETTh1")
+    if isinstance(dataset, list):
+        if dataset != ["ETTh1"]:
+            raise ValueError("full-split mixer runner supports only ETTh1")
+        dataset = dataset[0]
+    if str(dataset).lower() != "etth1":
+        raise ValueError("full-split mixer runner supports only ETTh1")
+    dataset = "ETTh1"
+    calls = []
+    for model in models:
+        for seed in seeds:
+            out = output_root / "fullsplit_cross_backbone" / model / "etth1" / f"seed{seed}"
+            command = [
+                sys.executable,
+                str(script),
+                "--model", str(model),
+                "--seed", str(int(seed)),
+                "--out", str(out),
+            ]
+            subprocess.run(command, cwd=ROOT, check=True)
+            calls.append({"model": model, "dataset": dataset, "seed": int(seed), "output": str(out)})
+    return {"experiment_id": config["experiment_id"], "status": "COMPLETE", "jobs": calls}
+
+
 def run(config: dict, seeds: list[int], datasets: list[str], output_root: Path) -> object:
     experiment_id = config["experiment_id"]
     if experiment_id == "PATCH_LENGTH_AUDIT_V1":
         return run_patch_lengths(config, seeds, output_root)
     if experiment_id == "CROSS_MODEL_PHASE_V1":
-        return run_cross_model(config, output_root)
+        return run_fullsplit(config, seeds, output_root)
     if experiment_id == "CANONICAL_PHENOMENON_27_V1":
         return [run_controlled(config, dataset, seed, output_root)
                 for dataset, seed in config_jobs(config, seeds, datasets)]

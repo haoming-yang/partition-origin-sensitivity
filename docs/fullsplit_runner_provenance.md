@@ -12,7 +12,8 @@ adaptation:
 
 The public copy changes the data lookup from a machine-specific absolute path
 to `PARTITION_ORIGIN_DATA_ROOT`, with a repository-relative `data/` fallback.
-It also accepts arbitrary integer seeds; the batch wrapper defaults to the
-paper replicate set `42,43,44`. No model was retrained during this source
-recovery, so the frozen manuscript values remain the reference results until a
-separate rerun is performed.
+It adds a package-import fallback for repository execution, records a
+repository-relative source path in run metadata, and accepts arbitrary integer
+seeds; the batch wrapper defaults to the paper replicate set `42,43,44`. No
+model was retrained during this source recovery, so the frozen manuscript
+values remain the reference results until a separate rerun is performed.
