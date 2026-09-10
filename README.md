@@ -167,6 +167,8 @@ the ETTh1 data are available. Its default batch uses seeds `42,43,44`; set
 `SEEDS=...` to override the batch and `PARTITION_ORIGIN_DATA_ROOT` to locate
 the dataset. Outputs are written under
 `outputs/fullsplit_cross_backbone/<model>/etth1/seed<seed>/`.
+Each full-split output directory must be new or empty; the runner refuses to
+overwrite a non-empty run directory.
 
 ### POC Stage3 inputs
 
