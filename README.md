@@ -39,6 +39,14 @@ forecasting model are fixed.
 
 <p align="center"><em>Figure 1. Same observations, different partition origins, and different forecasts from a fixed model.</em></p>
 
+<p align="center">
+  <a href="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.pdf">
+    <img src="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.png" alt="Figure 5: paired latent PCA diagnostic" width="100%">
+  </a>
+</p>
+
+<p align="center"><em>Figure 5. Appendix-only qualitative visualization of origin-induced latent displacement for the frozen ETTh1 seed-42 diagnostic.</em></p>
+
 This repository also includes the frozen, compact diagnostic artifacts used by
 the latent-representation analyses; it does not include datasets, checkpoints,
 or full prediction dumps.
