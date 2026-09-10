@@ -171,14 +171,7 @@ python tools/analyze_patchtst_latent_spectrum.py \
   --checkpoint /path/to/patchtst_checkpoint.pt --data-root /path/to/data \
   --seed 42 --output artifacts/patchtst_latent_spectrum_etth1_o0_o6_p12_s12_L512_H96
 
-python tools/summarize_latent_artifacts.py \
-  --spectrum artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed42/latent_spectrum_origin0_o6_p12_L512_H96.csv \
-  --spectrum artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed43/latent_spectrum_origin0_o6_p12_L512_H96.csv \
-  --spectrum artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed44/latent_spectrum_origin0_o6_p12_L512_H96.csv \
-  --layers artifacts/latent_layers_etth1_o0_o6_p12_L512_H96/seed42/latent_layers_origin0_o6_p12_L512_H96.csv \
-  --layers artifacts/latent_layers_etth1_o0_o6_p12_L512_H96/seed43/latent_layers_origin0_o6_p12_L512_H96.csv \
-  --layers artifacts/latent_layers_etth1_o0_o6_p12_L512_H96/seed44/latent_layers_origin0_o6_p12_L512_H96.csv \
-  --output artifacts/latent_summary_etth1_o0_o6.json
+bash scripts/summarize_latent.sh
 ```
 
 The repository retains the frozen appendix PCA coordinates and the matching
@@ -194,21 +187,10 @@ New analysis runs place results under a seed-specific subdirectory such as
 `seed42/`. CSV names contain only the analysis purpose and its hyperparameters;
 the seed is recorded in the file contents and summary metadata.
 
-The summary command aggregates existing three-replicate CSV records into JSON
-only. It performs no model run and does not render a new figure.
-
-To test whether the saved spectral--forecast association could arise from
-random window pairing, run the two-sided Monte Carlo permutation audit on one
-saved `window_metrics.csv` per replicate:
-
-```bash
-python tools/permutation_latent_spectrum.py \
-  --input artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed42/latent_spectrum_origin0_o6_p12_L512_H96.csv \
-  --input artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed43/latent_spectrum_origin0_o6_p12_L512_H96.csv \
-  --input artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96/seed44/latent_spectrum_origin0_o6_p12_L512_H96.csv \
-  --output artifacts/latent_spectrum_etth1_o0_o6_permutation.json \
-  --permutations 1000 --seed 0
-```
+The summary wrapper aggregates existing replicate CSV records into JSON and
+runs the optional random-pairing audit. It performs no model run and does not
+render a new figure. Override the replicate set with, for example,
+`SEEDS=42,43,44 bash scripts/summarize_latent.sh`.
 
 The test holds forecast discrepancies fixed and randomly permutes the paired
 token-spectrum discrepancies across windows. It assesses random pairing, not
