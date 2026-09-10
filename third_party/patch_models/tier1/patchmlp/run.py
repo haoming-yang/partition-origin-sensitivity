@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='PatchMLP')
 
-    # basic config
+
     parser.add_argument('--is_training', type=int,  default=1, help='status')
     parser.add_argument('--model_id', type=str,  default='test', help='model id')
     parser.add_argument('--model', type=str,  default='PatchMLP',
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--patience', type=int, default=5, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
 
-    # data loader
+
     parser.add_argument('--data', type=str, default='custom', help='dataset type')
     parser.add_argument('--root_path', type=str, default='./dataset/', help='root path of the data file')
     parser.add_argument('--data_path', type=str, default='weather.csv', help='data csv file')
@@ -39,15 +39,15 @@ if __name__ == '__main__':
                         help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
-    # forecasting task
+
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
-    parser.add_argument('--label_len', type=int, default=48, help='start token length') # no longer needed in inverted Transformers
+    parser.add_argument('--label_len', type=int, default=48, help='start token length')
     parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
 
-    # model define
+
     parser.add_argument('--enc_in', type=int, default=21, help='encoder input size')
     parser.add_argument('--dec_in', type=int, default=21, help='decoder input size')
-    parser.add_argument('--c_out', type=int, default=21, help='output size') # applicable on arbitrary number of variates in inverted Transformers
+    parser.add_argument('--c_out', type=int, default=21, help='output size')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
     parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
     parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
-    # optimization
+
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=26, help='experiments times')
     parser.add_argument('--des', type=str, default='test', help='exp description')
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
 
-    # GPU
+
     parser.add_argument('--use_gpu', type=bool, default=False, help='use gpu')
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     if args.is_training:
         for ii in range(args.itr):
-            # setting record of experiments
+
             setting = '{}_{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}'.format(
                 args.model_id,
                 args.model,
@@ -112,7 +112,7 @@ if __name__ == '__main__':
                 args.des,
                 ii)
 
-            exp = Exp(args)  # set experiments
+            exp = Exp(args)
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             exp.train(setting)
 
@@ -145,7 +145,7 @@ if __name__ == '__main__':
             args.des,
             args.class_strategy, ii)
 
-        exp = Exp(args)  # set experiments
+        exp = Exp(args)
         print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
         exp.test(setting, test=1)
         torch.cuda.empty_cache()

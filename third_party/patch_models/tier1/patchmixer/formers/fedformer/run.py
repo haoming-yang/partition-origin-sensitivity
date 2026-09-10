@@ -12,13 +12,13 @@ np.random.seed(fix_seed)
 
 parser = argparse.ArgumentParser(description='Autoformer & Transformer family for Time Series Forecasting')
 
-# basic config
+
 parser.add_argument('--is_training', type=int, default=1, help='status')
 parser.add_argument('--task_id', type=str, default='test', help='task id')
 parser.add_argument('--model', type=str, default='Reformer',
                     help='model name, options: [FEDformer, Autoformer, Informer, Transformer]')
 
-# supplementary config for FEDformer model
+
 parser.add_argument('--version', type=str, default='Fourier',
                     help='for FEDformer, there are two versions to choose, options: [Fourier, Wavelets]')
 parser.add_argument('--mode_select', type=str, default='random',
@@ -30,7 +30,7 @@ parser.add_argument('--cross_activation', type=str, default='tanh',
                     help='mwt cross atention activation function tanh or softmax')
 
 
-# data loader
+
 parser.add_argument('--data', type=str, default='ETTh1', help='dataset type')
 parser.add_argument('--root_path', type=str, default='../dataset', help='root path of the data file')
 parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
@@ -43,14 +43,14 @@ parser.add_argument('--freq', type=str, default='h',
                          'b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
 parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
-# forecasting task
+
 parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
 parser.add_argument('--label_len', type=int, default=48, help='start token length')
 parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
 parser.add_argument('--embed_type', type=int, default=0, help='prediction sequence length')
-# parser.add_argument('--cross_activation', type=str, default='tanh'
 
-# model define
+
+
 parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
 parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
 parser.add_argument('--c_out', type=int, default=7, help='output size')
@@ -71,7 +71,7 @@ parser.add_argument('--activation', type=str, default='gelu', help='activation')
 parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
 parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
-# optimization
+
 parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
 parser.add_argument('--itr', type=int, default=1, help='experiments times')
 parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
@@ -83,7 +83,7 @@ parser.add_argument('--loss', type=str, default='mse', help='loss function')
 parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
 parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
 
-# GPU
+
 parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
 parser.add_argument('--gpu', type=int, default=0, help='gpu')
 parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
@@ -106,7 +106,7 @@ Exp = Exp_Main
 
 if args.is_training:
     for ii in range(args.itr):
-        # setting record of experiments
+
         setting = '{}_{}_{}_modes{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
             args.task_id,
             args.model,
@@ -125,10 +125,10 @@ if args.is_training:
             args.factor,
             args.embed,
             args.distil,
-            args.des, 
+            args.des,
             ii)
 
-        exp = Exp(args)  # set experiments
+        exp = Exp(args)
         print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
         exp.train(setting)
 
@@ -159,7 +159,7 @@ else:
                                                                                                   args.distil,
                                                                                                   args.des, ii)
 
-    exp = Exp(args)  # set experiments
+    exp = Exp(args)
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
     exp.test(setting, test=1)
     torch.cuda.empty_cache()

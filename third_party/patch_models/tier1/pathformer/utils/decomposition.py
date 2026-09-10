@@ -38,17 +38,17 @@ class NMF(nn.Module):
     def forward(self, x):
         b, D, C, eps = x.shape[0], self.D, self.C, self.eps
 
-        # x is made non-negative with relu as proposed in paper
+
         x = F.relu(x)
 
         D = repeat(D, 'd r -> b d r', b = b)
         C = repeat(C, 'r n -> b r n', b = b)
 
-        # transpose
+
         t = lambda tensor: rearrange(tensor, 'b i j -> b j i')
 
         for k in reversed(range(self.K)):
-            # only calculate gradients on the last step, per propose 'One-step Gradient'
+
             context = null_context if k == 0 else torch.no_grad
             with context():
                 C_new = C * ((t(D) @ x) / ((t(D) @ D @ C) + eps))

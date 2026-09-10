@@ -24,12 +24,12 @@ def prepare_dataloader(args):
         'traffic':Dataset_Custom,
         'weather':Dataset_Custom,
         'ili':Dataset_Custom,
-        # 'flow': Dataset_Custom2,
-        # 'synthetic': Dataset_Synthetic,
+
+
     }
     Data = data_dict[args.data]
 
-    # prepare training dataset and dataloader
+
     shuffle_flag = True; drop_last = True; batch_size = args.batch_size
     train_set = Data(
         root_path=args.root_path,
@@ -47,7 +47,7 @@ def prepare_dataloader(args):
         num_workers=0,
         drop_last=drop_last)
 
-    # prepare testing dataset and dataloader
+
     shuffle_flag = False; drop_last = False; batch_size = args.batch_size
     test_set = Data(
         root_path=args.root_path,
@@ -155,12 +155,12 @@ def train_epoch(model, train_dataset, training_loader, optimizer, opt, epoch):
     warm = False
     for batch in tqdm(training_loader, mininterval=2,
                       desc='  - (Training)   ', leave=False):
-        # prepare data
+
         batch_x, batch_y, batch_x_mark, batch_y_mark, mean, std = map(lambda x: x.float().to(opt.device), batch)
         dec_inp = torch.zeros_like(batch_y).float()
         optimizer.zero_grad()
 
-        # forward
+
         if opt.decoder == 'attention':
             if opt.pretrain and epoch < 1:
                 outputs = model(batch_x, batch_x_mark, dec_inp, batch_y_mark, True)
@@ -168,22 +168,22 @@ def train_epoch(model, train_dataset, training_loader, optimizer, opt, epoch):
             else:
                 outputs = model(batch_x, batch_x_mark, dec_inp, batch_y_mark, False)
         elif opt.decoder == 'FC':
-            # Add a predict token into the history sequence
+
             predict_token = torch.zeros(batch_x.size(0), 1, batch_x.size(-1), device=batch_x.device)
             batch_x = torch.cat([batch_x, predict_token], dim=1)
             batch_x_mark = torch.cat([batch_x_mark, batch_y_mark[:, 0:1, :]], dim=1)
             outputs = model(batch_x, batch_x_mark, dec_inp, batch_y_mark, False)
 
-        # determine the loss function
+
         if opt.hard_sample_mining and not (opt.pretrain and epoch < 1):
             topk = sample_mining_scheduler(epoch, batch_x.size(0))
             criterion = TopkMSELoss(topk)
         else:
             criterion = torch.nn.MSELoss(reduction='none')
-        # if inverse, both the output and the ground truth are denormalized.
+
         if opt.inverse:
             outputs, batch_y = train_dataset.inverse_transform(outputs, batch_y, mean, std)
-        # compute loss
+
         losses = criterion(outputs, batch_y)
         loss = losses.mean()
         loss.backward()
@@ -209,17 +209,17 @@ def eval_epoch(model, test_dataset, test_loader, opt, epoch):
             """ prepare data """
             batch_x, batch_y, batch_x_mark, batch_y_mark, mean, std = map(lambda x: x.float().to(opt.device), batch)
             dec_inp = torch.zeros_like(batch_y).float()
-            
-            # forward
+
+
             if opt.decoder == 'FC':
-                # Add a predict token into the history sequence
+
                 predict_token = torch.zeros(batch_x.size(0), 1, batch_x.size(-1), device=batch_x.device)
                 batch_x = torch.cat([batch_x, predict_token], dim=1)
                 batch_x_mark = torch.cat([batch_x_mark, batch_y_mark[:, 0:1, :]], dim=1)
             outputs = model(batch_x, batch_x_mark, dec_inp, batch_y_mark, False)
 
-            warm += 1 
-            # if inverse, both the output and the ground truth are denormalized.
+            warm += 1
+
             if opt.inverse:
                 outputs, batch_y = test_dataset.inverse_transform(outputs, batch_y, mean, std)
 
@@ -228,17 +228,17 @@ def eval_epoch(model, test_dataset, test_loader, opt, epoch):
 
             preds.append(pred)
             trues.append(true)
-    
+
     preds = np.array(preds)
-    
+
     trues = np.array(trues)
-    # preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-    # trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+
+
     preds = np.concatenate(preds, axis=0)
     print(preds.shape)
     trues = np.concatenate(trues, axis=0)
-    # np.save('./results/' + 'pred.npy', preds)
-    # np.save('./results/'+ 'true.npy', trues)
+
+
     print('test shape:{}'.format(preds.shape))
     mae, mse, rmse, mape, mspe = metric(preds, trues)
     print('Epoch {}, mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}'.format(epoch, mse, mae, rmse, mape, mspe))
@@ -253,7 +253,7 @@ def train(model, optimizer, scheduler, opt, model_save_dir):
 
     """ prepare dataloader """
     training_dataloader, train_dataset, test_dataloader, test_dataset = prepare_dataloader(opt)
-    
+
 
     best_metrics = []
     for epoch_i in range(opt.epoch):
@@ -310,24 +310,24 @@ def evaluate(model, opt, model_save_dir):
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    # running mode
+
     parser.add_argument('-eval', action='store_true', default=False)
 
-    # Path parameters
+
     parser.add_argument('-data', type=str, default='ETTh1')
     parser.add_argument('-root_path', type=str, default='../dataset/', help='root path of the data file')
     parser.add_argument('-data_path', type=str, default='ETTh1.csv', help='data file')
 
-    # Dataloader parameters.
+
     parser.add_argument('-input_size', type=int, default=168)
     parser.add_argument('-predict_step', type=int, default=168)
     parser.add_argument('-inverse', action='store_true', help='denormalize output data', default=False)
 
-    # Architecture selection.
-    parser.add_argument('-model', type=str, default='Pyraformer')
-    parser.add_argument('-decoder', type=str, default='FC') # selection: [FC, attention]
 
-    # Training parameters.
+    parser.add_argument('-model', type=str, default='Pyraformer')
+    parser.add_argument('-decoder', type=str, default='FC')
+
+
     parser.add_argument('-epoch', type=int, default=5)
     parser.add_argument('-batch_size', type=int, default=32)
     parser.add_argument('-pretrain', action='store_true', default=False)
@@ -336,7 +336,7 @@ def parse_args():
     parser.add_argument('-lr', type=float, default=1e-4)
     parser.add_argument('-lr_step', type=float, default=0.1)
 
-    # Common Model parameters.
+
     parser.add_argument('-d_model', type=int, default=512)
     parser.add_argument('-d_inner_hid', type=int, default=512)
     parser.add_argument('-d_k', type=int, default=128)
@@ -345,16 +345,16 @@ def parse_args():
     parser.add_argument('-n_head', type=int, default=4)
     parser.add_argument('-n_layer', type=int, default=4)
 
-    # Pyraformer parameters.
-    parser.add_argument('-window_size', type=str, default='[4, 4, 4]') # The number of children of a parent node.
-    parser.add_argument('-inner_size', type=int, default=3) # The number of ajacent nodes.
-    # CSCM structure. selection: [Bottleneck_Construct, Conv_Construct, MaxPooling_Construct, AvgPooling_Construct]
-    parser.add_argument('-CSCM', type=str, default='Bottleneck_Construct')
-    parser.add_argument('-truncate', action='store_true', default=False) # Whether to remove coarse-scale nodes from the attention structure
-    parser.add_argument('-use_tvm', action='store_true', default=False) # Whether to use TVM.
 
-    # Experiment repeat times.
-    parser.add_argument('-iter_num', type=int, default=1) # Repeat number.
+    parser.add_argument('-window_size', type=str, default='[4, 4, 4]')
+    parser.add_argument('-inner_size', type=int, default=3)
+
+    parser.add_argument('-CSCM', type=str, default='Bottleneck_Construct')
+    parser.add_argument('-truncate', action='store_true', default=False)
+    parser.add_argument('-use_tvm', action='store_true', default=False)
+
+
+    parser.add_argument('-iter_num', type=int, default=1)
 
     opt = parser.parse_args()
     return opt
@@ -406,4 +406,3 @@ if __name__ == '__main__':
     all_perf = np.array(all_perf)
     all_perf = all_perf.mean(0)
     print('Average Metrics: {}'.format(all_perf))
-

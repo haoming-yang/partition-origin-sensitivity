@@ -35,7 +35,7 @@ def main() -> int:
             if tuple(y.shape) != expected:
                 raise RuntimeError(f"unexpected output shape {tuple(y.shape)}; expected {expected}")
             reports.append({"model": name, "input_length": input_len, "output_shape": list(y.shape), "status": "PASS"})
-        except Exception as exc:  # pragma: no cover - exercised by source snapshots
+        except Exception as exc:
             failures.append(name)
             reports.append({"model": name, "input_length": input_len, "status": "FAIL", "error": f"{type(exc).__name__}: {exc}"})
 
@@ -53,7 +53,7 @@ def main() -> int:
             if tuple(y.shape) != expected:
                 raise RuntimeError(f"unexpected output shape {tuple(y.shape)}; expected {expected}")
             reports.append({"model": "OfficialPatchTSTAdapter", "input_length": int(padded.shape[1]), "output_shape": list(y.shape), "status": "PASS"})
-        except Exception as exc:  # pragma: no cover - exercised by source snapshots
+        except Exception as exc:
             failures.append("OfficialPatchTSTAdapter")
             reports.append({"model": "OfficialPatchTSTAdapter", "status": "FAIL", "error": f"{type(exc).__name__}: {exc}"})
 

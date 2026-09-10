@@ -14,7 +14,7 @@ from operator import mul
 class Model(nn.Module):
     def __init__(self, configs):
         super(Model, self).__init__()
-        self.layer_nums = configs.layer_nums  # 设置pathway的层数
+        self.layer_nums = configs.layer_nums
         self.num_nodes = configs.num_nodes
         self.pre_len = configs.pred_len
         self.seq_len = configs.seq_len
@@ -45,7 +45,7 @@ class Model(nn.Module):
     def forward(self, x):
 
         balance_loss = 0
-        # norm
+
         if self.revin:
             x = self.revin_layer(x, 'norm')
         out = self.start_fc(x.unsqueeze(-1))
@@ -60,10 +60,8 @@ class Model(nn.Module):
         out = out.permute(0,2,1,3).reshape(batch_size, self.num_nodes, -1)
         out = self.projections(out).transpose(2, 1)
 
-        # denorm
+
         if self.revin:
             out = self.revin_layer(out, 'denorm')
 
         return out, balance_loss
-
-

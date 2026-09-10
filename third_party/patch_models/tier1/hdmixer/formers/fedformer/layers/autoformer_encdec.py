@@ -29,7 +29,7 @@ class moving_avg(nn.Module):
         self.avg = nn.AvgPool1d(kernel_size=kernel_size, stride=stride, padding=0)
 
     def forward(self, x):
-        # padding on the both ends of time series
+
         front = x[:, 0:1, :].repeat(1, self.kernel_size - 1-math.floor((self.kernel_size - 1) // 2), 1)
         end = x[:, -1:, :].repeat(1, math.floor((self.kernel_size - 1) // 2), 1)
         x = torch.cat([front, x, end], dim=1)
@@ -69,7 +69,7 @@ class series_decomp_multi(nn.Module):
         moving_mean=torch.cat(moving_mean,dim=-1)
         moving_mean = torch.sum(moving_mean*nn.Softmax(-1)(self.layer(x.unsqueeze(-1))),dim=-1)
         res = x - moving_mean
-        return res, moving_mean 
+        return res, moving_mean
 
 
 class FourierDecomp(nn.Module):

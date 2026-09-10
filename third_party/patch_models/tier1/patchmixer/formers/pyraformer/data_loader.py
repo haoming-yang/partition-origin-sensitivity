@@ -15,15 +15,15 @@ warnings.filterwarnings('ignore')
 """Long range dataloader"""
 class Dataset_ETT_hour(Dataset):
     def __init__(self, root_path, flag='train', size=None, data_path='ETTh1.csv', dataset='ETTh1', inverse=False):
-        # size [seq_len, label_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24*4*4
             self.pred_len = 24*4
         else:
             self.seq_len = size[0]
             self.pred_len = size[1]
-        # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train':0, 'val':1, 'test':2}
         self.set_type = type_map[flag]
@@ -74,7 +74,7 @@ class Dataset_ETT_hour(Dataset):
         seq_y_mark = self.data_stamp[r_begin:r_end]
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark, self.scaler.mean, self.scaler.std
-    
+
     def __len__(self):
         return len(self.data_x) - self.seq_len- self.pred_len + 1
 
@@ -84,15 +84,15 @@ class Dataset_ETT_hour(Dataset):
 
 class Dataset_ETT_minute(Dataset):
     def __init__(self, root_path, flag='train', size=None, data_path='ETTm1.csv', dataset='ETTm1', inverse=False):
-        # size [seq_len, label_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24*4*4
             self.pred_len = 24*4
         else:
             self.seq_len = size[0]
             self.pred_len = size[1]
-        # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train':0, 'val':1, 'test':2}
         self.set_type = type_map[flag]
@@ -112,7 +112,7 @@ class Dataset_ETT_minute(Dataset):
         border2s = [12*30*24*4, 12*30*24*4+4*30*24*4, 12*30*24*4+8*30*24*4]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
-        
+
         cols_data = df_raw.columns[1:]
         df_data = df_raw[cols_data]
 
@@ -123,14 +123,14 @@ class Dataset_ETT_minute(Dataset):
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
         data_stamp = time_features(df_stamp, timeenc=1, freq='h')
-        
+
         self.data_x = data[border1:border2]
         if self.inverse:
             self.data_y = df_data.values[border1:border2]
         else:
             self.data_y = data[border1:border2]
         self.data_stamp = data_stamp
-    
+
     def __getitem__(self, index):
         s_begin = index
         s_end = s_begin + self.seq_len
@@ -143,7 +143,7 @@ class Dataset_ETT_minute(Dataset):
         seq_y_mark = self.data_stamp[r_begin:r_end]
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark, self.scaler.mean, self.scaler.std
-    
+
     def __len__(self):
         return len(self.data_x) - self.seq_len- self.pred_len + 1
 
@@ -156,15 +156,15 @@ class Dataset_Custom(Dataset):
     def __init__(self, root_path, flag='train', size=None,
                  features='M', data_path='ETTh1.csv',
                  target='OT', scale=True, dataset='',timeenc=0, freq='h',inverse=False):
-        # size [seq_len, label_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.pred_len = 24 * 4
         else:
             self.seq_len = size[0]
             self.pred_len = size[1]
-        # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
@@ -191,7 +191,7 @@ class Dataset_Custom(Dataset):
         cols.remove(self.target)
         cols.remove('date')
         df_raw = df_raw[['date'] + cols + [self.target]]
-        # print(cols)
+
         num_train = int(len(df_raw) * 0.7)
         num_test = int(len(df_raw) * 0.2)
         num_vali = len(df_raw) - num_train - num_test
@@ -209,8 +209,8 @@ class Dataset_Custom(Dataset):
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
             self.scaler.fit(train_data.values)
-            # print(self.scaler.mean_)
-            # exit()
+
+
             data = self.scaler.transform(df_data.values)
         else:
             data = df_data.values
@@ -246,21 +246,21 @@ class Dataset_Custom(Dataset):
 
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1
-        
+
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data)
-    
 
 
-# """Long range dataloader for dataset elect and app flow"""
+
+
 class Dataset_Custom2(Dataset):
-    def __init__(self, root_path, flag='train', size=None, data_path='ETTh1.csv', dataset='elect', 
+    def __init__(self, root_path, flag='train', size=None, data_path='ETTh1.csv', dataset='elect',
                 inverse=False):
-        # size [seq_len, label_len, pred_len]
-        # info
+
+
         self.seq_len = size[0]
         self.pred_len = size[1]
-        # init
+
         assert flag in ['train', 'test']
         self.flag = flag
 
@@ -330,11 +330,11 @@ class Dataset_Custom2(Dataset):
 """Long range dataloader for synthetic dataset"""
 class Dataset_Synthetic(Dataset):
     def __init__(self, root_path, flag='train', size=None, data_path='synthetic.npy', dataset='synthetic', inverse=False):
-        # size [seq_len, label_len, pred_len]
-        # info
+
+
         self.seq_len = size[0]
         self.pred_len = size[1]
-        # init
+
         assert flag in ['train', 'test']
         self.flag = flag
         self.inverse = inverse
@@ -447,7 +447,7 @@ def preprocess_elect(csv_path):
 
     covariates = gen_covariates(data_frame[train_start:test_end].index, num_covariates)
     all_data = data_frame[train_start:test_end].values
-    data_start = (all_data!=0).argmax(axis=0) #find first nonzero value in each time series
+    data_start = (all_data!=0).argmax(axis=0)
     train_end = len(data_frame[train_start:train_end].values)
 
     all_data = all_data[:, data_start < 10000]
@@ -464,7 +464,7 @@ def preprocess_flow(csv_path):
     """preprocess the app flow dataset for long range forecasting"""
     data_frame = pd.read_csv(csv_path, names=['app_name', 'zone', 'time', 'value'], parse_dates=True)
     grouped_data = list(data_frame.groupby(["app_name", "zone"]))
-    # covariates = gen_covariates(data_frame.index, 3)
+
     all_data = []
     min_length = 10000
     for i in range(len(grouped_data)):
@@ -513,7 +513,7 @@ class electTrainDataset(Dataset):
     def __init__(self, data_path, data_name, predict_length, batch_size):
         self.data = torch.from_numpy(np.load(os.path.join(data_path, f'train_data_{data_name}.npy')))
 
-        # Resample windows according to the average amplitude
+
         v = np.load(os.path.join(data_path, f'train_v_{data_name}.npy'))
         weights = torch.as_tensor(np.abs(v[:,0])/np.sum(np.abs(v[:,0])), dtype=torch.double)
         num_samples = weights.size(0)
@@ -587,7 +587,7 @@ class flowTrainDataset(Dataset):
     def __init__(self, data_path, data_name, predict_length, batch_size):
         self.data = torch.from_numpy(np.load(os.path.join(data_path, f'train_data_{data_name}.npy')))
 
-        # Resample windows according to the average amplitude
+
         v = np.load(os.path.join(data_path, f'train_v_{data_name}.npy'))
         weights = torch.as_tensor(np.abs(v)/np.sum(np.abs(v)), dtype=torch.double)
         num_samples = weights.size(0)
@@ -657,7 +657,7 @@ class windTrainDataset(Dataset):
     def __init__(self, data_path, data_name, predict_length, batch_size):
         self.data = torch.from_numpy(np.load(os.path.join(data_path, f'train_data_{data_name}.npy')))
 
-        # Resample windows according to the average amplitude
+
         v = np.load(os.path.join(data_path, f'train_v_{data_name}.npy'))
         weights = torch.as_tensor(np.abs(v)/np.sum(np.abs(v)), dtype=torch.double)
         num_samples = weights.size(0)
@@ -716,4 +716,3 @@ class windTestDataset(Dataset):
         label = label[-self.pred_length:]
 
         return all_data, label, v
-

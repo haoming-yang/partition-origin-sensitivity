@@ -14,8 +14,8 @@ import torch.nn.functional as F
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
-import stage4_inference as base  # noqa: E402
-import poc_lambda_pilot as pilot  # noqa: E402
+import stage4_inference as base
+import poc_lambda_pilot as pilot
 
 
 STAGE = base.STAGE

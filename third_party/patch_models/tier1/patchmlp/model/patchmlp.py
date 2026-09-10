@@ -16,7 +16,7 @@ class moving_avg(nn.Module):
         self.avg = nn.AvgPool1d(kernel_size=kernel_size, stride=stride, padding=0)
 
     def forward(self, x):
-        # padding on the both ends of time series
+
         front = x[:, :, 0:1].repeat(1, 1, (self.kernel_size - 1) // 2)
         end = x[:, :, -1:].repeat(1, 1, (self.kernel_size - 1) // 2)
         x = torch.cat([front, x, end], dim=-1)
@@ -51,7 +51,7 @@ class Model(nn.Module):
         self.use_norm = configs.use_norm
 
         self.decompsition = series_decomp(13)
-        # Embedding
+
         self.emb = Emb(configs.seq_len, configs.d_model)
         self.seasonal_layers = nn.ModuleList([
             Encoder(configs.d_model, configs.enc_in)
@@ -66,7 +66,7 @@ class Model(nn.Module):
 
     def forecast(self, x_enc):
         if self.use_norm:
-            # Normalization from Non-stationary Transformer
+
             means = x_enc.mean(1, keepdim=True).detach()
             x_enc = x_enc - means
             stdev = torch.sqrt(torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
@@ -85,7 +85,7 @@ class Model(nn.Module):
         dec_out = self.projector(x)
         dec_out = dec_out.permute(0, 2, 1)
         if self.use_norm:
-            # De-Normalization from Non-stationary Transformer
+
             dec_out = dec_out * (stdev[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
             dec_out = dec_out + (means[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
 
@@ -93,7 +93,7 @@ class Model(nn.Module):
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
         dec_out = self.forecast(x_enc)
-        return dec_out[:, -self.pred_len:, :]  # [B, L, D]
+        return dec_out[:, -self.pred_len:, :]
 
 
 class Encoder(nn.Module):
@@ -116,7 +116,7 @@ class Encoder(nn.Module):
         )
 
     def forward(self, x):
-        
+
         y_0 = self.ff1(x)
         y_0 = y_0 + x
         y_0 = self.norm1(y_0)

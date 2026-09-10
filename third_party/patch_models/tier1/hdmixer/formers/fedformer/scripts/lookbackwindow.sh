@@ -1,4 +1,4 @@
-# cd FEDformer
+
 if [ ! -d "../logs" ]; then
     mkdir ../logs
 fi
@@ -59,7 +59,7 @@ for seqLen in 48 72 120 144 168 192 336 720
 do
 for pred_len in 24 720
 do
-# ETTh1
+
 python -u run.py \
   --is_training 1 \
   --root_path .../dataset/ \
@@ -81,7 +81,7 @@ python -u run.py \
   --d_model 512 \
   --itr 1 >../logs/LookBackWindow/FEDformer_ETTh1_$seqLen'_'$pred_len.log
 
-# ETTh2
+
 python -u run.py \
   --is_training 1 \
   --root_path .../dataset/ \
@@ -103,7 +103,7 @@ python -u run.py \
   --d_model 512 \
   --itr 1 >../logs/LookBackWindow/FEDformer_ETTh2_$seqLen'_'$pred_len.log
 
-## electricity
+
 python -u run.py \
  --is_training 1 \
  --root_path .../dataset/ \
@@ -124,7 +124,7 @@ python -u run.py \
  --des 'Exp' \
  --itr 1 >../logs/LookBackWindow/FEDformer_electricity_$seqLen'_'$pred_len.log
 
-# exchange
+
 python -u run.py \
  --is_training 1 \
  --root_path .../dataset/ \
@@ -145,7 +145,7 @@ python -u run.py \
  --des 'Exp' \
  --itr 1 >../logs/LookBackWindow/FEDformer_exchange_rate_$seqLen'_'$pred_len.log
 
-# traffic
+
 python -u run.py \
  --is_training 1 \
  --root_path .../dataset/ \
@@ -167,7 +167,7 @@ python -u run.py \
  --itr 1 \
  --train_epochs 3 >../logs/LookBackWindow/FEDformer_traffic_$seqLen'_'$pred_len.log
 
-# weather
+
 python -u run.py \
  --is_training 1 \
  --root_path .../dataset/ \
@@ -193,7 +193,7 @@ done
 
 for seqLen in 26 52 78 104 130 156 208
 do
-# illness
+
 python -u run.py \
  --is_training 1 \
  --root_path .../dataset/ \
@@ -234,4 +234,3 @@ python -u run.py \
  --des 'Exp' \
  --itr 1 >../logs/LookBackWindow/FEDformer_ili_$seqLen'_'60.log
 done
-# cd ..

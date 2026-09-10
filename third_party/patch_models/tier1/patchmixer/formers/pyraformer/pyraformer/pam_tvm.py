@@ -46,13 +46,13 @@ class PyramidalAttention(nn.Module):
         k = k.view(bsz, seq_len, self.n_head, self.d_k)
         q = q.float().contiguous()
         k = k.float().contiguous()
-        # attn_weights.size(): (batch_size, L, num_heads, 11)
+
         attn_weights = graph_mm_tvm(q, k, self.q_k_mask, self.k_q_mask, False, 0)
         attn_weights = self.dropout_attn(F.softmax(attn_weights, dim=-1))
 
         v = v.view(bsz, seq_len, self.n_head, self.d_k)
         v = v.float().contiguous()
-        # is_t1_diagonaled=True
+
         attn = graph_mm_tvm(attn_weights, v, self.q_k_mask, self.k_q_mask, True, 0)
         attn = attn.reshape(bsz, seq_len, self.n_head * self.d_k).contiguous()
         context = self.dropout_fc(self.fc(attn))
@@ -62,4 +62,3 @@ class PyramidalAttention(nn.Module):
             context = self.layer_norm(context)
 
         return context
-

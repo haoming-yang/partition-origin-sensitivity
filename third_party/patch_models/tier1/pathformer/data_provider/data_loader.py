@@ -11,14 +11,14 @@ class Dataset_ETT_hour(Dataset):
     def __init__(self, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, timeenc=0, freq='h'):
-        # size [seq_len, pred_len]
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.pred_len = 24 * 4
         else:
             self.seq_len = size[0]
             self.pred_len = size[1]
-        # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
@@ -96,15 +96,15 @@ class Dataset_ETT_minute(Dataset):
     def __init__(self, root_path, flag='train', size=None,
                  features='S', data_path='ETTm1.csv',
                  target='OT', scale=True, timeenc=0, freq='t'):
-        # size [seq_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.pred_len = 24 * 4
         else:
             self.seq_len = size[0]
             self.pred_len = size[1]
-        # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
@@ -184,15 +184,15 @@ class Dataset_Custom(Dataset):
     def __init__(self, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, timeenc=0, freq='h'):
-        # size [seq_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.pred_len = 24 * 4
         else:
             self.seq_len = size[0]
             self.pred_len = size[1]
-        # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
@@ -219,7 +219,7 @@ class Dataset_Custom(Dataset):
         cols.remove(self.target)
         cols.remove('date')
         df_raw = df_raw[['date'] + cols + [self.target]]
-        # print(cols)
+
         num_train = int(len(df_raw) * 0.7)
         num_test = int(len(df_raw) * 0.2)
         num_vali = len(df_raw) - num_train - num_test
@@ -237,8 +237,8 @@ class Dataset_Custom(Dataset):
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
             self.scaler.fit(train_data.values)
-            # print(self.scaler.mean_)
-            # exit()
+
+
             data = self.scaler.transform(df_data.values)
         else:
             data = df_data.values
@@ -277,21 +277,21 @@ class Dataset_Custom(Dataset):
 
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data)
-    
+
 
 class Dataset_Pred(Dataset):
     def __init__(self, root_path, flag='pred', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, inverse=False, timeenc=0, freq='15min', cols=None):
-        # size [seq_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.pred_len = 24 * 4
         else:
             self.seq_len = size[0]
             self.pred_len = size[1]
-        # init
+
         assert flag in ['pred']
 
         self.features = features
@@ -387,15 +387,15 @@ class Dataset_Pretrain(Dataset):
     def __init__(self, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, timeenc=0, freq='h'):
-        # size [seq_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.pred_len = 24 * 4
         else:
             self.seq_len = size[0]
             self.pred_len = size[1]
-        # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
@@ -422,7 +422,7 @@ class Dataset_Pretrain(Dataset):
         cols.remove(self.target)
         cols.remove('date')
         df_raw = df_raw[['date'] + cols + [self.target]]
-        # print(cols)
+
         num_train = int(len(df_raw) * 1)
         num_test = int(len(df_raw) * 0)
         num_vali = len(df_raw) - num_train - num_test
@@ -440,8 +440,8 @@ class Dataset_Pretrain(Dataset):
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
             self.scaler.fit(train_data.values)
-            # print(self.scaler.mean_)
-            # exit()
+
+
             data = self.scaler.transform(df_data.values)
         else:
             data = df_data.values

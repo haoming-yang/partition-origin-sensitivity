@@ -37,21 +37,21 @@ def get_q_k(input_size, window_size, stride, device):
     max_attn += window_size + 1
     mask = torch.zeros(full_length, max_attn, dtype=torch.int32, device=device) - 1
 
-    # 按照层内、下层、上层的顺序为序列中每个q找对应的k
-    # 第一层
+
+
     for i in range(input_size):
         mask[i, 0:window_size] = i + torch.arange(window_size) - window_size // 2
-        # 当window在序列右端时，把它给注释掉
+
         mask[i, mask[i] > input_size - 1] = -1
 
         mask[i, -1] = i // stride + input_size
         mask[i][mask[i] > third_start - 1] = third_start - 1
-    # 第二层
+
     for i in range(second_length):
         mask[input_size+i, 0:window_size] = input_size + i + torch.arange(window_size) - window_size // 2
-        # 当window在序列左端时，置为-1
+
         mask[input_size+i, mask[input_size+i] < input_size] = -1
-        # 当window在序列右端时，置为-1
+
         mask[input_size+i, mask[input_size+i] > third_start - 1] = -1
 
         if i < second_length - 1:
@@ -61,12 +61,12 @@ def get_q_k(input_size, window_size, stride, device):
 
         mask[input_size+i, -1] = i // stride + third_start
         mask[input_size+i, mask[input_size+i] > fourth_start - 1] = fourth_start - 1
-    # 第三层
+
     for i in range(third_length):
         mask[third_start+i, 0:window_size] = third_start + i + torch.arange(window_size) - window_size // 2
-        # 当window在序列左端时，置为-1
+
         mask[third_start+i, mask[third_start+i] < third_start] = -1
-        # 当window在序列右端时，置为-1
+
         mask[third_start+i, mask[third_start+i] > fourth_start - 1] = -1
 
         if i < third_length - 1:
@@ -76,12 +76,12 @@ def get_q_k(input_size, window_size, stride, device):
 
         mask[third_start+i, -1] = i // stride + fourth_start
         mask[third_start+i, mask[third_start+i] > full_length - 1] = full_length - 1
-    # 第四层
+
     for i in range(fourth_length):
         mask[fourth_start+i, 0:window_size] = fourth_start + i + torch.arange(window_size) - window_size // 2
-        # 当window在序列左端时，置为-1
+
         mask[fourth_start+i, mask[fourth_start+i] < fourth_start] = -1
-        # 当window在序列右端时，置为-1
+
         mask[fourth_start+i, mask[fourth_start+i] > full_length - 1] = -1
 
         if i < fourth_length - 1:
@@ -99,13 +99,13 @@ def get_k_q(q_k_mask):
         for j in range(len(q_k_mask[0])):
             if q_k_mask[i, j] >= 0:
                 k_q_mask[i, j] = torch.where(q_k_mask[q_k_mask[i, j]] ==i )[0]
-    
+
     return k_q_mask
 
 
 def get_mask(input_size, window_size, inner_size, device):
     """Get the attention mask of PAM-Naive"""
-    # Get the size of all layers
+
     all_size = []
     all_size.append(input_size)
     second_size = math.floor(input_size / window_size)
@@ -118,33 +118,33 @@ def get_mask(input_size, window_size, inner_size, device):
     seq_length = sum(all_size)
     mask = torch.zeros(seq_length, seq_length, device=device)
 
-    # Get the intra-scale mask of each scale
+
     inner_window = inner_size // 2
-    # The first scale
+
     for i in range(input_size):
         left_side = max(i - inner_window, 0)
         right_side = min(i + inner_window + 1, input_size)
         mask[i, left_side:right_side] = 1
-    # The second scale
+
     start = input_size
     for i in range(start, start + second_size):
         left_side = max(i - inner_window, start)
         right_side = min(i + inner_window + 1, start + second_size)
         mask[i, left_side:right_side] = 1
-    # The third scale
+
     start = input_size + second_size
     for i in range(start, start + third_size):
         left_side = max(i - inner_window, start)
         right_side = min(i + inner_window + 1, start + third_size)
         mask[i, left_side:right_side] = 1
-    # The fourth scale
+
     start = input_size + second_size + third_size
     for i in range(start, start + fourth_size):
         left_side = max(i - inner_window, start)
         right_side = min(i + inner_window + 1, start + fourth_size)
         mask[i, left_side:right_side] = 1
 
-    # Get the inter-scale mask
+
     start = input_size
     for i in range(start, start + second_size):
         left_side = (i - input_size) * window_size
@@ -154,7 +154,7 @@ def get_mask(input_size, window_size, inner_size, device):
             right_side = (i - input_size + 1) * window_size
         mask[i, left_side:right_side] = 1
         mask[left_side:right_side, i] = 1
-    # The third scale
+
     start = input_size + second_size
     for i in range(start, start + third_size):
         left_side = input_size + (i - start) * window_size
@@ -164,7 +164,7 @@ def get_mask(input_size, window_size, inner_size, device):
             right_side = input_size + (i - start + 1) * window_size
         mask[i, left_side:right_side] = 1
         mask[left_side:right_side, i] = 1
-    # The fourth scale
+
     start = input_size + second_size + third_size
     for i in range(start, start + fourth_size):
         left_side = input_size + second_size + (i - start) * window_size
@@ -227,13 +227,13 @@ class GraphSelfAttention(nn.Module):
         k = k.view(bsz, seq_len, self.n_head, self.d_k)
         q = q.float().contiguous()
         k = k.float().contiguous()
-        # attn_weights.size(): (batch_size, L, num_heads, 11) 另外注意这里设置is_t1_diagonaled为False，用于q和k attention
+
         attn_weights = graph_mm_tvm(q, k, self.q_k_mask, self.k_q_mask, False, 0)
         attn_weights = self.dropout_attn(F.softmax(attn_weights, dim=-1))
 
         v = v.view(bsz, seq_len, self.n_head, self.d_k)
         v = v.float().contiguous()
-        # 这里用于attention scores和v相乘，注意is_t1_diagonaled=True
+
         attn = graph_mm_tvm(attn_weights, v, self.q_k_mask, self.k_q_mask, True, 0)
         attn = attn.reshape(bsz, seq_len, self.n_head * self.d_k).contiguous()
         context = self.dropout_fc(self.fc(attn))
@@ -339,26 +339,26 @@ class ProbSparseAttention(nn.Module):
         self.seq_len = opt.seq_len
         self.factor = opt.factor
 
-    def _prob_QK(self, Q, K, sample_k, n_top): # n_top: c*ln(L_q)
-        # Q [B, H, L, D]
+    def _prob_QK(self, Q, K, sample_k, n_top):
+
         B, H, L_K, E = K.shape
         _, _, L_Q, _ = Q.shape
 
-        # calculate the sampled Q_K
+
         K_expand = K.unsqueeze(-3).expand(B, H, L_Q, L_K, E)
-        index_sample = torch.randint(L_K, (L_Q, sample_k)) # real U = U_part(factor*ln(L_k))*L_q
+        index_sample = torch.randint(L_K, (L_Q, sample_k))
         K_sample = K_expand[:, :, torch.arange(L_Q).unsqueeze(1), index_sample, :]
         Q_K_sample = torch.matmul(Q.unsqueeze(-2), K_sample.transpose(-2, -1)).squeeze()
 
-        # find the Top_k query with sparisty measurement
+
         M = Q_K_sample.max(-1)[0] - torch.div(Q_K_sample.sum(-1), L_K)
         M_top = M.topk(n_top, sorted=False)[1]
 
-        # use the reduced Q to calculate Q_K
+
         Q_reduce = Q[torch.arange(B)[:, None, None],
                      torch.arange(H)[None, :, None],
-                     M_top, :] # factor*ln(L_q)
-        Q_K = torch.matmul(Q_reduce, K.transpose(-2, -1)) # factor*ln(L_q)*L_k
+                     M_top, :]
+        Q_K = torch.matmul(Q_reduce, K.transpose(-2, -1))
 
         return Q_K, M_top
 
@@ -372,7 +372,7 @@ class ProbSparseAttention(nn.Module):
     def _update_context(self, context_in, V, scores, index, L_Q):
         B, H, L_V, D = V.shape
 
-        attn = torch.softmax(scores, dim=-1) # nn.Softmax(dim=-1)(scores)
+        attn = torch.softmax(scores, dim=-1)
 
         context_in[torch.arange(B)[:, None, None],
                    torch.arange(H)[None, :, None],
@@ -401,16 +401,16 @@ class ProbSparseAttention(nn.Module):
         k = k.float().contiguous()
         v = v.float().contiguous()
 
-        u = U_part = self.factor * np.ceil(np.log(seq_len)).astype('int').item() # c*ln(L_k)
+        u = U_part = self.factor * np.ceil(np.log(seq_len)).astype('int').item()
 
         U_part = U_part if U_part<seq_len else seq_len
         u = u if u < seq_len else seq_len
 
-        scores_top, index = self._prob_QK(q, k, sample_k=U_part, n_top=u) 
+        scores_top, index = self._prob_QK(q, k, sample_k=U_part, n_top=u)
 
-        # get the context
+
         context = self._get_initial_context(v, seq_len)
-        # update the context with selected top_k queries
+
         context = self._update_context(context, v, scores_top, index, seq_len).transpose(1, 2).contiguous()
 
         context = context.view(bsz, seq_len, self.n_head * self.d_k)
@@ -432,14 +432,14 @@ def parsing():
     parser.add_argument('-n_head', type=int, default=4)
     parser.add_argument('-dropout', type=float, default=0.1)
 
-    # arguments for Multiformer
+
     parser.add_argument('-window_size', type=int, default=3)
     parser.add_argument('-stride_size', type=int, default=25)
 
-    # arguments for ProbSparse
+
     parser.add_argument('-factor', type=int, default=5)
 
-    # arguments for full-attention
+
     parser.add_argument('-mask', type=int, default=0)
 
     parser.add_argument('-seq_len', type=int, default=1000)
@@ -460,7 +460,7 @@ def test_NSA(args, input_len):
     hidden_state = torch.ones(4, input_len, args.d_model, dtype=torch.float32).to(args.device)
     fake_gt = torch.zeros(4, input_len, args.d_model).to(args.device)
 
-    # Preload the layer
+
     result = NSA_Layer(hidden_state)
     loss = ((fake_gt  - result) ** 2).mean()
     loss.backward()
@@ -494,7 +494,7 @@ def test_GSA(args, input_len):
     hidden_state = torch.ones(4, input_len, args.d_model, dtype=torch.float32, device=args.device)
     fake_gt = torch.zeros(4, input_len, args.d_model, device=args.device)
 
-    # Preload the layer
+
     result = GSA_Layer(hidden_state)
     loss = ((fake_gt  - result) ** 2).mean()
     loss.backward()
@@ -529,7 +529,7 @@ def test_PSA(args, input_len):
     hidden_state = torch.ones(4, input_len, args.d_model, dtype=torch.float32, device=args.device)
     fake_gt = torch.zeros(4, input_len, args.d_model, device=args.device)
 
-    # Preload the layer
+
     result = LSA_Layer(hidden_state)
     loss = ((fake_gt  - result) ** 2).mean()
     loss.backward()
@@ -577,4 +577,3 @@ if __name__ == '__main__':
     test_GSA(args, input_len)
     print('sequence length: {}'.format(input_size))
     test_PSA(args, input_size)
-

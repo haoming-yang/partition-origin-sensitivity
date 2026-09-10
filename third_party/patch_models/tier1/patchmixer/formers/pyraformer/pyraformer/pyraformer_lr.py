@@ -41,7 +41,7 @@ class Encoder(nn.Module):
 
         if opt.embed_type == 'CustomEmbedding':
             self.enc_embedding = DataEmbedding(opt.enc_in, opt.d_model, opt.dropout)
-            # self.enc_embedding = CustomEmbedding(opt.enc_in, opt.d_model, opt.covariate_size, opt.seq_num, opt.dropout)
+
         else:
             self.enc_embedding = DataEmbedding(opt.enc_in, opt.d_model, opt.dropout)
 
@@ -113,4 +113,3 @@ class Model(nn.Module):
             pred = self.predictor(enc_output).view(enc_output.size(0), self.predict_step, -1)
 
         return pred
-

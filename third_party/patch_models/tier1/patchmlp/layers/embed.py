@@ -6,7 +6,7 @@ import math
 class PositionalEmbedding(nn.Module):
     def __init__(self, d_model, max_len=5000):
         super(PositionalEmbedding, self).__init__()
-        # Compute the positional encodings once in log space.
+
         pe = torch.zeros(max_len, d_model).float()
         pe.require_grad = False
 
@@ -132,13 +132,13 @@ class DataEmbedding_inverted(nn.Module):
 
     def forward(self, x, x_mark):
         x = x.permute(0, 2, 1)
-        # x: [Batch Variate Time]
+
         if x_mark is None:
             x = self.value_embedding(x)
         else:
-            # the potential to take covariates (e.g. timestamps) as tokens
-            x = self.value_embedding(torch.cat([x, x_mark.permute(0, 2, 1)], 1)) 
-        # x: [Batch Variate d_model]
+
+            x = self.value_embedding(torch.cat([x, x_mark.permute(0, 2, 1)], 1))
+
         return self.dropout(x)
 
 class EmbLayer(nn.Module):

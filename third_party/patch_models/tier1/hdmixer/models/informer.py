@@ -17,7 +17,7 @@ class Model(nn.Module):
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
 
-        # Embedding
+
         if configs.embed_type == 0:
             self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
                                             configs.dropout)
@@ -44,7 +44,7 @@ class Model(nn.Module):
                                                     configs.dropout)
             self.dec_embedding = DataEmbedding_wo_pos_temp(configs.dec_in, configs.d_model, configs.embed, configs.freq,
                                                     configs.dropout)
-        # Encoder
+
         self.encoder = Encoder(
             [
                 EncoderLayer(
@@ -65,7 +65,7 @@ class Model(nn.Module):
             ] if configs.distil else None,
             norm_layer=torch.nn.LayerNorm(configs.d_model)
         )
-        # Decoder
+
         self.decoder = Decoder(
             [
                 DecoderLayer(
@@ -98,4 +98,4 @@ class Model(nn.Module):
         if self.output_attention:
             return dec_out[:, -self.pred_len:, :], attns
         else:
-            return dec_out[:, -self.pred_len:, :]  # [B, L, D]
+            return dec_out[:, -self.pred_len:, :]

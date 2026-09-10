@@ -170,7 +170,7 @@ class Windows(Dataset):
 
 
 def phase_count(patch_len: int, stride: int) -> int:
-    # The lattice period is the stride.  For non-overlap this is also p.
+
     return stride
 
 
@@ -355,9 +355,9 @@ def official_patchtst_model(context: int, horizon: int, patch_len: int, stride: 
     for name in list(sys.modules):
         if name == "layers" or name.startswith("layers.") or name == "models" or name.startswith("models."):
             del sys.modules[name]
-    # Load the official file directly.  The repository's models/__init__.py
-    # imports an unavailable optional module, so package import is not a valid
-    # provenance-preserving route for this source snapshot.
+
+
+
     module_name = "official_patchtst_source_for_supplement"
     module = sys.modules.get(module_name)
     if module is None:

@@ -7,7 +7,7 @@ plt.switch_backend('agg')
 
 
 def adjust_learning_rate(optimizer, scheduler, epoch, args, printout=True):
-    # lr = args.learning_rate * (0.2 ** (epoch // 2))
+
     if args.lradj == 'type1':
         lr_adjust = {epoch: args.learning_rate * (0.5 ** ((epoch - 1) // 1))}
     elif args.lradj == 'type2':
@@ -26,10 +26,10 @@ def adjust_learning_rate(optimizer, scheduler, epoch, args, printout=True):
     elif args.lradj == '5':
         lr_adjust = {epoch: args.learning_rate if epoch < 25 else args.learning_rate*0.1}
     elif args.lradj == '6':
-        lr_adjust = {epoch: args.learning_rate if epoch < 5 else args.learning_rate*0.1}  
+        lr_adjust = {epoch: args.learning_rate if epoch < 5 else args.learning_rate*0.1}
     elif args.lradj == 'TST':
         lr_adjust = {epoch: scheduler.get_last_lr()[0]}
-    
+
     if epoch in lr_adjust.keys():
         lr = lr_adjust[epoch]
         for param_group in optimizer.param_groups:
@@ -107,10 +107,10 @@ def test_params_flop(model,x_shape):
     for parameter in model.parameters():
         model_params += parameter.numel()
         print('INFO: Trainable parameter count: {:.2f}M'.format(model_params / 1000000.0))
-    from ptflops import get_model_complexity_info    
+    from ptflops import get_model_complexity_info
     with torch.cuda.device(0):
         macs, params = get_model_complexity_info(model.cuda(), x_shape, as_strings=True, print_per_layer_stat=True)
-        # print('Flops:' + flops)
-        # print('Params:' + params)
+
+
         print('{:<30}  {:<8}'.format('Computational complexity: ', macs))
         print('{:<30}  {:<8}'.format('Number of parameters: ', params))

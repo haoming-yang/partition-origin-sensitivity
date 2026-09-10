@@ -13,7 +13,7 @@ class DistributedTrainer(Callback):
     def __init__(self,
                  local_rank,
                  world_size,
-                 sync_bn=True,  # Whether to replace all batch norm with `nn.SyncBatchNorm`
+                 sync_bn=True,
                  **kwargs
                  ):
         self.local_rank = local_rank
@@ -37,8 +37,8 @@ class DistributedTrainer(Callback):
         return dl if isinstance(dl, DistributedDL) else self.prepare_data_loader(dl)
 
 
-    def after_fit(self): 
-        self.learner.model = self.learner.model.module 
+    def after_fit(self):
+        self.learner.model = self.learner.model.module
         self.learner.dls.train = self.old_train_dl
         self.learner.dls.valid = self.old_valid_dl
 
@@ -64,7 +64,7 @@ class DistributedTrainer(Callback):
         rank = self.local_rank
         device = torch.device(f"cuda:{rank}")
 
-        # device = get_device()
+
 
         if torch.cuda.is_available():
             torch.cuda.set_device(device)
@@ -101,21 +101,21 @@ class DistributedTrainer(Callback):
                 returned by the data loader to the correct device.
         """
 
-        # Only add Distributed Sampler if the following conditions hold:
-        # 1. More than one training worker is being used.
-        # 2. A DistributedSampler has not already been added by the user.
-        # 3. The dataset is not an IterableDataset. Samplers do not worker with
-        # IterableDatasets.
-        def with_sampler(loader):
-            # Automatically set the DistributedSampler
 
-            # If using a sampler, the shuffle attribute in the
-            # DataLoader must be set to False.
-            # Instead the shuffling is determined by the shuffle attribute
-            # in the DistributedSampler.
-            # We identify if shuffling is enabled in the passed in
-            # DataLoader by seeing if the sampler for the DataLoader is a
-            # SequentialSampler.
+
+
+
+
+        def with_sampler(loader):
+
+
+
+
+
+
+
+
+
             shuffle = not isinstance(loader.sampler, SequentialSampler)
 
             data_loader_args = {

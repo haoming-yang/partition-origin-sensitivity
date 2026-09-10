@@ -1,4 +1,4 @@
-# ALL scripts in this file come from Autoformer
+
 if [ ! -d "./logs" ]; then
     mkdir ./logs
 fi
@@ -119,7 +119,7 @@ do
       --c_out 7 \
       --des 'Exp' \
       --itr 1  >logs/LongForecasting/$model_name'_Etth1_'$pred_len.log
-  
+
   python -u run_longExp.py \
       --random_seed $random_seed \
       --is_training 1 \
@@ -140,7 +140,7 @@ do
       --c_out 7 \
       --des 'Exp' \
       --itr 1  >logs/LongForecasting/$model_name'_Etth2_'$pred_len.log
-  
+
   python -u run_longExp.py \
       --random_seed $random_seed \
       --is_training 1 \

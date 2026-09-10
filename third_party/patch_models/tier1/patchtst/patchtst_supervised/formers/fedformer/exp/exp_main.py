@@ -63,10 +63,10 @@ class Exp_Main(Exp_Basic):
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
-                # decoder input
+
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-                # encoder - decoder
+
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
@@ -126,11 +126,11 @@ class Exp_Main(Exp_Basic):
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
-                # decoder input
+
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
 
-                # encoder - decoder
+
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
@@ -150,42 +150,42 @@ class Exp_Main(Exp_Basic):
 
                     f_dim = -1 if self.args.features == 'MS' else 0
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    
-#                     if i==0:
-#                         from scipy import stats
-#                         pred = outputs.detach().cpu().numpy()
-#                         true = batch_y.detach().cpu().numpy()
-#                         input_data = batch_x.detach().cpu().numpy()
-#                         plot_index1=np.arange(input_data.shape[1])
-#                         plot_index2=np.arange(input_data.shape[1],input_data.shape[1]+pred.shape[1])
-#                         plt.cla()
-#                         plt.plot(plot_index1,input_data[0,:,-1:],label='input')
-#                         plt.plot(plot_index2,pred[0,:,-1:],label="predict")
-#                         plt.plot(plot_index2,true[0,:,-1:],label="true")
-#                         print('KS test1',stats.kstest(input_data[0,:,-1:].reshape(-1),pred[0,-input_data.shape[1]:,-1:].reshape(-1)))
-                        
-#                         plt.legend()
-#                         #f = io.BytesIO()
-#                         plt.savefig("sample0.png",format="png")
-#                         #plt.clf()
-#                         plt.cla()
-#                         plt.plot(plot_index1,input_data[8,:,-1:],label='input')
-#                         plt.plot(plot_index2,pred[8,:,-1:],label="predict")
-#                         plt.plot(plot_index2,true[8,:,-1:],label="true")
-#                         plt.legend()
-#                         plt.savefig("sample1.png",format="png")
-#                         print('KS test2',stats.kstest(input_data[8,:,-1:].reshape(-1),pred[8,-input_data.shape[1]:,-1:].reshape(-1)))
-#                         raise Exception('aaa')
-                    
-                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     loss = criterion(outputs, batch_y)
                     train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
-                    # print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
+
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
-                    # print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
+
                     iter_count = 0
                     time_now = time.time()
 
@@ -236,10 +236,10 @@ class Exp_Main(Exp_Basic):
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
-                # decoder input
+
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-                # encoder - decoder
+
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
@@ -259,8 +259,8 @@ class Exp_Main(Exp_Basic):
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
 
-                pred = outputs  # outputs.detach().cpu().numpy()  # .squeeze()
-                true = batch_y  # batch_y.detach().cpu().numpy()  # .squeeze()
+                pred = outputs
+                true = batch_y
 
                 preds.append(pred)
                 trues.append(true)
@@ -277,7 +277,7 @@ class Exp_Main(Exp_Basic):
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
         print('test shape:', preds.shape, trues.shape)
 
-        # result save
+
         folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -315,11 +315,11 @@ class Exp_Main(Exp_Basic):
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
-                # decoder input
+
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-                # encoder - decoder
-                
+
+
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
@@ -331,13 +331,13 @@ class Exp_Main(Exp_Basic):
                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                     else:
                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                pred = outputs.detach().cpu().numpy()  # .squeeze()
+                pred = outputs.detach().cpu().numpy()
                 preds.append(pred)
 
         preds = np.array(preds)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
 
-        # result save
+
         folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)

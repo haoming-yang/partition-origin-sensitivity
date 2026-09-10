@@ -15,11 +15,11 @@ class LinearRegressionHead(nn.Module):
         x: [bs x nvars x d_model x num_patch]
         output: [bs x output_dim]
         """
-        x = x[:,:,:,-1]             # only consider the last item in the sequence, x: bs x nvars x d_model
-        x = self.flatten(x)         # x: bs x nvars * d_model
+        x = x[:,:,:,-1]
+        x = self.flatten(x)
         x = self.dropout(x)
-        y = self.linear(x)         # y: bs x output_dim
-        if self.y_range: y = SigmoidRange(*self.y_range)(y)        
+        y = self.linear(x)
+        if self.y_range: y = SigmoidRange(*self.y_range)(y)
         return y
 
 
@@ -35,10 +35,10 @@ class LinearClassificationHead(nn.Module):
         x: [bs x nvars x d_model x num_patch]
         output: [bs x n_classes]
         """
-        x = x[:,:,:,-1]             # only consider the last item in the sequence, x: bs x nvars x d_model
-        x = self.flatten(x)         # x: bs x nvars * d_model
+        x = x[:,:,:,-1]
+        x = self.flatten(x)
         x = self.dropout(x)
-        y = self.linear(x)         # y: bs x n_classes
+        y = self.linear(x)
         return y
 
 
@@ -64,7 +64,7 @@ class LinearPredictionHead(nn.Module):
             self.dropout = nn.Dropout(head_dropout)
 
 
-    def forward(self, x):                     
+    def forward(self, x):
         """
         x: [bs x nvars x d_model x num_patch]
         output: [bs x forecast_len x nvars]
@@ -72,16 +72,16 @@ class LinearPredictionHead(nn.Module):
         if self.individual:
             x_out = []
             for i in range(self.n_vars):
-                z = self.flattens[i](x[:,i,:,:])          # z: [bs x d_model * num_patch]
-                z = self.linears[i](z)                    # z: [bs x forecast_len]
+                z = self.flattens[i](x[:,i,:,:])
+                z = self.linears[i](z)
                 z = self.dropouts[i](z)
                 x_out.append(z)
-            x = torch.stack(x_out, dim=1)         # x: [bs x nvars x forecast_len]
+            x = torch.stack(x_out, dim=1)
         else:
             x = self.flatten(x)
             x = self.dropout(x)
             x = self.linear(x)
-        return x.transpose(2,1)     # [bs x forecast_len x nvars]
+        return x.transpose(2,1)
 
 
 class LinearPretrainHead(nn.Module):
@@ -96,8 +96,7 @@ class LinearPretrainHead(nn.Module):
         output: tensor [bs x nvars x num_patch x patch_len]
         """
 
-        x = x.transpose(2,3)                     # [bs x nvars x num_patch x d_model]
-        x = self.linear( self.dropout(x) )      # [bs x nvars x num_patch x patch_len]
-        x = x.permute(0,2,1,3)                  # [bs x num_patch x nvars x patch_len]
+        x = x.transpose(2,3)
+        x = self.linear( self.dropout(x) )
+        x = x.permute(0,2,1,3)
         return x
-

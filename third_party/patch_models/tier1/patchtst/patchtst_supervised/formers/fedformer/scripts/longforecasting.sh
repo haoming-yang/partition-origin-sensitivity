@@ -1,4 +1,4 @@
-# cd FEDformer
+
 if [ ! -d "../logs" ]; then
     mkdir ../logs
 fi
@@ -9,7 +9,7 @@ fi
 
 for preLen in 96 192 336 720
 do
-# ETTm1
+
 python -u run.py \
   --is_training 1 \
   --data_path ETTm1.csv \
@@ -30,7 +30,7 @@ python -u run.py \
   --d_model 512 \
   --itr 1  >../logs/LongForecasting/FEDformer_ETTm1_$pred_len.log
 
-# ETTh1
+
 python -u run.py \
   --is_training 1 \
   --data_path ETTh1.csv \
@@ -51,7 +51,7 @@ python -u run.py \
   --d_model 512 \
   --itr 1 >../logs/LongForecasting/FEDformer_ETTh1_$pred_len.log
 
-# ETTm2
+
 python -u run.py \
   --is_training 1 \
   --data_path ETTm2.csv \
@@ -72,7 +72,7 @@ python -u run.py \
   --d_model 512 \
   --itr 1 >../logs/LongForecasting/FEDformer_ETTm2_$pred_len.log
 
-# ETTh2
+
 python -u run.py \
   --is_training 1 \
   --data_path ETTh2.csv \
@@ -93,7 +93,7 @@ python -u run.py \
   --d_model 512 \
   --itr 1 >../logs/LongForecasting/FEDformer_ETTh2_$pred_len.log
 
-# electricity
+
 python -u run.py \
  --is_training 1 \
  --data_path electricity.csv \
@@ -113,7 +113,7 @@ python -u run.py \
  --des 'Exp' \
  --itr 1 >../logs/LongForecasting/FEDformer_electricity_$pred_len.log
 
-# exchange
+
 python -u run.py \
  --is_training 1 \
  --data_path exchange_rate.csv \
@@ -133,7 +133,7 @@ python -u run.py \
  --des 'Exp' \
  --itr 1 >../logs/LongForecasting/FEDformer_exchange_rate_$pred_len.log
 
-# traffic
+
 python -u run.py \
  --is_training 1 \
  --data_path traffic.csv \
@@ -154,7 +154,7 @@ python -u run.py \
  --itr 1 \
  --train_epochs 3 >../logs/LongForecasting/FEDformer_traffic_$pred_len.log
 
-# weather
+
 python -u run.py \
  --is_training 1 \
  --data_path weather.csv \
@@ -178,7 +178,7 @@ done
 
 for preLen in 24 36 48 60
 do
-# illness
+
 python -u run.py \
  --is_training 1 \
  --data_path national_illness.csv \
@@ -198,5 +198,3 @@ python -u run.py \
  --des 'Exp' \
  --itr 1 >../logs/LongForecasting/FEDformer_ili_$pred_len.log
 done
-
-# cd ..

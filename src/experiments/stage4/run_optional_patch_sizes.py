@@ -6,7 +6,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
-import stage4_inference as base  # noqa: E402
+import stage4_inference as base
 
 
 OUT = base.STAGE / "batch1_inference_and_fixed_origin" / "optional_patch_sizes"

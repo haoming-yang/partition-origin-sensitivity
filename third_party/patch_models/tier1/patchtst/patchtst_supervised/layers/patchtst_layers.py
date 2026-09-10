@@ -1,26 +1,26 @@
-__all__ = ['Transpose', 'get_activation_fn', 'moving_avg', 'series_decomp', 'PositionalEncoding', 'SinCosPosEncoding', 'Coord2dPosEncoding', 'Coord1dPosEncoding', 'positional_encoding']           
+__all__ = ['Transpose', 'get_activation_fn', 'moving_avg', 'series_decomp', 'PositionalEncoding', 'SinCosPosEncoding', 'Coord2dPosEncoding', 'Coord1dPosEncoding', 'positional_encoding']
 
 import torch
 from torch import nn
 import math
 
 class Transpose(nn.Module):
-    def __init__(self, *dims, contiguous=False): 
+    def __init__(self, *dims, contiguous=False):
         super().__init__()
         self.dims, self.contiguous = dims, contiguous
     def forward(self, x):
         if self.contiguous: return x.transpose(*self.dims).contiguous()
         else: return x.transpose(*self.dims)
 
-    
+
 def get_activation_fn(activation):
     if callable(activation): return activation()
     elif activation.lower() == "relu": return nn.ReLU()
     elif activation.lower() == "gelu": return nn.GELU()
-    raise ValueError(f'{activation} is not available. You can use "relu", "gelu", or a callable') 
-    
-    
-# decomposition
+    raise ValueError(f'{activation} is not available. You can use "relu", "gelu", or a callable')
+
+
+
 
 class moving_avg(nn.Module):
     """
@@ -32,7 +32,7 @@ class moving_avg(nn.Module):
         self.avg = nn.AvgPool1d(kernel_size=kernel_size, stride=stride, padding=0)
 
     def forward(self, x):
-        # padding on the both ends of time series
+
         front = x[:, 0:1, :].repeat(1, (self.kernel_size - 1) // 2, 1)
         end = x[:, -1:, :].repeat(1, (self.kernel_size - 1) // 2, 1)
         x = torch.cat([front, x, end], dim=1)
@@ -53,10 +53,10 @@ class series_decomp(nn.Module):
         moving_mean = self.moving_avg(x)
         res = x - moving_mean
         return res, moving_mean
-    
-    
-    
-# pos_encoding
+
+
+
+
 
 def PositionalEncoding(q_len, d_model, normalize=True):
     pe = torch.zeros(q_len, d_model)
@@ -94,9 +94,9 @@ def Coord1dPosEncoding(q_len, exponential=False, normalize=True):
     return cpe
 
 def positional_encoding(pe, learn_pe, q_len, d_model):
-    # Positional encoding
+
     if pe == None:
-        W_pos = torch.empty((q_len, d_model)) # pe = None and learn_pe = False can be used to measure impact of pe
+        W_pos = torch.empty((q_len, d_model))
         nn.init.uniform_(W_pos, -0.02, 0.02)
         learn_pe = False
     elif pe == 'zero':

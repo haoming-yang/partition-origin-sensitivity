@@ -26,8 +26,8 @@ class AMS(nn.Module):
                                       dynamic=dynamic, num_nodes=num_nodes, patch_nums=patch_nums,
                                       patch_size=patch, factorized=True, layer_number=layer_number, batch_norm=batch_norm))
 
-        # self.w_gate = nn.Parameter(torch.zeros(input_size, num_experts), requires_grad=True)
-        # self.w_noise = nn.Parameter(torch.zeros(input_size, num_experts), requires_grad=True)
+
+
         self.w_noise = nn.Linear(input_size, num_experts)
         self.w_gate = nn.Linear(input_size, num_experts)
 
@@ -75,17 +75,17 @@ class AMS(nn.Module):
     def noisy_top_k_gating(self, x, train, noise_epsilon=1e-2):
         x = self.start_linear(x).squeeze(-1)
 
-        # clean_logits = x @ self.w_gate
+
         clean_logits = self.w_gate(x)
         if self.noisy_gating and train:
-            # raw_noise_stddev = x @ self.w_noise
+
             raw_noise_stddev = self.w_noise(x)
             noise_stddev = ((self.softplus(raw_noise_stddev) + noise_epsilon))
             noisy_logits = clean_logits + (torch.randn_like(clean_logits) * noise_stddev)
             logits = noisy_logits
         else:
             logits = clean_logits
-        # calculate topk + 1 that will be needed for the noisy gates
+
         top_logits, top_indices = logits.topk(min(self.k + 1, self.num_experts), dim=1)
 
         top_k_logits = top_logits[:, :self.k]
@@ -104,9 +104,9 @@ class AMS(nn.Module):
     def forward(self, x, loss_coef=1e-2):
         new_x = self.seasonality_and_trend_decompose(x)
 
-        #multi-scale router
+
         gates, load = self.noisy_top_k_gating(new_x, self.training)
-        # calculate balance loss
+
         importance = gates.sum(0)
         balance_loss = self.cv_squared(importance) + self.cv_squared(load)
         balance_loss *= loss_coef
@@ -117,8 +117,3 @@ class AMS(nn.Module):
         if self.residual_connection:
             output = output + x
         return output, balance_loss
-
-
-
-
-
