@@ -102,36 +102,42 @@ def render_latent_summary_figure(summary: dict[str, object], output: Path) -> No
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.lines import Line2D
 
     seeds = summary["seeds"]
     frequency = summary["frequency"]
     layers = summary["layers"]
     if len(seeds) != 3 or list(frequency) != list(FREQUENCY_COLUMNS) or list(layers) != list(LAYER_COLUMNS):
-        raise ValueError("summary must preserve the configured three seeds and panel orders")
+        raise ValueError("summary must preserve the configured three replicates and panel orders")
     figure, (frequency_axis, layer_axis) = plt.subplots(
-        1, 2, figsize=(7.2, 2.55), gridspec_kw={"width_ratios": (1.05, 1.0), "wspace": 0.46}
+        1, 2, figsize=(7.2, 2.55), gridspec_kw={"width_ratios": (1.02, 1.0), "wspace": 0.42}
     )
-    jitter = np.array((-0.14, 0.0, 0.14))
+    accent = "#174A6E"
+    individual = "#B8C3CC"
     frequency_positions = np.arange(len(frequency), dtype=float)
     for seed_index, seed in enumerate(seeds):
         values = [frequency[label]["seed_values"][seed_index] for label in frequency]
         frequency_axis.scatter(
-            values, frequency_positions + jitter[seed_index],
-            s=18, color=SEED_COLORS[seed_index], edgecolors="white", linewidths=0.35,
-            alpha=0.82, zorder=3,
+            values, frequency_positions,
+            s=12, color=individual, edgecolors="white", linewidths=0.35,
+            alpha=0.92, zorder=2,
         )
+    frequency_means = np.array([frequency[label]["mean"] for label in frequency])
+    frequency_sd = np.array([frequency[label]["sample_sd"] for label in frequency])
     frequency_axis.errorbar(
-        [frequency[label]["mean"] for label in frequency],
-        frequency_positions,
-        xerr=[frequency[label]["sample_sd"] for label in frequency],
-        fmt="o", color="#202020", markerfacecolor="#202020", markeredgecolor="white",
-        markersize=4.2, capsize=2.2, linewidth=0.85, zorder=4,
+        frequency_means, frequency_positions, xerr=frequency_sd,
+        fmt="none", ecolor=accent, elinewidth=1.1, capsize=2.0, capthick=1.1, zorder=3,
     )
-    frequency_axis.set_yticks(frequency_positions, list(frequency))
+    frequency_axis.scatter(
+        frequency_means, frequency_positions, s=25, color=accent,
+        edgecolors="white", linewidths=0.55, zorder=4,
+    )
+    frequency_axis.set_yticks(
+        frequency_positions,
+        ["DC  ($m=0$)", "Non-DC low  ($m=1$--$6$)", "Mid  ($m=7$--$13$)", "High  ($m=14$--$21$)"],
+    )
     frequency_axis.set_xlabel("Spearman $\\rho$", fontsize=7.5)
     frequency_axis.set_ylabel("")
-    frequency_axis.set_title("(a) Frequency-wise association", loc="left", fontweight="bold", fontsize=8.5)
+    frequency_axis.set_title("(a) Frequency association", loc="left", fontweight="bold", fontsize=8.5)
     frequency_axis.set_xlim(0.0, 0.65)
     frequency_axis.set_xticks((0.0, 0.2, 0.4, 0.6))
     frequency_axis.invert_yaxis()
@@ -139,40 +145,37 @@ def render_latent_summary_figure(summary: dict[str, object], output: Path) -> No
     for seed_index, seed in enumerate(seeds):
         values = [layers[label]["seed_values"][seed_index] for label in layers]
         layer_axis.scatter(
-            values, layer_positions + jitter[seed_index], s=18, color=SEED_COLORS[seed_index],
-            edgecolors="white", linewidths=0.35, alpha=0.82, zorder=3,
+            layer_positions, values, s=13, color=individual,
+            edgecolors="white", linewidths=0.35, alpha=0.95, zorder=2,
         )
+        layer_axis.plot(layer_positions, values, color=individual, linewidth=0.8, alpha=0.85, zorder=1)
+    layer_means = np.array([layers[label]["mean"] for label in layers])
+    layer_sd = np.array([layers[label]["sample_sd"] for label in layers])
     layer_axis.errorbar(
-        [layers[label]["mean"] for label in layers],
-        layer_positions,
-        xerr=[layers[label]["sample_sd"] for label in layers],
-        fmt="o", color="#202020", markerfacecolor="#202020", markeredgecolor="white",
-        markersize=4.2, capsize=2.2, linewidth=0.85, zorder=4,
+        layer_positions, layer_means, yerr=layer_sd,
+        fmt="none", ecolor=accent, elinewidth=1.1, capsize=2.0, capthick=1.1, zorder=3,
     )
-    layer_axis.set_yticks(layer_positions, ["Post-position input", "First encoder block", "Final normalized output"])
-    layer_axis.set_xlabel("Median spectral discrepancy", fontsize=7.5)
-    layer_axis.set_ylabel("")
-    layer_axis.set_title("(b) Layer-wise evolution", loc="left", fontweight="bold", fontsize=8.5)
-    layer_axis.set_xlim(0.092, 0.146)
-    layer_axis.set_xticks((0.10, 0.12, 0.14))
-    layer_axis.invert_yaxis()
+    layer_axis.plot(layer_positions, layer_means, color=accent, linewidth=1.8, zorder=4)
+    layer_axis.scatter(
+        layer_positions, layer_means, s=25, color=accent,
+        edgecolors="white", linewidths=0.55, zorder=5,
+    )
+    layer_axis.set_xticks(layer_positions, ["Post-position\ninput", "First\nblock", "Final\nnorm."])
+    layer_axis.set_xlabel("Encoder location", fontsize=7.5)
+    layer_axis.set_ylabel("Median spectral discrepancy", fontsize=7.5)
+    layer_axis.set_title("(b) Across encoder stages", loc="left", fontweight="bold", fontsize=8.5)
+    layer_axis.set_ylim(0.092, 0.146)
+    layer_axis.set_yticks((0.10, 0.12, 0.14))
     for axis in (frequency_axis, layer_axis):
         axis.set_facecolor("white")
-        axis.grid(axis="x", color="#D9DDE1", linewidth=0.5, alpha=0.8)
+        axis.grid(axis="both", color="#D9DDE1", linewidth=0.45, alpha=0.7)
         axis.spines[["top", "right"]].set_visible(False)
         axis.tick_params(labelsize=6.8)
-    figure.legend(
-        handles=[
-            *(Line2D([0], [0], marker="o", color="none", markerfacecolor=color,
-                     markeredgecolor="white", markersize=4.5, label=f"Seed {seed}")
-              for color, seed in zip(SEED_COLORS, seeds)),
-            Line2D([0], [0], marker="o", color="#202020", markerfacecolor="#202020",
-                   markeredgecolor="white", markersize=4.2, linestyle="none", label="Mean $\\pm$ SD"),
-        ],
-        loc="upper center", bbox_to_anchor=(0.5, 0.995), ncol=4, fontsize=6.6,
-        frameon=False, columnspacing=1.0, handletextpad=0.35,
+    figure.text(
+        0.5, 0.985, "Dark marks and line: mean $\\pm$ SD   ·   light marks and lines: individual checkpoints",
+        ha="center", va="top", fontsize=6.5, color="#5E6972",
     )
-    figure.subplots_adjust(top=0.82, bottom=0.22, left=0.10, right=0.985)
+    figure.subplots_adjust(top=0.84, bottom=0.24, left=0.12, right=0.985)
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, format="pdf", bbox_inches="tight")
