@@ -14,13 +14,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Multivariate Time Series Forecasting')
 
 
-    # basic config
+
     parser.add_argument('--is_training', type=int, default=1, help='status')
     parser.add_argument('--model', type=str, default='PathFormer',
                         help='model name, options: [PathFormer]')
     parser.add_argument('--model_id', type=str, default="ETT.sh")
 
-    # data loader
+
     parser.add_argument('--data', type=str, default='custom', help='dataset type')
     parser.add_argument('--root_path', type=str, default='./dataset/weather', help='root path of the data file')
     parser.add_argument('--data_path', type=str, default='weather.csv', help='data file')
@@ -31,13 +31,13 @@ if __name__ == '__main__':
                         help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
-    # forecasting task
+
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
     parser.add_argument('--individual', action='store_true', default=False,
                         help='DLinear: a linear layer for each variate(channel) individually')
 
-    # model
+
     parser.add_argument('--d_model', type=int, default=16)
     parser.add_argument('--d_ff', type=int, default=64)
     parser.add_argument('--num_nodes', type=int, default=21)
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_norm', type=int, default=0)
 
 
-    # optimization
+
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
     parser.add_argument('--train_epochs', type=int, default=20, help='train epochs')
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
     parser.add_argument('--pct_start', type=float, default=0.4, help='pct_start')
 
-    # GPU
+
     parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     if args.is_training:
         for ii in range(args.itr):
-            # setting record of experiments
+
             setting = '{}_{}_ft{}_sl{}_pl{}_{}'.format(
                 args.model_id,
                 args.model,
@@ -100,7 +100,7 @@ if __name__ == '__main__':
                 args.seq_len,
                 args.pred_len, ii)
 
-            exp = Exp(args)  # set experiments
+            exp = Exp(args)
 
 
 
@@ -128,7 +128,7 @@ if __name__ == '__main__':
             args.seq_len,
             args.pred_len, ii)
 
-        exp = Exp(args)  # set experiments
+        exp = Exp(args)
         print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
         exp.test(setting, test=1)
         torch.cuda.empty_cache()

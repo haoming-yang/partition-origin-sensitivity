@@ -14,7 +14,7 @@ DSETS = ['ettm1', 'ettm2', 'etth1', 'etth2', 'electricity',
         ]
 
 def get_dls(params):
-    
+
     assert params.dset in DSETS, f"Unrecognized dset (`{params.dset}`). Options include: {DSETS}"
     if not hasattr(params,'use_time_features'): params.use_time_features = False
 
@@ -87,7 +87,7 @@ def get_dls(params):
                 batch_size=params.batch_size,
                 workers=params.num_workers,
                 )
-    
+
 
     elif params.dset == 'electricity':
         root_path = '/data/datasets/public/electricity/'
@@ -122,7 +122,7 @@ def get_dls(params):
                 batch_size=params.batch_size,
                 workers=params.num_workers,
                 )
-    
+
     elif params.dset == 'weather':
         root_path = '/data/datasets/public/weather/'
         size = [params.context_points, 0, params.target_points]
@@ -173,7 +173,7 @@ def get_dls(params):
                 batch_size=params.batch_size,
                 workers=params.num_workers,
                 )
-    # dataset is assume to have dimension len x nvars
+
     dls.vars, dls.len = dls.train.dataset[0][0].shape[1], params.context_points
     dls.c = dls.train.dataset[0][1].shape[0]
     return dls
@@ -189,7 +189,7 @@ if __name__ == "__main__":
         num_workers= 8
         with_ray= False
         features='M'
-    params = Params 
+    params = Params
     dls = get_dls(params)
     for i, batch in enumerate(dls.valid):
         print(i, len(batch), batch[0].shape, batch[1].shape)

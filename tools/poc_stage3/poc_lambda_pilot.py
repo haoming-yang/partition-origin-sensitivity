@@ -14,7 +14,7 @@ import torch.nn.functional as F
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
-import stage4_inference as base  # noqa: E402
+import stage4_inference as base
 
 
 STAGE = base.STAGE
@@ -106,7 +106,7 @@ def dispersion_metrics(model, loader, p=12):
         for origin in range(p):
             v, m = base.partition(x, origin, p)
             preds.append(model(v, m).detach().cpu().numpy())
-        z = np.stack(preds, axis=0)  # p, batch, horizon, channels
+        z = np.stack(preds, axis=0)
         mu = z.mean(axis=0)
         var_per_window = ((z - mu) ** 2).mean(axis=(0, 2, 3))
         pair_per_window = ((z[:, None] - z[None, :]) ** 2).mean(axis=(3, 4))
@@ -262,7 +262,7 @@ def train_candidate(lam: float, protocol: dict, schedule: dict, schedule_path: P
         val_row = {"epoch": epoch, **metrics}
         val_rows.append(val_row)
         avg = float(metrics["avg_mse"])
-        # <= implements the frozen tie rule: later epoch wins exact ties.
+
         if avg <= best_val:
             best_val = avg
             best_epoch = epoch

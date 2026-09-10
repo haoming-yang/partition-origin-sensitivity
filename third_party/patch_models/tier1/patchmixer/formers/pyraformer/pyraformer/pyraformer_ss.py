@@ -61,7 +61,7 @@ class Model(nn.Module):
 
         self.encoder = Encoder(opt)
 
-        # convert hidden vectors into two scalar
+
         self.mean_hidden = Predictor(4 * opt.d_model, 1)
         self.var_hidden = Predictor(4 * opt.d_model, 1)
 
@@ -83,4 +83,3 @@ class Model(nn.Module):
         sample_mu = mu[:, -1] * v
         sample_sigma = sigma[:, -1] * v
         return sample_mu, sample_sigma
-

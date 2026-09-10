@@ -58,7 +58,7 @@ class Exp_Main(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
 
-                # encoder - decoder
+
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.model=='PathFormer':
@@ -128,7 +128,7 @@ class Exp_Main(Exp_Basic):
 
 
 
-                # encoder - decoder
+
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.model=='PathFormer':
@@ -238,8 +238,8 @@ class Exp_Main(Exp_Basic):
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
 
-                pred = outputs  # outputs.detach().cpu().numpy()  # .squeeze()
-                true = batch_y  # batch_y.detach().cpu().numpy()  # .squeeze()
+                pred = outputs
+                true = batch_y
 
                 preds.append(pred)
                 trues.append(true)
@@ -292,7 +292,7 @@ class Exp_Main(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
 
-                # encoder - decoder
+
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.model=='PathFormer':
@@ -305,17 +305,17 @@ class Exp_Main(Exp_Basic):
                         outputs, a_loss = self.model(batch_x)
                     else:
                         outputs = self.model(batch_x)
-                pred = outputs.detach().cpu().numpy()  # .squeeze()
+                pred = outputs.detach().cpu().numpy()
                 preds.append(pred)
 
         preds = np.array(preds)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
 
-        # result save
-        # folder_path = './results/' + setting + '/'
-        # if not os.path.exists(folder_path):
-        #     os.makedirs(folder_path)
-        #
-        # np.save(folder_path + 'real_prediction.npy', preds)
+
+
+
+
+
+
 
         return

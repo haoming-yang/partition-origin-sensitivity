@@ -1,6 +1,6 @@
 __all__ = ['PatchMixer']
 
-# Cell
+
 import torch
 from torch import nn
 from torch import Tensor
@@ -23,8 +23,8 @@ class PatchMixerLayer(nn.Module):
             nn.BatchNorm1d(a)
         )
     def forward(self,x):
-        x = x +self.Resnet(x)                  # x: [batch * n_val, patch_num, d_model]
-        x = self.Conv_1x1(x)                   # x: [batch * n_val, a, d_model]
+        x = x +self.Resnet(x)
+        x = self.Conv_1x1(x)
         return x
 
 class Model(nn.Module):
@@ -46,10 +46,10 @@ class Backbone(nn.Module):
         self.kernel_size = configs.mixer_kernel_size
 
         self.PatchMixer_blocks = nn.ModuleList([])
-        self.padding_patch_layer = nn.ReplicationPad1d((0, self.stride)) 
+        self.padding_patch_layer = nn.ReplicationPad1d((0, self.stride))
         self.patch_num = int((self.lookback - self.patch_size)/self.stride + 1) + 1
-        # if configs.a < 1 or configs.a > self.patch_num:
-        #     configs.a = self.patch_num
+
+
         self.a = self.patch_num
         self.d_model = configs.d_model
         self.dropout = configs.dropout
@@ -57,7 +57,7 @@ class Backbone(nn.Module):
         self.depth = configs.e_layers
         for _ in range(self.depth):
             self.PatchMixer_blocks.append(PatchMixerLayer(dim=self.patch_num, a=self.a, kernel_size=self.kernel_size))
-        self.W_P = nn.Linear(self.patch_size, self.d_model)  
+        self.W_P = nn.Linear(self.patch_size, self.d_model)
         self.head0 = nn.Sequential(
             nn.Flatten(start_dim=-2),
             nn.Linear(self.patch_num * self.d_model, self.forecasting),
@@ -72,7 +72,7 @@ class Backbone(nn.Module):
             nn.Dropout(self.head_dropout)
         )
         self.dropout = nn.Dropout(self.dropout)
-        # RevIn
+
         self.revin = revin
         if self.revin: self.revin_layer = RevIN(self.nvals, affine=affine, subtract_last=subtract_last)
     def forward(self, x):
@@ -80,13 +80,13 @@ class Backbone(nn.Module):
         nvars = x.shape[-1]
         if self.revin:
             x = self.revin_layer(x, 'norm')
-        x = x.permute(0, 2, 1)                                                       # x: [batch, n_val, seq_len]
+        x = x.permute(0, 2, 1)
 
         x_lookback = self.padding_patch_layer(x)
-        x = x_lookback.unfold(dimension=-1, size=self.patch_size, step=self.stride)  # x: [batch, n_val, patch_num, patch_size]  
+        x = x_lookback.unfold(dimension=-1, size=self.patch_size, step=self.stride)
 
-        x = self.W_P(x)                                                              # x: [batch, n_val, patch_num, d_model]
-        x = torch.reshape(x, (x.shape[0] * x.shape[1], x.shape[2], x.shape[3]))      # x: [batch * n_val, patch_num, d_model]
+        x = self.W_P(x)
+        x = torch.reshape(x, (x.shape[0] * x.shape[1], x.shape[2], x.shape[3]))
         x = self.dropout(x)
         u = self.head0(x)
 
@@ -94,7 +94,7 @@ class Backbone(nn.Module):
             x = PatchMixer_block(x)
         x = self.head1(x)
         x = u + x
-        x = torch.reshape(x, (bs , nvars, -1))                                       # x: [batch, n_val, pred_len]
+        x = torch.reshape(x, (bs , nvars, -1))
         x = x.permute(0, 2, 1)
         if self.revin:
             x = self.revin_layer(x, 'denorm')

@@ -21,7 +21,7 @@ class Transformer_Layer(nn.Module):
         self.batch_norm = batch_norm
 
 
-        ##intra_patch_attention
+
         self.intra_embeddings = nn.Parameter(torch.rand(self.patch_nums, 1, 1, self.num_nodes, 16),
                                                 requires_grad=True)
         self.embeddings_generator = nn.ModuleList([nn.Sequential(*[
@@ -36,14 +36,14 @@ class Transformer_Layer(nn.Module):
 
 
 
-        ##inter_patch_attention
+
         self.stride = patch_size
-        # patch_num = int((context_window - cut_size) / self.stride + 1)
+
 
         self.inter_d_model = self.d_model * self.patch_size
-        ##inter_embedding
+
         self.emb_linear = nn.Linear(self.inter_d_model, self.inter_d_model)
-        # Positional encoding
+
         self.W_pos = positional_encoding(pe='zeros', learn_pe=True, q_len=self.patch_nums, d_model=self.inter_d_model)
         n_heads = self.d_model
         d_k = self.inter_d_model // n_heads
@@ -52,11 +52,11 @@ class Transformer_Layer(nn.Module):
                                           proj_dropout=0.1, res_attention=False)
 
 
-        ##Normalization
+
         self.norm_attn = nn.Sequential(Transpose(1,2), nn.BatchNorm1d(self.d_model), Transpose(1,2))
         self.norm_ffn = nn.Sequential(Transpose(1,2), nn.BatchNorm1d(self.d_model), Transpose(1,2))
 
-        ##FFN
+
         self.d_ff = d_ff
         self.dropout = nn.Dropout(0.1)
         self.ff = nn.Sequential(nn.Linear(self.d_model, self.d_ff, bias=True),
@@ -73,7 +73,7 @@ class Transformer_Layer(nn.Module):
         weights_shared, biases_shared = self.weights_generator_shared()
         weights_distinct, biases_distinct = self.weights_generator_distinct()
 
-        ####intra Attention#####
+
         for i in range(self.patch_nums):
             t = x[:, i * self.patch_size:(i + 1) * self.patch_size, :, :]
 
@@ -94,26 +94,26 @@ class Transformer_Layer(nn.Module):
 
 
 
-        ####inter Attention######
-        x = x.unfold(dimension=1, size=self.patch_size, step=self.stride)  # [b x patch_num x nvar x dim x patch_len]
-        x = x.permute(0, 2, 1, 3, 4)  # [b x nvar x patch_num x dim x patch_len ]
+
+        x = x.unfold(dimension=1, size=self.patch_size, step=self.stride)
+        x = x.permute(0, 2, 1, 3, 4)
         b, nvar, patch_num, dim, patch_len = x.shape
 
         x = torch.reshape(x, (
-        x.shape[0] * x.shape[1], x.shape[2], x.shape[3] * x.shape[-1]))  # [b*nvar, patch_num, dim*patch_len]
+        x.shape[0] * x.shape[1], x.shape[2], x.shape[3] * x.shape[-1]))
 
         x = self.emb_linear(x)
         x = self.dropout(x + self.W_pos)
 
-        inter_out, attention = self.inter_patch_attention(Q=x, K=x, V=x)  # [b*nvar, patch_num, dim]
+        inter_out, attention = self.inter_patch_attention(Q=x, K=x, V=x)
         inter_out = torch.reshape(inter_out, (b, nvar, inter_out.shape[-2], inter_out.shape[-1]))
         inter_out = torch.reshape(inter_out, (b, nvar, inter_out.shape[-2], self.patch_size, self.d_model))
-        inter_out = torch.reshape(inter_out, (b, self.patch_size*self.patch_nums, nvar, self.d_model)) #[b, temporal, nvar, dim]
+        inter_out = torch.reshape(inter_out, (b, self.patch_size*self.patch_nums, nvar, self.d_model))
 
         out = new_x + intra_out_concat + inter_out
         if self.batch_norm:
             out = self.norm_attn(out.reshape(b*nvar, self.patch_size*self.patch_nums, self.d_model))
-        ##FFN
+
         out = self.dropout(out)
         out = self.ff(out) + out
         if self.batch_norm:
@@ -191,12 +191,12 @@ class Inter_Patch_Attention(nn.Module):
         self.W_K = nn.Linear(d_model, d_k * n_heads, bias=qkv_bias)
         self.W_V = nn.Linear(d_model, d_v * n_heads, bias=qkv_bias)
 
-        # Scaled Dot-Product Attention (multiple heads)
+
         self.res_attention = res_attention
         self.sdp_attn = ScaledDotProductAttention(d_model, n_heads, attn_dropout=attn_dropout,
                                                   res_attention=self.res_attention, lsa=lsa)
 
-        # Poject output
+
         self.to_out = nn.Sequential(nn.Linear(n_heads * d_v, out_dim), nn.Dropout(proj_dropout))
 
 
@@ -206,22 +206,22 @@ class Inter_Patch_Attention(nn.Module):
         if K is None: K = Q
         if V is None: V = Q
 
-        # Linear (+ split in multiple heads)
-        q_s = self.W_Q(Q).view(bs, Q.shape[1], self.n_heads, self.d_k).transpose(1,
-                                                                                 2)  # q_s    : [bs x n_heads x q_len x d_k]  此处的q_len为patch_num
-        k_s = self.W_K(K).view(bs, K.shape[1], self.n_heads, self.d_k).permute(0, 2, 3,
-                                                                               1)  # k_s    : [bs x n_heads x d_k x q_len] - transpose(1,2) + transpose(2,3)
-        v_s = self.W_V(V).view(bs, V.shape[1], self.n_heads, self.d_v).transpose(1,
-                                                                                 2)  # v_s    : [bs x n_heads x q_len x d_v]
 
-        # Apply Scaled Dot-Product Attention (multiple heads)
+        q_s = self.W_Q(Q).view(bs, Q.shape[1], self.n_heads, self.d_k).transpose(1,
+                                                                                 2)
+        k_s = self.W_K(K).view(bs, K.shape[1], self.n_heads, self.d_k).permute(0, 2, 3,
+                                                                               1)
+        v_s = self.W_V(V).view(bs, V.shape[1], self.n_heads, self.d_v).transpose(1,
+                                                                                 2)
+
+
         if self.res_attention:
             output, attn_weights, attn_scores = self.sdp_attn(q_s, k_s, v_s, prev=prev,
                                                               key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         else:
             output, attn_weights = self.sdp_attn(q_s, k_s, v_s, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         output = output.transpose(1, 2).contiguous().view(bs, Q.shape[1],
-                                                          self.n_heads * self.d_v)  # output: [bs x q_len x n_heads * d_v]
+                                                          self.n_heads * self.d_v)
         output = self.to_out(output)
 
         return output, attn_weights
@@ -242,29 +242,29 @@ class ScaledDotProductAttention(nn.Module):
 
     def forward(self, q, k, v, prev=None, key_padding_mask=None, attn_mask=None):
 
-        # Scaled MatMul (q, k) - similarity scores for all pairs of positions in an input sequence
-        attn_scores = torch.matmul(q, k) * self.scale  # attn_scores : [bs x n_heads x max_q_len x q_len]
 
-        # Add pre-softmax attention scores from the previous layer (optional)
+        attn_scores = torch.matmul(q, k) * self.scale
+
+
         if prev is not None: attn_scores = attn_scores + prev
 
-        # Attention mask (optional)
-        if attn_mask is not None:  # attn_mask with shape [q_len x seq_len] - only used when q_len == seq_len
+
+        if attn_mask is not None:
             if attn_mask.dtype == torch.bool:
                 attn_scores.masked_fill_(attn_mask, -np.inf)
             else:
                 attn_scores += attn_mask
 
-        # Key padding mask (optional)
-        if key_padding_mask is not None:  # mask with shape [bs x q_len] (only when max_w_len == q_len)
+
+        if key_padding_mask is not None:
             attn_scores.masked_fill_(key_padding_mask.unsqueeze(1).unsqueeze(2), -np.inf)
 
-        # normalize the attention weights
-        attn_weights = F.softmax(attn_scores, dim=-1)  # attn_weights   : [bs x n_heads x max_q_len x q_len]
+
+        attn_weights = F.softmax(attn_scores, dim=-1)
         attn_weights = self.attn_dropout(attn_weights)
 
-        # compute the new values given the attention weights
-        output = torch.matmul(attn_weights, v)  # output: [bs x n_heads x max_q_len x d_v]
+
+        output = torch.matmul(attn_weights, v)
 
         return output, attn_weights
 
@@ -272,7 +272,7 @@ class ScaledDotProductAttention(nn.Module):
 class WeightGenerator(nn.Module):
     def __init__(self, in_dim, out_dim, mem_dim, num_nodes, factorized, number_of_weights=4):
         super(WeightGenerator, self).__init__()
-        #print('FACTORIZED {}'.format(factorized))
+
         self.number_of_weights = number_of_weights
         self.mem_dim = mem_dim
         self.num_nodes = num_nodes
@@ -280,7 +280,7 @@ class WeightGenerator(nn.Module):
         self.out_dim = out_dim
         if self.factorized:
             self.memory = nn.Parameter(torch.randn(num_nodes, mem_dim), requires_grad=True).to('cpu')
-            # self.memory = nn.Parameter(torch.randn(num_nodes, mem_dim), requires_grad=True).to('cuda:0')
+
             self.generator = self.generator = nn.Sequential(*[
                 nn.Linear(mem_dim, 64),
                 nn.Tanh(),

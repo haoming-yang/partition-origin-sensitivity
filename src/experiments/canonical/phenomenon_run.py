@@ -5,7 +5,7 @@ import numpy as np, pandas as pd, torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
-from ...training.runner import current_git_commit, seed_all  # reuse repository seed semantics
+from ...training.runner import current_git_commit, seed_all
 
 ROOT = Path(__file__).resolve().parent
 REPO_ROOT = Path(__file__).resolve().parents[3]

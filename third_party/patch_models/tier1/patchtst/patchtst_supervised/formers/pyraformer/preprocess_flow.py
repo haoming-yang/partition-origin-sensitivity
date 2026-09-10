@@ -8,10 +8,10 @@ import zipfile
 
 
 def load_data(filedir):
-    data_frame = pd.read_csv(filedir, header=0, parse_dates=True)  #names=['app_name', 'zone', 'time', 'value']
+    data_frame = pd.read_csv(filedir, header=0, parse_dates=True)
     data_frame = data_frame.drop(data_frame.columns[0], axis=1)
     grouped_data = list(data_frame.groupby(["app_name", "zone"]))
-    # covariates = gen_covariates(data_frame.index, 3)
+
     all_data = []
     for i in range(len(grouped_data)):
         single_df = grouped_data[i][1].drop(labels=['app_name', 'zone'], axis=1).sort_values(by="time", ascending=True)

@@ -1,12 +1,12 @@
 __all__ = ['PositionalEncoding', 'SinCosPosEncoding', 'positional_encoding']
 
-# Cell
+
 
 import torch
 from torch import nn
 import math
 
-# Cell
+
 def PositionalEncoding(q_len, d_model, normalize=True):
     pe = torch.zeros(q_len, d_model)
     position = torch.arange(0, q_len).unsqueeze(1)
@@ -22,9 +22,9 @@ SinCosPosEncoding = PositionalEncoding
 
 
 def positional_encoding(pe, learn_pe, q_len, d_model):
-    # Positional encoding
+
     if pe == None:
-        W_pos = torch.empty((q_len, d_model)) # pe = None and learn_pe = False can be used to measure impact of pe
+        W_pos = torch.empty((q_len, d_model))
         nn.init.uniform_(W_pos, -0.02, 0.02)
         learn_pe = False
     elif pe == 'zero':
@@ -43,4 +43,3 @@ def positional_encoding(pe, learn_pe, q_len, d_model):
     else: raise ValueError(f"{pe} is not a valid pe (positional encoder. Available types: 'gauss'=='normal', \
         'zeros', 'zero', uniform', 'sincos', None.)")
     return nn.Parameter(W_pos, requires_grad=learn_pe)
-

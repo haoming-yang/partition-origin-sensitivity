@@ -65,7 +65,7 @@ def main():
         selected = None
         status = "NO_ACCEPTABLE_LAMBDA"
     else:
-        # Stable deterministic rule: minimum S_theta, then lower lambda for a 1e-12 tie.
+
         eligible.sort(key=lambda r: (r["validation_S_theta"], r["lambda"]))
         selected = eligible[0]["lambda"]
         status = "FROZEN_POC_LAMBDA"

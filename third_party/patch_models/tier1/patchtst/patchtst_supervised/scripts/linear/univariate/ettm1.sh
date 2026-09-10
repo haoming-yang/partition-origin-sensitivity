@@ -11,7 +11,7 @@ if [ ! -d "./logs/LongForecasting/univariate" ]; then
 fi
 model_name=DLinear
 
-# ETTm1, univariate results, pred_len= 96 192 336 720
+
 python -u run_longExp.py \
   --is_training 1 \
   --root_path ./dataset/ \

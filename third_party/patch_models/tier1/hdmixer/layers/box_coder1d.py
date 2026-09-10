@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+
 import math
 import torch
 import torch.nn as nn
@@ -13,7 +13,7 @@ class pointCoder(nn.Module):
         self.input_size = input_size
         self.patch_count = patch_count
         self.weights = weights
-        #self._generate_anchor()
+
         self.tanh = tanh
 
     def _generate_anchor(self, device="cpu"):
@@ -24,7 +24,7 @@ class pointCoder(nn.Module):
                 anchors.append([x])
         anchors = torch.as_tensor(anchors)
         self.anchor = torch.as_tensor(anchors, device=device)
-        #self.register_buffer("anchor", anchors)
+
 
     @torch.cuda.amp.autocast(enabled=False)
     def forward(self, pts, model_offset=None):
@@ -33,7 +33,7 @@ class pointCoder(nn.Module):
         return self.boxes
 
     def decode(self, rel_codes):
-        # print ('xyxy decoding')
+
         boxes = self.anchor
         pixel = 1./self.patch_count
         wx, wy = self.weights
@@ -67,8 +67,8 @@ class pointwhCoder(pointCoder):
     @torch.cuda.amp.autocast(enabled=False)
     def forward(self, boxes):
         self._generate_anchor(device=boxes.device)
-        # print(boxes.shape)
-        # print(self.wh_bias.shape)
+
+
         if self.wh_bias is not None:
             boxes[:, :, 1:] = boxes[:, :, 1:] + self.wh_bias
         self.boxes = self.decode(boxes)
@@ -76,16 +76,16 @@ class pointwhCoder(pointCoder):
         return points
 
     def decode(self, rel_codes):
-        # print ('xyxy decoding')
+
         boxes = self.anchor
-        pixel_x = 2./self.patch_count # patch_count=in_size//stride 这里应该用2除而不是1除 得到pixel_x是两个patch中点的原本距离
+        pixel_x = 2./self.patch_count
         wx,  ww1,ww2 = self.weights
 
-        dx = F.tanh(rel_codes[:, :, 0]/wx) * pixel_x/4 if self.tanh else rel_codes[:, :, 0]*pixel_x / wx #中心点不会偏移超过patch_len
+        dx = F.tanh(rel_codes[:, :, 0]/wx) * pixel_x/4 if self.tanh else rel_codes[:, :, 0]*pixel_x / wx
 
-        dw1 = F.relu(F.tanh(rel_codes[:, :, 1]/ww1)) * pixel_x*self.deform_range + pixel_x # 中心点左边长度在[stride,stride+1/4*stride]，右边同理
-        dw2 = F.relu(F.tanh(rel_codes[:, :, 2]/ww2)) * pixel_x*self.deform_range + pixel_x #
-        # dw = 
+        dw1 = F.relu(F.tanh(rel_codes[:, :, 1]/ww1)) * pixel_x*self.deform_range + pixel_x
+        dw2 = F.relu(F.tanh(rel_codes[:, :, 2]/ww2)) * pixel_x*self.deform_range + pixel_x
+
 
         pred_boxes = torch.zeros((rel_codes.shape[0],rel_codes.shape[1],rel_codes.shape[2]-1)).to(rel_codes.device)
 
@@ -98,12 +98,12 @@ class pointwhCoder(pointCoder):
         return pred_boxes
 
 
-    
+
     def meshgrid(self, boxes):
         B = boxes.shape[0]
         xs= boxes
         xs = torch.nn.functional.interpolate(xs, size=self.patch_pixel, mode='linear', align_corners=True)
         results = xs
         results = results.reshape(B, self.patch_count,self.patch_pixel, 1)
-        #print((1+results[0])/2*336)
+
         return results

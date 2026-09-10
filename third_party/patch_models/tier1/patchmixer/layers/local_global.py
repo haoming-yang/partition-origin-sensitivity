@@ -13,8 +13,8 @@ class moving_avg(nn.Module):
         self.avg = nn.AvgPool1d(kernel_size=kernel_size, stride=stride, padding=0)
 
     def forward(self, x):
-        # x shape: batch,seq_len,channels
-        # padding on the both ends of time series
+
+
         front = x[:, 0:1, :].repeat(1, (self.kernel_size - 1) // 2, 1)
         end = x[:, -1:, :].repeat(1, (self.kernel_size - 1) // 2, 1)
         x = torch.cat([front, x, end], dim=1)
@@ -98,18 +98,18 @@ class MIC(nn.Module):
         self.conv_kernel = conv_kernel
         self.isometric_kernel = isometric_kernel
         self.device = device
-        
-        # isometric convolution
+
+
         self.isometric_conv = nn.ModuleList([nn.Conv1d(in_channels=feature_size, out_channels=feature_size,
                                                    kernel_size=i,padding=0,stride=1)
                                         for i in isometric_kernel])
 
-        # downsampling convolution: padding=i//2, stride=i
+
         self.conv = nn.ModuleList([nn.Conv1d(in_channels=feature_size, out_channels=feature_size,
                                              kernel_size=i,padding=i//2,stride=i)
                                   for i in conv_kernel])
 
-        # upsampling convolution
+
         self.conv_trans = nn.ModuleList([nn.ConvTranspose1d(in_channels=feature_size, out_channels=feature_size,
                                                             kernel_size=i,padding=0,stride=i)
                                         for i in conv_kernel])
@@ -128,38 +128,38 @@ class MIC(nn.Module):
         batch, seq_len, channel = input.shape
         x = input.permute(0, 2, 1)
 
-        # downsampling convolution
+
         x1 = self.drop(self.act(conv1d(x)))
         x = x1
 
-        # isometric convolution 
+
         zeros = torch.zeros((x.shape[0], x.shape[1], x.shape[2]-1), device=self.device)
         x = torch.cat((zeros, x), dim=-1)
         x = self.drop(self.act(isometric(x)))
         x = self.norm((x+x1).permute(0, 2, 1)).permute(0, 2, 1)
 
-        # upsampling convolution
+
         x = self.drop(self.act(conv1d_trans(x)))
-        x = x[:, :, :seq_len]   # truncate
+        x = x[:, :, :seq_len]
 
         x = self.norm(x.permute(0, 2, 1) + input)
         return x
 
 
     def forward(self, src):
-        # multi-scale
-        multi = []  
+
+        multi = []
         for i in range(len(self.conv_kernel)):
             src_out, trend1 = self.decomp[i](src)
             src_out = self.conv_trans_conv(src_out, self.conv[i], self.conv_trans[i], self.isometric_conv[i])
-            multi.append(src_out)  
+            multi.append(src_out)
 
-        # merge
+
         mg = torch.tensor([], device = self.device)
         for i in range(len(self.conv_kernel)):
             mg = torch.cat((mg, multi[i].unsqueeze(1)), dim=1)
         mg = self.merge(mg.permute(0,3,1,2)).squeeze(-2).permute(0,2,1)
-        
+
         return self.fnn_norm(mg + self.fnn(mg))
 
 
@@ -178,4 +178,3 @@ class Seasonal_Prediction(nn.Module):
         for mic_layer in self.mic:
             dec = mic_layer(dec)
         return self.projection(dec)
-

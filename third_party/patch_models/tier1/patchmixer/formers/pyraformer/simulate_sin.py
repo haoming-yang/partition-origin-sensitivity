@@ -47,8 +47,8 @@ def synthesis_data():
         y = generate_sin(x, T, A)
         data.append(y)
         covariates.append(gen_covariates(x, i))
-        # plt.plot(x[:T[-1]], y[:T[-1]])
-        # plt.show()
+
+
 
     data = np.array(data)
     mean, cov = polynomial_decay_cov(seq_len)
@@ -105,4 +105,3 @@ def multivariate_normal(mean, cov, seq_num):
 
 if __name__ == '__main__':
     synthesis_data()
-

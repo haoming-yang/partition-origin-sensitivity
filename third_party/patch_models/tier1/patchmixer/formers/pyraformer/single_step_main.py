@@ -190,7 +190,7 @@ def train(model, optimizer, scheduler, opt, model_save_dir):
 
         scheduler.step()
 
-        # Choose NRMSE as the metric to select the best model.
+
         if best_nrmse > valid_mse:
             best_nrmse = valid_mse
             best_metrics = [epoch, valid_likelihood, valid_mse, valid_mae]
@@ -240,22 +240,22 @@ def evaluate(model, opt, model_save_dir):
 def arg_parser():
     parser = argparse.ArgumentParser()
 
-    # running mode
+
     parser.add_argument('-eval', action='store_true', default=False)
 
-    # Path parameters
+
     parser.add_argument('-data_path', type=str, default='data/elect/')
     parser.add_argument('-dataset', type=str, default='elect')
 
-    # Train parameters
+
     parser.add_argument('-epoch', type=int, default=10)
-    parser.add_argument('-inner_batch', type=int, default=8) # Equivalent batch size
+    parser.add_argument('-inner_batch', type=int, default=8)
     parser.add_argument('-lr', type=float, default=1e-5)
     parser.add_argument('-visualize_fre', type=int, default=2000)
     parser.add_argument('-pretrain', action='store_false', default=True)
     parser.add_argument('-hard_sample_mining', action='store_false', default=True)
 
-    # Model parameters
+
     parser.add_argument('-model', type=str, default='Pyraformer')
     parser.add_argument('-d_model', type=int, default=512)
     parser.add_argument('-d_inner_hid', type=int, default=512)
@@ -264,12 +264,12 @@ def arg_parser():
     parser.add_argument('-n_head', type=int, default=4)
     parser.add_argument('-n_layer', type=int, default=4)
     parser.add_argument('-dropout', type=float, default=0.1)
-    # Pyraformer parameters
-    parser.add_argument('-window_size', type=str, default='[4, 4, 4]') # # The number of children of a parent node.
-    parser.add_argument('-inner_size', type=int, default=3) # The number of ajacent nodes.
-    parser.add_argument('-use_tvm', action='store_true', default=False) # Whether to use TVM.
 
-    # Test parameter
+    parser.add_argument('-window_size', type=str, default='[4, 4, 4]')
+    parser.add_argument('-inner_size', type=int, default=3)
+    parser.add_argument('-use_tvm', action='store_true', default=False)
+
+
     parser.add_argument('-predict_step', type=int, default=24)
 
     opt = parser.parse_args()
@@ -283,7 +283,7 @@ def main():
     opt.window_size = eval(opt.window_size)
     print('[Info] parameters: {}'.format(opt))
 
-    # default device is CUDA
+
     if torch.cuda.is_available():
         opt.device = torch.device('cuda')
     else:
@@ -315,4 +315,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

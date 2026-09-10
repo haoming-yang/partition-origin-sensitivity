@@ -145,7 +145,7 @@ class Windows(Dataset):
 
 
 def phase_count(patch_len: int, stride: int) -> int:
-    # The lattice period is the stride.  For non-overlap this is also p.
+
     return stride
 
 
@@ -312,9 +312,9 @@ class ControlledTransformerSupplement(nn.Module):
 def official_patchtst_model(context: int, horizon: int, patch_len: int, stride: int,
                             channels: int = CHANNELS) -> nn.Module:
     sys.path.insert(0, str(SOURCE_ROOT))
-    # Load the official file directly.  The repository's models/__init__.py
-    # imports an unavailable optional module, so package import is not a valid
-    # provenance-preserving route for this source snapshot.
+
+
+
     module_name = "official_patchtst_source_for_supplement"
     module = sys.modules.get(module_name)
     if module is None:

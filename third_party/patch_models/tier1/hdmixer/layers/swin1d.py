@@ -59,28 +59,28 @@ class WindowAttention1D(nn.Module):
 
         super().__init__()
         self.dim = dim
-        self.window_size = window_size  # Wl
+        self.window_size = window_size
         self.num_heads = num_heads
         head_dim = dim // num_heads
         self.scale = qk_scale or head_dim ** -0.5
 
-        # define a parameter table of relative position bias
-        self.relative_position_bias_table = nn.Parameter(
-            torch.zeros((2 * window_size - 1), num_heads))  # 2*Ww-1, nH
 
-        # get pair-wise relative position index for each token inside the window
+        self.relative_position_bias_table = nn.Parameter(
+            torch.zeros((2 * window_size - 1), num_heads))
+
+
         coords_l = torch.arange(self.window_size)
         coords = torch.stack(torch.meshgrid(
-            [coords_l], indexing='ij'))  # 1, Wl
-        coords_flatten = torch.flatten(coords, 1)  # 1, Wl
+            [coords_l], indexing='ij'))
+        coords_flatten = torch.flatten(coords, 1)
         relative_coords = coords_flatten[:, :, None] - \
-            coords_flatten[:, None, :]  # 1, Wl, Wl
+            coords_flatten[:, None, :]
         relative_coords = relative_coords.permute(
-            1, 2, 0).contiguous()  # Wl, Wl, 2
+            1, 2, 0).contiguous()
         relative_coords[:, :, 0] += self.window_size - \
-            1  # shift to start from 0
-        # relative_coords[:, :, 0] *= 2 * self.window_size[1] - 1
-        relative_position_index = relative_coords.sum(-1)  # Wl, Wl
+            1
+
+        relative_position_index = relative_coords.sum(-1)
         self.register_buffer("relative_position_index",
                              relative_position_index)
 
@@ -101,16 +101,16 @@ class WindowAttention1D(nn.Module):
         B_, N, C = x.shape
         qkv = self.qkv(x).reshape(B_, N, 3, self.num_heads, C //
                                   self.num_heads).permute(2, 0, 3, 1, 4)
-        # make torchscript happy (cannot use tensor as tuple)
+
         q, k, v = qkv[0], qkv[1], qkv[2]
 
         q = q * self.scale
         attn = (q @ k.transpose(-2, -1))
 
         relative_position_bias = self.relative_position_bias_table[self.relative_position_index.view(-1)].view(
-            self.window_size, self.window_size, -1)  # Wl,Wl,nH
+            self.window_size, self.window_size, -1)
         relative_position_bias = relative_position_bias.permute(
-            2, 0, 1).contiguous()  # nH, Wl, Wl
+            2, 0, 1).contiguous()
         attn = attn + relative_position_bias.unsqueeze(0)
 
         if mask is not None:

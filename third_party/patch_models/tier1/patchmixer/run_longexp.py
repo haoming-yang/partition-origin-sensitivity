@@ -7,16 +7,16 @@ import numpy as np
 
 parser = argparse.ArgumentParser(description='Autoformer & Transformer family for Time Series Forecasting')
 
-# random seed
+
 parser.add_argument('--random_seed', type=int, default=2021, help='random seed')
 
-# basic config
+
 parser.add_argument('--is_training', type=int, required=True, default=1, help='status')
 parser.add_argument('--model_id', type=str, required=True, default='test', help='model id')
 parser.add_argument('--model', type=str, required=True, default='Autoformer',
                     help='model name, options: [Autoformer, Informer, Transformer]')
 
-# data loader
+
 parser.add_argument('--data', type=str, required=True, default='ETTm1', help='dataset type')
 parser.add_argument('--root_path', type=str, default='./data/ETT/', help='root path of the data file')
 parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
@@ -27,16 +27,16 @@ parser.add_argument('--freq', type=str, default='h',
                     help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
 parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
-# forecasting task
+
 parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
 parser.add_argument('--label_len', type=int, default=0, help='start token length')
 parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
 
 
-# DLinear
-#parser.add_argument('--individual', action='store_true', default=False, help='DLinear: a linear layer for each variate(channel) individually')
 
-# PatchTST
+
+
+
 parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
 parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
 parser.add_argument('--patch_len', type=int, default=16, help='patch length')
@@ -49,9 +49,9 @@ parser.add_argument('--decomposition', type=int, default=0, help='decomposition;
 parser.add_argument('--kernel_size', type=int, default=25, help='decomposition-kernel')
 parser.add_argument('--individual', type=int, default=0, help='individual head; True 1 False 0')
 
-# Formers 
+
 parser.add_argument('--embed_type', type=int, default=0, help='0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding')
-parser.add_argument('--enc_in', type=int, default=7, help='encoder input size') # DLinear with --individual, use this hyperparameter as the number of channels
+parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
 parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
 parser.add_argument('--c_out', type=int, default=7, help='output size')
 parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
@@ -71,7 +71,7 @@ parser.add_argument('--activation', type=str, default='gelu', help='activation')
 parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
 parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
-# optimization
+
 parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
 parser.add_argument('--itr', type=int, default=2, help='experiments times')
 parser.add_argument('--train_epochs', type=int, default=100, help='train epochs')
@@ -84,21 +84,21 @@ parser.add_argument('--lradj', type=str, default='type3', help='adjust learning 
 parser.add_argument('--pct_start', type=float, default=0.3, help='pct_start')
 parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
 
-# GPU
+
 parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
 parser.add_argument('--gpu', type=int, default=0, help='gpu')
 parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
 parser.add_argument('--devices', type=str, default='0,1', help='device ids of multile gpus')
 parser.add_argument('--test_flop', action='store_true', default=False, help='See utils/tools for usage')
 
-#PatchMixer
+
 parser.add_argument('--mixer_kernel_size', type=int, default=8, help='patchmixer-kernel')
-# parser.add_argument('--a', type=int, default=1, help='degree of patches aggregation, limited to 1-N, other value for N')
+
 parser.add_argument('--loss_flag', type=int, default=2, help='loss function flag, 0 for MSE, 1 for MAE, 2 for both of MSE & MAE, 3 for SmoothL1loss')
 
 args = parser.parse_args()
 
-# random seed
+
 fix_seed = args.random_seed
 random.seed(fix_seed)
 torch.manual_seed(fix_seed)
@@ -120,7 +120,7 @@ Exp = Exp_Main
 
 if args.is_training:
     for ii in range(args.itr):
-        # setting record of experiments
+
         setting = 'loss_flag{}_lr{}_dm{}_{}_{}_{}_ft{}_sl{}_pl{}_p{}s{}_random{}_{}'.format(
             args.loss_flag,
             args.learning_rate,
@@ -135,7 +135,7 @@ if args.is_training:
             args.stride,
             args.random_seed,ii)
 
-        exp = Exp(args)  # set experiments
+        exp = Exp(args)
         print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
         exp.train(setting)
 
@@ -164,7 +164,7 @@ else:
         args.stride,
         args.random_seed, ii)
 
-    exp = Exp(args)  # set experiments
+    exp = Exp(args)
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
     exp.test(setting, test=1)
     torch.cuda.empty_cache()

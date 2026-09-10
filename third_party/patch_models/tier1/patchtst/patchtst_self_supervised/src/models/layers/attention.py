@@ -22,11 +22,11 @@ class MultiheadAttention(nn.Module):
         self.W_K = nn.Linear(d_model, d_k * n_heads, bias=qkv_bias)
         self.W_V = nn.Linear(d_model, d_v * n_heads, bias=qkv_bias)
 
-        # Scaled Dot-Product Attention (multiple heads)
+
         self.res_attention = res_attention
         self.sdp_attn = ScaledDotProductAttention(d_model, n_heads, attn_dropout=attn_dropout, res_attention=self.res_attention, lsa=lsa)
 
-        # Poject output
+
         self.to_out = nn.Sequential(nn.Linear(n_heads * d_v, d_model), nn.Dropout(proj_dropout))
 
 
@@ -37,27 +37,27 @@ class MultiheadAttention(nn.Module):
         if K is None: K = Q
         if V is None: V = Q
 
-        # Linear (+ split in multiple heads)
-        q_s = self.W_Q(Q).view(bs, -1, self.n_heads, self.d_k).transpose(1,2)       # q_s    : [bs x n_heads x max_q_len x d_k]
-        k_s = self.W_K(K).view(bs, -1, self.n_heads, self.d_k).permute(0,2,3,1)     # k_s    : [bs x n_heads x d_k x q_len] - transpose(1,2) + transpose(2,3)
-        v_s = self.W_V(V).view(bs, -1, self.n_heads, self.d_v).transpose(1,2)       # v_s    : [bs x n_heads x q_len x d_v]
 
-        # Apply Scaled Dot-Product Attention (multiple heads)
+        q_s = self.W_Q(Q).view(bs, -1, self.n_heads, self.d_k).transpose(1,2)
+        k_s = self.W_K(K).view(bs, -1, self.n_heads, self.d_k).permute(0,2,3,1)
+        v_s = self.W_V(V).view(bs, -1, self.n_heads, self.d_v).transpose(1,2)
+
+
         if self.res_attention:
             output, attn_weights, attn_scores = self.sdp_attn(q_s, k_s, v_s, prev=prev, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         else:
             output, attn_weights = self.sdp_attn(q_s, k_s, v_s, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
-        # output: [bs x n_heads x q_len x d_v], attn: [bs x n_heads x q_len x q_len], scores: [bs x n_heads x max_q_len x q_len]
 
-        # back to the original inputs dimensions
-        output = output.transpose(1, 2).contiguous().view(bs, -1, self.n_heads * self.d_v) # output: [bs x q_len x n_heads * d_v]
+
+
+        output = output.transpose(1, 2).contiguous().view(bs, -1, self.n_heads * self.d_v)
         output = self.to_out(output)
 
         if self.res_attention: return output, attn_weights, attn_scores
         else: return output, attn_weights
 
 
-   
+
 class ScaledDotProductAttention(nn.Module):
     r"""Scaled Dot-Product Attention module (Attention is all you need by Vaswani et al., 2017) with optional residual attention from previous layer
     (Realformer: Transformer likes residual attention by He et al, 2020) and locality self sttention (Vision Transformer for Small-Size Datasets
@@ -86,30 +86,29 @@ class ScaledDotProductAttention(nn.Module):
             scores : [bs x n_heads x q_len x seq_len]
         '''
 
-        # Scaled MatMul (q, k) - similarity scores for all pairs of positions in an input sequence
-        attn_scores = torch.matmul(q, k) * self.scale      # attn_scores : [bs x n_heads x max_q_len x q_len]
 
-        # Add pre-softmax attention scores from the previous layer (optional)
+        attn_scores = torch.matmul(q, k) * self.scale
+
+
         if prev is not None: attn_scores = attn_scores + prev
 
-        # Attention mask (optional)
-        if attn_mask is not None:                                     # attn_mask with shape [q_len x seq_len] - only used when q_len == seq_len
+
+        if attn_mask is not None:
             if attn_mask.dtype == torch.bool:
                 attn_scores.masked_fill_(attn_mask, -np.inf)
             else:
                 attn_scores += attn_mask
 
-        # Key padding mask (optional)
-        if key_padding_mask is not None:                              # mask with shape [bs x q_len] (only when max_w_len == q_len)
+
+        if key_padding_mask is not None:
             attn_scores.masked_fill_(key_padding_mask.unsqueeze(1).unsqueeze(2), -np.inf)
 
-        # normalize the attention weights
-        attn_weights = F.softmax(attn_scores, dim=-1)                 # attn_weights   : [bs x n_heads x max_q_len x q_len]
+
+        attn_weights = F.softmax(attn_scores, dim=-1)
         attn_weights = self.attn_dropout(attn_weights)
 
-        # compute the new values given the attention weights
-        output = torch.matmul(attn_weights, v)                        # output: [bs x n_heads x max_q_len x d_v]
+
+        output = torch.matmul(attn_weights, v)
 
         if self.res_attention: return output, attn_weights, attn_scores
         else: return output, attn_weights
-

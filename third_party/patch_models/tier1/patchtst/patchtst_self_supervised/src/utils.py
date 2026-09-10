@@ -26,16 +26,16 @@ def nested_children(m: nn.Module):
     children = dict(m.named_children())
     output = {}
     if children == {}:
-        # if module has no children; m is last child! :O
+
         return m
     else:
-        # look for children from children... to the last child!
+
         for name, child in children.items():
             try:
                 output[name] = nested_children(child)
             except TypeError:
                 output[name] = nested_children(child)
-                
+
     return output
 
 
@@ -55,4 +55,3 @@ def unwrap_model(model):
     unwrapped_model = flatten_dict(unwrapped_model)
     unwrapped_model = nn.Sequential(OrderedDict(unwrapped_model))
     return unwrapped_model
-    

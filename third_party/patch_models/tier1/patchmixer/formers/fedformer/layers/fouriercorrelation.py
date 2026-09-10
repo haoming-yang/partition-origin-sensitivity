@@ -1,6 +1,6 @@
-# coding=utf-8
-# author=maziqing
-# email=maziqing.mzq@alibaba-inc.com
+
+
+
 
 import numpy as np
 import torch
@@ -24,16 +24,16 @@ def get_frequency_modes(seq_len, modes=64, mode_select_method='random'):
     return index
 
 
-# ########## fourier layer #############
+
 class FourierBlock(nn.Module):
     def __init__(self, in_channels, out_channels, seq_len, modes=0, mode_select_method='random'):
         super(FourierBlock, self).__init__()
         print('fourier enhanced block used!')
         """
-        1D Fourier block. It performs representation learning on frequency domain, 
-        it does FFT, linear transform, and Inverse FFT.    
+        1D Fourier block. It performs representation learning on frequency domain,
+        it does FFT, linear transform, and Inverse FFT.
         """
-        # get modes on frequency domain
+
         self.index = get_frequency_modes(seq_len, modes=modes, mode_select_method=mode_select_method)
         print('modes={}, index={}'.format(modes, self.index))
 
@@ -41,41 +41,41 @@ class FourierBlock(nn.Module):
         self.weights1 = nn.Parameter(
             self.scale * torch.rand(8, in_channels // 8, out_channels // 8, len(self.index), dtype=torch.cfloat))
 
-    # Complex multiplication
+
     def compl_mul1d(self, input, weights):
-        # (batch, in_channel, x ), (in_channel, out_channel, x) -> (batch, out_channel, x)
+
         return torch.einsum("bhi,hio->bho", input, weights)
 
     def forward(self, q, k, v, mask):
-        # size = [B, L, H, E]
+
         B, L, H, E = q.shape
         x = q.permute(0, 2, 3, 1)
-        # Compute Fourier coefficients
+
         x_ft = torch.fft.rfft(x, dim=-1)
-        # Perform Fourier neural operations
+
         out_ft = torch.zeros(B, H, E, L // 2 + 1, device=x.device, dtype=torch.cfloat)
         for wi, i in enumerate(self.index):
             if i >= x_ft.shape[3] or wi >= out_ft.shape[3]:
                 continue
             out_ft[:, :, :, wi] = self.compl_mul1d(x_ft[:, :, :, i], self.weights1[:, :, :, wi])
-        # Return to time domain
+
         x = torch.fft.irfft(out_ft, n=x.size(-1))
         return (x, None)
 
 
-# ########## Fourier Cross Former ####################
+
 class FourierCrossAttention(nn.Module):
     def __init__(self, in_channels, out_channels, seq_len_q, seq_len_kv, modes=64, mode_select_method='random',
                  activation='tanh', policy=0):
         super(FourierCrossAttention, self).__init__()
         print(' fourier enhanced cross attention used!')
         """
-        1D Fourier Cross Attention layer. It does FFT, linear transform, attention mechanism and Inverse FFT.    
+        1D Fourier Cross Attention layer. It does FFT, linear transform, attention mechanism and Inverse FFT.
         """
         self.activation = activation
         self.in_channels = in_channels
         self.out_channels = out_channels
-        # get modes for queries and keys (& values) on frequency domain
+
         self.index_q = get_frequency_modes(seq_len_q, modes=modes, mode_select_method=mode_select_method)
         self.index_kv = get_frequency_modes(seq_len_kv, modes=modes, mode_select_method=mode_select_method)
 
@@ -86,19 +86,19 @@ class FourierCrossAttention(nn.Module):
         self.weights1 = nn.Parameter(
             self.scale * torch.rand(8, in_channels // 8, out_channels // 8, len(self.index_q), dtype=torch.cfloat))
 
-    # Complex multiplication
+
     def compl_mul1d(self, input, weights):
-        # (batch, in_channel, x ), (in_channel, out_channel, x) -> (batch, out_channel, x)
+
         return torch.einsum("bhi,hio->bho", input, weights)
 
     def forward(self, q, k, v, mask):
-        # size = [B, L, H, E]
+
         B, L, H, E = q.shape
-        xq = q.permute(0, 2, 3, 1)  # size = [B, H, E, L]
+        xq = q.permute(0, 2, 3, 1)
         xk = k.permute(0, 2, 3, 1)
         xv = v.permute(0, 2, 3, 1)
-        
-        # Compute Fourier coefficients
+
+
         xq_ft_ = torch.zeros(B, H, E, len(self.index_q), device=xq.device, dtype=torch.cfloat)
         xq_ft = torch.fft.rfft(xq, dim=-1)
         for i, j in enumerate(self.index_q):
@@ -112,7 +112,7 @@ class FourierCrossAttention(nn.Module):
                 continue
             xk_ft_[:, :, :, i] = xk_ft[:, :, :, j]
 
-        # perform attention mechanism on frequency domain
+
         xqk_ft = (torch.einsum("bhex,bhey->bhxy", xq_ft_, xk_ft_))
         if self.activation == 'tanh':
             xqk_ft = xqk_ft.tanh()
@@ -128,10 +128,6 @@ class FourierCrossAttention(nn.Module):
             if i >= xqkvw.shape[3] or j >= out_ft.shape[3]:
                 continue
             out_ft[:, :, :, j] = xqkvw[:, :, :, i]
-        # Return to time domain
+
         out = torch.fft.irfft(out_ft / self.in_channels / self.out_channels, n=xq.size(-1))
         return (out, None)
-    
-
-
-

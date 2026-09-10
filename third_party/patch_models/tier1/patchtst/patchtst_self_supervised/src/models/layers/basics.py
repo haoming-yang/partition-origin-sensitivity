@@ -1,14 +1,14 @@
 __all__ = ['Transpose', 'LinBnDrop', 'SigmoidRange', 'sigmoid_range', 'get_activation_fn']
-           
+
 
 import torch
 from torch import nn
 
 class Transpose(nn.Module):
-    def __init__(self, *dims, contiguous=False): 
+    def __init__(self, *dims, contiguous=False):
         super().__init__()
         self.dims, self.contiguous = dims, contiguous
-    def forward(self, x):        
+    def forward(self, x):
         if self.contiguous: return x.transpose(*self.dims).contiguous()
         else: return x.transpose(*self.dims)
 
@@ -16,10 +16,10 @@ class Transpose(nn.Module):
 class SigmoidRange(nn.Module):
     def __init__(self, low, high):
         super().__init__()
-        self.low, self.high = low, high   
-        # self.low, self.high = ranges        
-    def forward(self, x):                    
-        # return sigmoid_range(x, self.low, self.high)
+        self.low, self.high = low, high
+
+    def forward(self, x):
+
         return torch.sigmoid(x) * (self.high - self.low) + self.low
 
 
@@ -43,5 +43,3 @@ def get_activation_fn(activation):
     elif activation.lower() == "relu": return nn.ReLU()
     elif activation.lower() == "gelu": return nn.GELU()
     raise ValueError(f'{activation} is not available. You can use "relu", "gelu", or a callable')
-
-

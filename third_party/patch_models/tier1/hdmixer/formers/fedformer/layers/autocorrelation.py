@@ -34,7 +34,7 @@ class AutoCorrelation(nn.Module):
         self.agg = None
         self.use_wavelet = configs.wavelet
 
-    # @decor_time
+
     def time_delay_agg_training(self, values, corr):
         """
         SpeedUp version of Autocorrelation (a batch-normalization style design)
@@ -43,21 +43,21 @@ class AutoCorrelation(nn.Module):
         head = values.shape[1]
         channel = values.shape[2]
         length = values.shape[3]
-        # find top k
+
         top_k = int(self.factor * math.log(length))
         mean_value = torch.mean(torch.mean(corr, dim=1), dim=1)
         index = torch.topk(torch.mean(mean_value, dim=0), top_k, dim=-1)[1]
         weights = torch.stack([mean_value[:, index[i]] for i in range(top_k)], dim=-1)
-        # update corr
+
         tmp_corr = torch.softmax(weights, dim=-1)
-        # aggregation
+
         tmp_values = values
         delays_agg = torch.zeros_like(values).float()
         for i in range(top_k):
             pattern = torch.roll(tmp_values, -int(index[i]), -1)
             delays_agg = delays_agg + pattern * \
                          (tmp_corr[:, i].unsqueeze(1).unsqueeze(1).unsqueeze(1).repeat(1, head, channel, length))
-        return delays_agg  # size=[B, H, d, S]
+        return delays_agg
 
     def time_delay_agg_inference(self, values, corr):
         """
@@ -68,16 +68,16 @@ class AutoCorrelation(nn.Module):
         head = values.shape[1]
         channel = values.shape[2]
         length = values.shape[3]
-        # index init
+
         init_index = torch.arange(length).unsqueeze(0).unsqueeze(0).unsqueeze(0).repeat(batch, head, channel, 1).cuda()
-        # find top k
+
         top_k = int(self.factor * math.log(length))
         mean_value = torch.mean(torch.mean(corr, dim=1), dim=1)
         weights = torch.topk(mean_value, top_k, dim=-1)[0]
         delay = torch.topk(mean_value, top_k, dim=-1)[1]
-        # update corr
+
         tmp_corr = torch.softmax(weights, dim=-1)
-        # aggregation
+
         tmp_values = values.repeat(1, 1, 1, 2)
         delays_agg = torch.zeros_like(values).float()
         for i in range(top_k):
@@ -95,15 +95,15 @@ class AutoCorrelation(nn.Module):
         head = values.shape[1]
         channel = values.shape[2]
         length = values.shape[3]
-        # index init
+
         init_index = torch.arange(length).unsqueeze(0).unsqueeze(0).unsqueeze(0).repeat(batch, head, channel, 1).cuda()
-        # find top k
+
         top_k = int(self.factor * math.log(length))
         weights = torch.topk(corr, top_k, dim=-1)[0]
         delay = torch.topk(corr, top_k, dim=-1)[1]
-        # update corr
+
         tmp_corr = torch.softmax(weights, dim=-1)
-        # aggregation
+
         tmp_values = values.repeat(1, 1, 1, 2)
         delays_agg = torch.zeros_like(values).float()
         for i in range(top_k):
@@ -123,15 +123,15 @@ class AutoCorrelation(nn.Module):
             values = values[:, :L, :, :]
             keys = keys[:, :L, :, :]
 
-        # period-based dependencies
+
         if self.use_wavelet != 2:
             if self.use_wavelet == 1:
                 j_list = self.j_list
                 queries = queries.reshape([B, L, -1])
                 keys = keys.reshape([B, L, -1])
-                Ql, Qh_list = self.dwt1d(queries.transpose(1, 2))  # [B, H*D, L]
+                Ql, Qh_list = self.dwt1d(queries.transpose(1, 2))
                 Kl, Kh_list = self.dwt1d(keys.transpose(1, 2))
-                qs = [queries.transpose(1, 2)] + Qh_list + [Ql]  # [B, H*D, L]
+                qs = [queries.transpose(1, 2)] + Qh_list + [Ql]
                 ks = [keys.transpose(1, 2)] + Kh_list + [Kl]
                 q_list = []
                 k_list = []
@@ -142,14 +142,14 @@ class AutoCorrelation(nn.Module):
                 keys = torch.stack([i.reshape([B, H, E, L]) for i in k_list], dim=3).reshape([B, H, -1, L]).permute(0, 3, 1, 2)
             else:
                 pass
-            q_fft = torch.fft.rfft(queries.permute(0, 2, 3, 1).contiguous(), dim=-1)  # size=[B, H, E, L]
+            q_fft = torch.fft.rfft(queries.permute(0, 2, 3, 1).contiguous(), dim=-1)
             k_fft = torch.fft.rfft(keys.permute(0, 2, 3, 1).contiguous(), dim=-1)
             res = q_fft * torch.conj(k_fft)
-            corr = torch.fft.irfft(res, dim=-1) # size=[B, H, E, L]
+            corr = torch.fft.irfft(res, dim=-1)
 
-            # time delay agg
+
             if self.training:
-                V = self.time_delay_agg_training(values.permute(0, 2, 3, 1).contiguous(), corr).permute(0, 3, 1, 2)  # [B, L, H, E], [B, H, E, L] -> [B, L, H, E]
+                V = self.time_delay_agg_training(values.permute(0, 2, 3, 1).contiguous(), corr).permute(0, 3, 1, 2)
             else:
                 V = self.time_delay_agg_inference(values.permute(0, 2, 3, 1).contiguous(), corr).permute(0, 3, 1, 2)
         else:
@@ -157,10 +157,10 @@ class AutoCorrelation(nn.Module):
             queries = queries.reshape([B, L, -1])
             keys = keys.reshape([B, L, -1])
             values = values.reshape([B, L, -1])
-            Ql, Qh_list = self.dwt1d(queries.transpose(1, 2))  # [B, H*D, L]
+            Ql, Qh_list = self.dwt1d(queries.transpose(1, 2))
             Kl, Kh_list = self.dwt1d(keys.transpose(1, 2))
             Vl, Vh_list = self.dwt1d(values.transpose(1, 2))
-            qs = Qh_list + [Ql]  # [B, H*D, L]
+            qs = Qh_list + [Ql]
             ks = Kh_list + [Kl]
             vs = Vh_list + [Vl]
             for q, k, v in zip(qs, ks, vs):
@@ -170,7 +170,7 @@ class AutoCorrelation(nn.Module):
                 q_fft = torch.fft.rfft(q.contiguous(), dim=-1)
                 k_fft = torch.fft.rfft(k.contiguous(), dim=-1)
                 res = q_fft * torch.conj(k_fft)
-                corr = torch.fft.irfft(res, dim=-1)  # [B, H, E, L]
+                corr = torch.fft.irfft(res, dim=-1)
                 if self.training:
                     V = self.time_delay_agg_training(v.permute(0, 2, 3, 1).contiguous(), corr).permute(0, 3, 1, 2)
                 else:
@@ -179,10 +179,10 @@ class AutoCorrelation(nn.Module):
             Vl = V_list[-1].reshape([B, -1, H*E]).transpose(1, 2)
             Vh_list = [i.reshape([B, -1, H*E]).transpose(1, 2) for i in V_list[:-1]]
             V = self.dwt1div((Vl, Vh_list)).reshape([B, H, E, -1]).permute(0, 3, 1, 2)
-            # corr = self.dwt1div((V_list[-1], V_list[:-1]))
+
 
         if self.output_attention:
-            return (V.contiguous(), corr.permute(0, 3, 1, 2))  # size = [B, L, H, E]
+            return (V.contiguous(), corr.permute(0, 3, 1, 2))
         else:
             return (V.contiguous(), None)
 

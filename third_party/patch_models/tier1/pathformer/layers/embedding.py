@@ -7,14 +7,14 @@ class PositionalEmbedding(nn.Module):
     def __init__(self, d_model, n_position=1024):
         super(PositionalEmbedding, self).__init__()
 
-        # Not a parameter
+
         self.register_buffer('pos_table', self._get_sinusoid_encoding_table(n_position, d_model))
 
     def _get_sinusoid_encoding_table(self, n_position, d_model):
         ''' Sinusoid position encoding table '''
         def get_position_angle_vec(position):
             return [position / np.power(10000, 2 * (hid_j // 2) / d_model) for hid_j in range(d_model)]
-        
+
         sinusoid_table = np.array([get_position_angle_vec(pos_i) for pos_i in range(n_position)])
         sinusoid_table[:, 0::2] = np.sin(sinusoid_table[:, 0::2])
         sinusoid_table[:, 1::2] = np.cos(sinusoid_table[:, 1::2])
@@ -129,7 +129,7 @@ class DataEmbedding_wo_temp(nn.Module):
 
     def forward(self, x, x_mark=None):
         x = self.value_embedding(x) + self.position_embedding(x)
-        
+
         return self.dropout(x)
 
 
@@ -171,9 +171,9 @@ def Coord1dPosEncoding(q_len, exponential=False, normalize=True):
     return cpe
 
 def positional_encoding(pe, learn_pe, q_len, d_model):
-    # Positional encoding
+
     if pe == None:
-        W_pos = torch.empty((q_len, d_model)) # pe = None and learn_pe = False can be used to measure impact of pe
+        W_pos = torch.empty((q_len, d_model))
         nn.init.uniform_(W_pos, -0.02, 0.02)
         learn_pe = False
     elif pe == 'zero':

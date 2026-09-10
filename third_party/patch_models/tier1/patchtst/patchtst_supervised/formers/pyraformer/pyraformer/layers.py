@@ -11,7 +11,7 @@ import math
 
 def get_mask(input_size, window_size, inner_size, device):
     """Get the attention mask of PAM-Naive"""
-    # Get the size of all layers
+
     all_size = []
     all_size.append(input_size)
     for i in range(len(window_size)):
@@ -21,7 +21,7 @@ def get_mask(input_size, window_size, inner_size, device):
     seq_length = sum(all_size)
     mask = torch.zeros(seq_length, seq_length, device=device)
 
-    # get intra-scale mask
+
     inner_window = inner_size // 2
     for layer_idx in range(len(all_size)):
         start = sum(all_size[:layer_idx])
@@ -30,7 +30,7 @@ def get_mask(input_size, window_size, inner_size, device):
             right_side = min(i + inner_window + 1, start + all_size[layer_idx])
             mask[i, left_side:right_side] = 1
 
-    # get inter-scale mask
+
     for layer_idx in range(1, len(all_size)):
         start = sum(all_size[:layer_idx])
         for i in range(start, start + all_size[layer_idx]):
@@ -405,4 +405,3 @@ class Decoder(nn.Module):
         dec_enc, _ = self.layers[1](dec_enc, refer_enc, refer_enc, slf_attn_mask=mask)
 
         return dec_enc
-

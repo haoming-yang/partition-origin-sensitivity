@@ -117,8 +117,8 @@ class MultiWaveletCross(nn.Module):
         self.modes1 = modes
 
     def forward(self, q, k, v, mask=None):
-        B, N, H, E = q.shape  # (B, N, H, E) torch.Size([3, 768, 8, 2])
-        _, S, _, _ = k.shape  # (B, S, H, E) torch.Size([3, 96, 8, 2])
+        B, N, H, E = q.shape
+        _, S, _, _ = k.shape
 
         q = q.view(q.shape[0], q.shape[1], -1)
         k = k.view(k.shape[0], k.shape[1], -1)
@@ -158,9 +158,9 @@ class MultiWaveletCross(nn.Module):
         Ud = torch.jit.annotate(List[Tensor], [])
         Us = torch.jit.annotate(List[Tensor], [])
 
-        # decompose
+
         for i in range(ns - self.L):
-            # print('q shape',q.shape)
+
             d, q = self.wavelet_transform(q)
             Ud_q += [tuple([d, q])]
             Us_q += [d]
@@ -180,7 +180,7 @@ class MultiWaveletCross(nn.Module):
             Us += [self.attn3(sq, sk, sv, mask)[0]]
         v = self.attn4(q, k, v, mask)[0]
 
-        # reconstruct
+
         for i in range(ns - 1 - self.L, -1, -1):
             v = v + Us[i]
             v = torch.cat((v, Ud[i]), -1)
@@ -197,7 +197,7 @@ class MultiWaveletCross(nn.Module):
         return d, s
 
     def evenOdd(self, x):
-        B, N, c, ich = x.shape  # (B, N, c, k)
+        B, N, c, ich = x.shape
         assert ich == 2 * self.k
         x_e = torch.matmul(x, self.rc_e)
         x_o = torch.matmul(x, self.rc_o)
@@ -222,13 +222,13 @@ class FourierCrossAttentionW(nn.Module):
     def forward(self, q, k, v, mask):
         B, L, E, H = q.shape
 
-        xq = q.permute(0, 3, 2, 1)  # size = [B, H, E, L] torch.Size([3, 8, 64, 512])
+        xq = q.permute(0, 3, 2, 1)
         xk = k.permute(0, 3, 2, 1)
         xv = v.permute(0, 3, 2, 1)
         self.index_q = list(range(0, min(int(L // 2), self.modes1)))
         self.index_k_v = list(range(0, min(int(xv.shape[3] // 2), self.modes1)))
 
-        # Compute Fourier coefficients
+
         xq_ft_ = torch.zeros(B, H, E, len(self.index_q), device=xq.device, dtype=torch.cfloat)
         xq_ft = torch.fft.rfft(xq, dim=-1)
         for i, j in enumerate(self.index_q):
@@ -254,7 +254,7 @@ class FourierCrossAttentionW(nn.Module):
             out_ft[:, :, :, j] = xqkvw[:, :, :, i]
 
         out = torch.fft.irfft(out_ft / self.in_channels / self.out_channels, n=xq.size(-1)).permute(0, 3, 2, 1)
-        # size = [B, L, H, E]
+
         return (out, None)
 
 
@@ -273,18 +273,18 @@ class sparseKernelFT1d(nn.Module):
         self.k = k
 
     def compl_mul1d(self, x, weights):
-        # (batch, in_channel, x ), (in_channel, out_channel, x) -> (batch, out_channel, x)
+
         return torch.einsum("bix,iox->box", x, weights)
 
     def forward(self, x):
-        B, N, c, k = x.shape  # (B, N, c, k)
+        B, N, c, k = x.shape
 
         x = x.view(B, N, -1)
         x = x.permute(0, 2, 1)
         x_fft = torch.fft.rfft(x)
-        # Multiply relevant Fourier modes
+
         l = min(self.modes1, N // 2 + 1)
-        # l = N//2+1
+
         out_ft = torch.zeros(B, c * k, N // 2 + 1, device=x.device, dtype=torch.cfloat)
         out_ft[:, :, :l] = self.compl_mul1d(x_fft[:, :, :l], self.weights1[:, :, :l])
         x = torch.fft.irfft(out_ft, n=N)
@@ -292,7 +292,7 @@ class sparseKernelFT1d(nn.Module):
         return x
 
 
-# ##
+
 class MWT_CZ1d(nn.Module):
     def __init__(self,
                  k=3, alpha=64,
@@ -333,22 +333,22 @@ class MWT_CZ1d(nn.Module):
             np.concatenate((H1r, G1r), axis=0)))
 
     def forward(self, x):
-        B, N, c, k = x.shape  # (B, N, k)
+        B, N, c, k = x.shape
         ns = math.floor(np.log2(N))
         nl = pow(2, math.ceil(np.log2(N)))
         extra_x = x[:, 0:nl - N, :, :]
         x = torch.cat([x, extra_x], 1)
         Ud = torch.jit.annotate(List[Tensor], [])
         Us = torch.jit.annotate(List[Tensor], [])
-        #         decompose
+
         for i in range(ns - self.L):
-            # print('x shape',x.shape)
+
             d, x = self.wavelet_transform(x)
             Ud += [self.A(d) + self.B(x)]
             Us += [self.C(d)]
-        x = self.T0(x)  # coarsest scale transform
+        x = self.T0(x)
 
-        #        reconstruct
+
         for i in range(ns - 1 - self.L, -1, -1):
             x = x + Us[i]
             x = torch.cat((x, Ud[i]), -1)
@@ -367,7 +367,7 @@ class MWT_CZ1d(nn.Module):
 
     def evenOdd(self, x):
 
-        B, N, c, ich = x.shape  # (B, N, c, k)
+        B, N, c, ich = x.shape
         assert ich == 2 * self.k
         x_e = torch.matmul(x, self.rc_e)
         x_o = torch.matmul(x, self.rc_o)

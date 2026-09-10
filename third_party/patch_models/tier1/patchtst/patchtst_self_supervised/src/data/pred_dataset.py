@@ -18,8 +18,8 @@ class Dataset_ETT_hour(Dataset):
                  target='OT', scale=True, timeenc=0, freq='h',
                  use_time_features=False
                  ):
-        # size [seq_len, label_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.label_len = 24 * 4
@@ -28,7 +28,7 @@ class Dataset_ETT_hour(Dataset):
             self.seq_len = size[0]
             self.label_len = size[1]
             self.pred_len = size[2]
-        # init
+
         assert split in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[split]
@@ -110,8 +110,8 @@ class Dataset_ETT_minute(Dataset):
                  target='OT', scale=True, timeenc=0, freq='t',
                  use_time_features=False
                  ):
-        # size [seq_len, label_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.label_len = 24 * 4
@@ -120,7 +120,7 @@ class Dataset_ETT_minute(Dataset):
             self.seq_len = size[0]
             self.label_len = size[1]
             self.pred_len = size[2]
-        # init
+
         assert split in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[split]
@@ -202,11 +202,11 @@ class Dataset_Custom(Dataset):
     def __init__(self, root_path, split='train', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, timeenc=0, freq='h',
-                 time_col_name='date', use_time_features=False, 
+                 time_col_name='date', use_time_features=False,
                  train_split=0.7, test_split=0.2
                  ):
-        # size [seq_len, label_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.label_len = 24 * 4
@@ -215,7 +215,7 @@ class Dataset_Custom(Dataset):
             self.seq_len = size[0]
             self.label_len = size[1]
             self.pred_len = size[2]
-        # init
+
         assert split in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[split]
@@ -228,7 +228,7 @@ class Dataset_Custom(Dataset):
         self.time_col_name = time_col_name
         self.use_time_features = use_time_features
 
-        # train test ratio
+
         self.train_split, self.test_split = train_split, test_split
 
         self.root_path = root_path
@@ -244,10 +244,10 @@ class Dataset_Custom(Dataset):
         df_raw.columns: [time_col_name, ...(other features), target feature]
         '''
         cols = list(df_raw.columns)
-        #cols.remove(self.target) if self.target
-        #cols.remove(self.time_col_name)
-        #df_raw = df_raw[[self.time_col_name] + cols + [self.target]]
-        
+
+
+
+
         num_train = int(len(df_raw) * self.train_split)
         num_test = int(len(df_raw) * self.test_split)
         num_vali = len(df_raw) - num_train - num_test
@@ -304,14 +304,14 @@ class Dataset_Custom(Dataset):
 
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data)
-    
+
 
 class Dataset_Pred(Dataset):
     def __init__(self, root_path, split='pred', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, inverse=False, timeenc=0, freq='15min', cols=None):
-        # size [seq_len, label_len, pred_len]
-        # info
+
+
         if size == None:
             self.seq_len = 24 * 4 * 4
             self.label_len = 24 * 4
@@ -320,7 +320,7 @@ class Dataset_Pred(Dataset):
             self.seq_len = size[0]
             self.label_len = size[1]
             self.pred_len = size[2]
-        # init
+
         assert split in ['pred']
 
         self.features = features
