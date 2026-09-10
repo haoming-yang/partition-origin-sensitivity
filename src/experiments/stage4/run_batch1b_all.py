@@ -2,7 +2,7 @@ from __future__ import annotations
 import json, os, subprocess, sys
 from pathlib import Path
 
-STAGE=Path(os.environ.get("STAGE_ROOT", str(Path(__file__).resolve().parents[3] / "outputs" / "stage4")))
+STAGE=Path(os.environ.get("STAGE_ROOT", str(Path(__file__).resolve().parents[3] / "outputs" / "poc_stage4")))
 RUNNER=STAGE/"scripts"/"stage4_inference.py"
 JOBS=[(d,s) for d in ("ETTh1","ETTh2","ETTm1","ETTm2","Weather") for s in (42,43,44)]
 

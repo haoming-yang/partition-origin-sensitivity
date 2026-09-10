@@ -160,7 +160,11 @@ def evaluate(seed: int, lam: float, schedule_path: Path, schedule_hash: str, bpr
 
 
 def main():
-    frozen=load_frozen(); lam=float(frozen["selected_lambda"]); FORMAL_ROOT.mkdir(parents=True,exist_ok=True)
+    frozen=load_frozen(); lam=float(frozen["selected_lambda"])
+    required_checkpoint = LAMBDA_CHECKPOINT_ROOT / "checkpoint.pt"
+    if not required_checkpoint.exists():
+        raise FileNotFoundError(f"Required frozen lambda checkpoint is missing: {required_checkpoint}")
+    FORMAL_ROOT.mkdir(parents=True,exist_ok=True)
     outputs=[]
     for seed in (42,43,44):
         schedule,schedule_path,schedule_hash,bprov=b_schedule_check(seed)

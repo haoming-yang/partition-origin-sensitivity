@@ -99,3 +99,21 @@ def test_poc_entrypoint_uses_tracked_inputs_and_external_checkpoint_roots():
     assert pilot.B_ROOT == formal.B_ROOT
     assert "checkpoints" in str(formal.LAMBDA_CHECKPOINT_ROOT)
     assert "checkpoints" in str(pilot.CHECKPOINT_ROOT)
+
+
+def test_poc_missing_lambda_checkpoint_fails_before_creating_outputs(tmp_path):
+    import os
+
+    env = os.environ.copy()
+    env["PARTITION_ORIGIN_STAGE4_ROOT"] = str(tmp_path / "outputs")
+    env["PARTITION_ORIGIN_POC_LAMBDA_CHECKPOINT_ROOT"] = str(tmp_path / "missing_checkpoint")
+    result = subprocess.run(
+        [sys.executable, "-m", "src.experiments.stage4.poc_formal_c_runner", "--seeds", "42"],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "Required frozen lambda checkpoint is missing" in result.stderr
+    assert not (tmp_path / "outputs").exists()
