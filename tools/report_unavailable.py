@@ -5,7 +5,6 @@ import json
 
 
 MESSAGES = {
-    "mixers": "The exact full-split Transformer/MLP/Conv training entrypoint is not present in the supplied source tree; frozen artifacts and configs were not converted into a guessed implementation.",
     "optimization": "The exact 5/10/15/20/25/30 optimization runner is not present in the supplied source tree; frozen checkpoint records were not converted into a guessed implementation.",
     "heads": "The exact mask-head factorial training entrypoint is not present in the supplied source tree; frozen artifacts were not converted into a guessed implementation.",
     "pe-control": "The exact positional-encoding control training entrypoint is not present in the supplied source tree; frozen artifacts were not converted into a guessed implementation.",

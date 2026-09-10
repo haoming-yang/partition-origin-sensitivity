@@ -21,7 +21,10 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
-import controlled_backbone_runner as base
+try:
+    import controlled_backbone_runner as base
+except ModuleNotFoundError:
+    from tools.fullsplit import controlled_backbone_runner as base
 
 
 def sha256(path: Path) -> str:
@@ -123,7 +126,7 @@ def run(model_name: str, seed: int, out: Path):
         "checkpoint_selection": "minimum mean validation MSE over all 12 origins; later epoch on tie",
         "split": {"train_windows": int(len(train)), "validation_windows": int(len(validation)), "test_windows": int(len(test)), "train_rows": [0, 8640], "validation_rows": [8640, 11520], "test_rows": [11520, int(len(values))]},
         "old_cap_forbidden": True,
-        "source_runner": str(Path(base.__file__).resolve()),
+        "source_runner": "tools/fullsplit/controlled_backbone_runner.py",
         "source_runner_sha256": sha256(Path(base.__file__).resolve()),
     }
     np.savez(out / "window_indices.npz", train=train, validation=validation, test=test)
@@ -204,7 +207,7 @@ def run(model_name: str, seed: int, out: Path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", choices=("Transformer", "MLP", "Conv"), required=True)
-    parser.add_argument("--seed", type=int, choices=(42, 43, 44), required=True)
+    parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     run(args.model, args.seed, args.out)
