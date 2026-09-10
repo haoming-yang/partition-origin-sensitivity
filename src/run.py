@@ -63,11 +63,18 @@ def config_jobs(config: dict, seeds: list[int], datasets: list[str]) -> list[tup
     return [(dataset, seed) for dataset in selected for seed in seeds]
 
 
-def dry_run(config: dict, jobs: list[tuple[str, int]]) -> dict:
+def dry_run(config: dict, jobs: list[tuple[str, int] | dict]) -> dict:
+    if jobs and isinstance(jobs[0], dict):
+        normalized_jobs = jobs
+    else:
+        normalized_jobs = [
+            {"dataset": dataset, "seed": seed}
+            for dataset, seed in jobs
+        ]
     return {
         "experiment_id": config["experiment_id"],
         "source_status": config.get("source_status", "SOURCE_PRESENT"),
-        "jobs": [{"dataset": dataset, "seed": seed} for dataset, seed in jobs],
+        "jobs": normalized_jobs,
         "training_started": False,
     }
 
@@ -164,31 +171,72 @@ def run_cross_model(config: dict, output_root: Path) -> dict:
     return {"experiment_id": config["experiment_id"], "status": "COMPLETE"}
 
 
-def run_fullsplit(config: dict, seeds: list[int], output_root: Path) -> dict:
-    """Launch the recovered complete-split ETTh1 mixer runner per model/seed."""
-    script = ROOT / "tools" / "fullsplit" / "fullsplit_3run_runner.py"
-    models = tuple(config.get("models", ("Transformer", "MLP", "Conv")))
+FULLSPLIT_PROTOCOL = {
+    "context": 512,
+    "horizon": 96,
+    "patch_len": 12,
+    "stride": 12,
+    "epochs": 5,
+    "batch_size": 32,
+    "learning_rate": 1e-4,
+    "weight_decay": 1e-4,
+    "optimizer": "AdamW",
+}
+
+
+def validate_fullsplit_config(config: dict) -> str:
+    """Validate fields that the recovered runner fixes by protocol."""
+    for key, expected in FULLSPLIT_PROTOCOL.items():
+        if key in config and config[key] != expected:
+            raise ValueError(
+                f"full-split protocol fixes {key}={expected}; got {config[key]}"
+            )
     dataset = config.get("dataset", "ETTh1")
     if isinstance(dataset, list):
-        if dataset != ["ETTh1"]:
+        if len(dataset) != 1:
             raise ValueError("full-split mixer runner supports only ETTh1")
         dataset = dataset[0]
     if str(dataset).lower() != "etth1":
         raise ValueError("full-split mixer runner supports only ETTh1")
-    dataset = "ETTh1"
+    return "ETTh1"
+
+
+def fullsplit_jobs(config: dict, seeds: list[int], datasets: list[str] | None = None) -> list[dict]:
+    dataset = validate_fullsplit_config(config)
+    selected_datasets = datasets if datasets is not None else [dataset]
+    if not any(str(item).lower() == dataset.lower() for item in selected_datasets):
+        return []
+    models = tuple(config.get("models", ("Transformer", "MLP", "Conv")))
+    return [
+        {"model": str(model), "dataset": dataset, "seed": int(seed)}
+        for model in models
+        for seed in seeds
+    ]
+
+
+def run_fullsplit(
+    config: dict,
+    seeds: list[int],
+    output_root: Path,
+    datasets: list[str] | None = None,
+) -> dict:
+    """Launch the recovered complete-split ETTh1 mixer runner per model/seed."""
+    script = ROOT / "tools" / "fullsplit" / "fullsplit_3run_runner.py"
+    jobs = fullsplit_jobs(config, seeds, datasets)
+    if not jobs:
+        return {"experiment_id": config["experiment_id"], "status": "NO_JOBS", "jobs": []}
     calls = []
-    for model in models:
-        for seed in seeds:
-            out = output_root / "fullsplit_cross_backbone" / model / "etth1" / f"seed{seed}"
-            command = [
-                sys.executable,
-                str(script),
-                "--model", str(model),
-                "--seed", str(int(seed)),
-                "--out", str(out),
-            ]
-            subprocess.run(command, cwd=ROOT, check=True)
-            calls.append({"model": model, "dataset": dataset, "seed": int(seed), "output": str(out)})
+    for job in jobs:
+        out = output_root / "fullsplit_cross_backbone" / job["model"] / "etth1" / f"seed{job['seed']}"
+        command = [
+            sys.executable,
+            str(script),
+            "--model", job["model"],
+            "--seed", str(job["seed"]),
+            "--out", str(out),
+        ]
+        subprocess.run(command, cwd=ROOT, check=True)
+        calls.append({**job, "output": str(out)})
     return {"experiment_id": config["experiment_id"], "status": "COMPLETE", "jobs": calls}
 
 
@@ -197,7 +245,7 @@ def run(config: dict, seeds: list[int], datasets: list[str], output_root: Path) 
     if experiment_id == "PATCH_LENGTH_AUDIT_V1":
         return run_patch_lengths(config, seeds, output_root)
     if experiment_id == "CROSS_MODEL_PHASE_V1":
-        return run_fullsplit(config, seeds, output_root)
+        return run_fullsplit(config, seeds, output_root, datasets)
     if experiment_id == "CANONICAL_PHENOMENON_27_V1":
         return [run_controlled(config, dataset, seed, output_root)
                 for dataset, seed in config_jobs(config, seeds, datasets)]
@@ -247,7 +295,11 @@ def main() -> None:
     args = parser.parse_args()
     config = load_config(args.config if args.config.is_absolute() else ROOT / args.config)
     selected_seeds = resolve_seeds(config, seed=args.seed, seeds=args.seeds)
-    jobs = config_jobs(config, selected_seeds, [item.strip() for item in args.datasets.split(",") if item.strip()])
+    selected_datasets = [item.strip() for item in args.datasets.split(",") if item.strip()]
+    if config["experiment_id"] == "CROSS_MODEL_PHASE_V1":
+        jobs = fullsplit_jobs(config, selected_seeds, selected_datasets)
+    else:
+        jobs = config_jobs(config, selected_seeds, selected_datasets)
     if args.dry_run:
         result = dry_run(config, jobs)
     else:

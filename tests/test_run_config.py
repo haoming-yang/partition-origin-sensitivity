@@ -80,6 +80,63 @@ def test_mixer_config_reads_default_seeds():
     assert run_module.resolve_seeds(config, seed=None, seeds=None) == [42, 43, 44]
 
 
+def test_mixer_config_skips_unselected_dataset(monkeypatch, tmp_path):
+    calls = []
+
+    def fake_run(command, **kwargs):
+        calls.append((command, kwargs))
+
+    monkeypatch.setattr(run_module.subprocess, "run", fake_run)
+    config = {
+        "experiment_id": "CROSS_MODEL_PHASE_V1",
+        "models": ["Transformer", "MLP", "Conv"],
+        "dataset": "ETTh1",
+    }
+
+    result = run_module.run_fullsplit(config, [17], tmp_path, datasets=["Weather"])
+
+    assert result["status"] == "NO_JOBS"
+    assert result["jobs"] == []
+    assert calls == []
+
+
+def test_mixer_config_rejects_unsupported_protocol_override(monkeypatch, tmp_path):
+    import pytest
+
+    calls = []
+    monkeypatch.setattr(
+        run_module.subprocess,
+        "run",
+        lambda command, **kwargs: calls.append((command, kwargs)),
+    )
+
+    config = {
+        "experiment_id": "CROSS_MODEL_PHASE_V1",
+        "models": ["Transformer", "MLP", "Conv"],
+        "dataset": "ETTh1",
+        "epochs": 30,
+    }
+
+    with pytest.raises(ValueError, match="epochs=5"):
+        run_module.run_fullsplit(config, [17], tmp_path)
+    assert calls == []
+
+
+def test_mixer_config_rejects_ignored_optimizer_overrides(tmp_path):
+    import pytest
+
+    for field, value in (("batch_size", 64), ("learning_rate", 0.01),
+                         ("weight_decay", 0.0), ("optimizer", "SGD")):
+        config = {
+            "experiment_id": "CROSS_MODEL_PHASE_V1",
+            "models": ["Transformer", "MLP", "Conv"],
+            "dataset": "ETTh1",
+            field: value,
+        }
+        with pytest.raises(ValueError, match=field):
+            run_module.run_fullsplit(config, [17], tmp_path)
+
+
 def test_fullsplit_runner_refuses_nonempty_output(tmp_path):
     import pytest
     from tools.fullsplit import fullsplit_3run_runner as runner
