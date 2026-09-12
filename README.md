@@ -2,7 +2,7 @@
 
 # Same Observations, Different Forecasts
 
-### Partition-Origin Sensitivity in Patch-Based Time-Series Forecasting
+### Partition-Origin Sensitivity in Patch-Based Time Series Forecasting
 
 <p>
   <a href="https://github.com/haoming-yang/partition-origin-sensitivity">
@@ -22,12 +22,12 @@
   </a>
 </p>
 
-<p><strong>A controlled study of one overlooked coordinate choice in discrete time-series representations.</strong></p>
+<p><strong>A controlled study of one overlooked coordinate choice in discrete time series representations.</strong></p>
 
 </div>
 
 Code and configuration for the paper **“Same Observations, Different
-Forecasts: Partition-Origin Sensitivity in Patch-Based Time-Series Forecasting.”**
+Forecasts: Partition-Origin Sensitivity in Patch-Based Time Series Forecasting.”**
 
 The repository studies whether changing only the origin of a one-dimensional
 patch lattice can change a forecast when the observed history, target, and

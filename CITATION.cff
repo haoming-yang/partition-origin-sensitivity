@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this repository, please cite the accompanying paper."
-title: "Same Observations, Different Forecasts: Partition-Origin Sensitivity in Patch-Based Time-Series Forecasting"
+title: "Same Observations, Different Forecasts: Partition-Origin Sensitivity in Patch-Based Time Series Forecasting"
 type: software
 authors:
   - family-names: Yang
@@ -10,7 +10,7 @@ date-released: 2026-09-01
 repository-code: "https://github.com/haoming-yang/partition-origin-sensitivity"
 license: MIT
 keywords:
-  - time-series forecasting
+  - time series forecasting
   - patch-based forecasting
   - representation audit
   - reproducibility
