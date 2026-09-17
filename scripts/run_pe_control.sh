@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
 source "$ROOT/scripts/defaults.sh"
 python -m src.run --config "$ROOT/configs/positional_encoding/etth1_no_pe.yaml" --datasets ETTh1 --seeds "$DEFAULT_SEEDS"

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
 SEEDS_VALUE="${SEEDS:-42,43,44}"
 OUTPUT_ROOT="${MIXER_OUTPUT_ROOT:-$ROOT/outputs/fullsplit_cross_backbone}"
 IFS=',' read -r -a SEED_LIST <<< "$SEEDS_VALUE"

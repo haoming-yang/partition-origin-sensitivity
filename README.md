@@ -179,7 +179,17 @@ bash scripts/run_poc.sh
 See [docs/experiments.md](docs/experiments.md) for the experiment-to-code
 map, [docs/reproducibility.md](docs/reproducibility.md) for metric and
 provenance details, and [docs/source_audit.md](docs/source_audit.md) for the
-source-availability boundary.
+source-availability boundary. The clean-checkout prerequisites and the exact
+boundary between source-backed reruns, reconstructed controls, frozen compact
+artifacts, and external checkpoints are summarized in
+[docs/reproducibility_audit.md](docs/reproducibility_audit.md).
+
+All public shell entrypoints resolve the repository root before invoking
+Python, so they can be called from outside the checkout. The environment name
+is not part of the runner contract; use the Python executable from the
+environment described by `environment.yml`. Run `.sh` entrypoints from Bash,
+Git Bash, or WSL; PowerShell users can invoke the equivalent `python` commands
+shown in each section.
 
 Reproduction has three levels in this release. The canonical, overlap,
 horizon, training-policy, PatchTST, and patch-length runners can generate new
@@ -277,6 +287,26 @@ frozen artifact layout committed in this repository.
 The test holds forecast discrepancies fixed and randomly permutes the paired
 token-spectrum discrepancies across windows. It assesses random pairing, not
 causal mediation.
+
+The frozen-model input-response and readout diagnostics used by the mechanism
+analysis are launched by `tools/run_frozen_mechanism_matrix.py`. They require
+the archived checkpoint tree and the same external dataset layout; no training
+is started by the diagnostic runner. For a dry-run over the available archive:
+
+```bash
+python tools/run_frozen_mechanism_matrix.py \
+  --archive-root /path/to/checkpoint-archive \
+  --data-root /path/to/data \
+  --output-root artifacts/frozen_mechanisms \
+  --model all --dry-run
+```
+
+For a single checkpoint, use `tools/analyze_frozen_jacobian.py` or
+`tools/analyze_frozen_mechanisms.py` with explicit `--model`, `--checkpoint`,
+`--data-root`, `--dataset`, and `--output` arguments. The outputs record the
+checkpoint hash, input scale, window count, projection count, and reconstruction
+error. The diagnostic summary is descriptive and does not identify a unique
+causal component.
 
 ## Repository layout
 
