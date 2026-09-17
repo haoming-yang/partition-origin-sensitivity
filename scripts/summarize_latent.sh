@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
 source "$ROOT/scripts/defaults.sh"
 
 SPECTRUM_ROOT="${SPECTRUM_ROOT:-$ROOT/artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96}"

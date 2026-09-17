@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
 case "${1:-}" in
   core) exec "$ROOT/scripts/run_core.sh" ;;
   overlap) exec "$ROOT/scripts/run_overlap.sh" ;;
