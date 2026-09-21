@@ -5,7 +5,17 @@ import math
 from pathlib import Path
 
 METRICS = ["MSE_mean", "G_origin", "G_interior", "CV_origin", "Delta_origin"]
-PROTOCOL = ["model", "context", "horizon", "p", "patch_length", "stride", "epochs", "batch_size", "optimizer", "learning_rate", "weight_decay", "strategy", "use_position", "head_geometry", "input_scale", "source_status", "git_commit", "dropout", "scheduler", "origins", "train_windows", "validation_windows", "test_windows"]
+PROTOCOL = ["model", "context", "horizon", "patch_len", "stride", "epochs", "batch_size", "optimizer", "learning_rate", "weight_decay", "strategy", "use_position", "use_mask", "diagnostic_split", "max_train_windows", "max_validation_windows", "max_test_windows", "head_geometry", "input_scale", "source_status", "git_commit", "dropout", "scheduler", "origins", "train_windows", "validation_windows", "test_windows"]
+
+
+def protocol_settings(settings):
+    values = [int(settings[k]) for k in ("p", "patch_len", "patch_length") if settings.get(k) is not None]
+    if len(set(values)) > 1:
+        raise ValueError("Conflicting patch-length aliases")
+    normalized = dict(settings)
+    if values:
+        normalized["patch_len"] = values[0]
+    return {k: normalized[k] for k in PROTOCOL if k in normalized}
 
 
 def main():
@@ -26,7 +36,7 @@ def main():
             raise ValueError(f"Missing experiment identity: {path}")
         row = {k: settings[k] for k in ("experiment_id", "dataset", "seed")}
         row["path"] = path.relative_to(root).as_posix()
-        row["protocol"] = json.dumps({k: settings[k] for k in PROTOCOL if k in settings}, sort_keys=True)
+        row["protocol"] = json.dumps(protocol_settings(settings), sort_keys=True)
         for k in METRICS:
             value = data.get(k, data.get("avg_mse") if k == "MSE_mean" else None)
             if value is None or not math.isfinite(float(value)) or float(value) < 0:

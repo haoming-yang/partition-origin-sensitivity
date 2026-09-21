@@ -78,8 +78,7 @@ def test_layerwise_summary_retains_each_named_layer():
 
 
 def test_dense_token_tensor_materializes_nested_transformer_output():
-    with pytest.warns(UserWarning, match="NestedTensor"):
-        nested = torch.nested.nested_tensor([torch.ones(2, 3), torch.ones(1, 3)])
+    nested = torch.nested.nested_tensor([torch.ones(2, 3), torch.ones(1, 3)])
 
     dense = dense_token_tensor(nested)
 

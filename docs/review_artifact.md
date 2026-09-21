@@ -34,3 +34,11 @@ Readout CSV values are absolute contributions averaged across windows, channels 
 `--seed` on the Jacobian CLI identifies the checkpoint training seed. `--projection-seed` controls a dedicated generator independent of model initialization/global random draws. The projection seed, batch size, window selection, device and environment must all be recorded. No cross-device bitwise identity is promised.
 
 `reproduce_tables.sh new-runs` groups by experiment, dataset and recorded protocol, rejects repeated seeds, retains source paths and emits sample SD. Singleton SD is missing rather than zero. It does not silently combine incomplete or invalid runs. `reproduce_tables.sh frozen` is the default archived Table 2/3 path.
+
+## Head/mask reconstructed controls
+
+`run_heads.sh` dispatches ETTh1 and Weather. Each dataset has four separate configurations: flattened/pooled crossed with masked/unmasked. Dry-run lists the same four conditions per seed as actual dispatch. Each run uses the first 1,024 training, 16 validation and 16 test windows of the existing chronological split, with five epochs. Caps are applied to window indices after the train-only scaler is fit.
+
+Masked models concatenate values and observation indicators and mask fully padded tokens; unmasked models use a value-only tokenizer and no attention validity mask. Both retain the zero-padded lattice and fixed token slots. Pooling averages over these slots (masked padded-token outputs are zero). These reconstructed controls remain distinct from the historical frozen single contrast and three-run means in Figure 4; fresh outputs must not replace those records.
+
+Patch-length aliases `p`, `patch_len` and `patch_length` are canonicalized before grouping; conflicting aliases fail. Unchanged export text is copied byte-for-byte, preserving frozen CRLF records on Linux as well as Windows.
