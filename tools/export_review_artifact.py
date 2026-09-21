@@ -10,6 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 TEXT = {".md", ".json", ".py", ".yml", ".yaml", ".toml", ".cff", ".txt", ".sh"}
 
 
+def write_export_text(source, target, text):
+    if text == source.read_text(encoding="utf-8"):
+        shutil.copy2(source, target)
+    else:
+        target.write_bytes(text.encode("utf-8"))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
@@ -46,7 +53,7 @@ def main():
             if rel == "README.md":
                 text = re.sub(r"<a href=\"https://github.com/anonymous-artifact/.*?</a>", "", text, flags=re.S)
                 text = re.sub(r"<a href=\".github/workflows/tests.yml\">.*?</a>", "", text, flags=re.S)
-            target.write_text(text, encoding="utf-8")
+            write_export_text(source, target, text)
         else:
             shutil.copy2(source, target)
     for record in json.loads((ROOT / "artifacts/review_checkpoint_manifest.json").read_text()):

@@ -23,7 +23,7 @@ import random
 import subprocess
 import sys
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Iterable
@@ -117,6 +117,18 @@ class DataBundle:
     train_std: np.ndarray
     split: dict
     channels: int
+
+
+def cap_windows(data: DataBundle, max_train=None, max_validation=None, max_test=None):
+    updates = {}
+    for name, limit in zip(("train", "validation", "test"), (max_train, max_validation, max_test)):
+        if limit is not None:
+            if not isinstance(limit, int) or limit < 1:
+                raise ValueError("Window caps must be positive integers")
+            if len(getattr(data, name)) < limit:
+                raise ValueError(f"Insufficient {name} windows for cap {limit}")
+            updates[name] = getattr(data, name)[:limit]
+    return replace(data, **updates)
 
 
 def load_data(dataset: str = "ETTh1", horizon: int = H96) -> DataBundle:
@@ -308,7 +320,7 @@ def save_run_artifacts(out: Path, config: dict, train_rows: list[dict],
 class ControlledTransformerSupplement(nn.Module):
     def __init__(self, context: int, horizon: int, patch_len: int, stride: int,
                  channels: int = CHANNELS, use_position: bool = True,
-                 head_geometry: str = "flattened"):
+                 head_geometry: str = "flattened", use_mask: bool = True):
         super().__init__()
         self.context, self.horizon = context, horizon
         self.patch_len, self.stride = patch_len, stride
@@ -317,10 +329,11 @@ class ControlledTransformerSupplement(nn.Module):
         self.channels = channels
         self.use_position = use_position
         self.head_geometry = head_geometry
+        self.use_mask = use_mask
         if head_geometry not in {"flattened", "pooled"}:
             raise ValueError("head_geometry must be 'flattened' or 'pooled'")
         self.position = nn.Parameter(torch.zeros(1, self.npatch, 64))
-        self.embed = nn.Linear(patch_len * 2, 64)
+        self.embed = nn.Linear(patch_len * (2 if use_mask else 1), 64)
         layer = nn.TransformerEncoderLayer(64, 4, 256, 0.1, batch_first=True, norm_first=False)
         self.encoder = nn.TransformerEncoder(layer, 2)
         self.norm = nn.LayerNorm(64)
@@ -331,17 +344,19 @@ class ControlledTransformerSupplement(nn.Module):
             self.head = nn.Sequential(nn.Dropout(0.1), nn.Linear(64, horizon))
 
     def forward(self, values: torch.Tensor, observed: torch.Tensor) -> torch.Tensor:
-        safe = values * observed.unsqueeze(-1).to(values.dtype)
+        safe = values * observed.unsqueeze(-1).to(values.dtype) if self.use_mask else values
         v = safe.permute(0, 2, 1).unfold(-1, self.patch_len, self.stride)
         m = observed.to(values.dtype).unfold(-1, self.patch_len, self.stride)
         valid = m.sum(-1).gt(0)
-        z = torch.cat((v, m.unsqueeze(1).expand(-1, self.channels, -1, -1)), dim=-1)
+        z = torch.cat((v, m.unsqueeze(1).expand(-1, self.channels, -1, -1)), dim=-1) if self.use_mask else v
         z = self.embed(z)
         if self.use_position:
             z = z + self.position.unsqueeze(1)
         b, c, n, d = z.shape
         flat = z.reshape(b * c, n, d)
         key_mask = ~valid[:, None, :].expand(b, c, n).reshape(b * c, n)
+        if not self.use_mask:
+            key_mask = torch.zeros_like(key_mask)
         flat = self.encoder(flat, src_key_padding_mask=key_mask)
         flat = self.norm(flat).masked_fill(key_mask.unsqueeze(-1), 0.0)
         features = flat.reshape(b, c, n, d)
@@ -429,13 +444,16 @@ def train_controlled(seed: int, out: Path, strategy: str, context: int, horizon:
                      dataset: str = "ETTh1", experiment_id: str = "SUPPLEMENT_CONTROLLED",
                      use_position: bool = True, head_geometry: str = "flattened",
                      source_status: str = "SOURCE_PRESENT", batch_size: int = BATCH_SIZE,
-                     learning_rate: float = 1e-4, weight_decay: float = 1e-4) -> dict:
+                     learning_rate: float = 1e-4, weight_decay: float = 1e-4,
+                     use_mask: bool = True, max_train_windows=None,
+                     max_validation_windows=None, max_test_windows=None,
+                     diagnostic_split: str = "full") -> dict:
     seed_all(seed)
-    data = load_data(dataset, horizon)
+    data = cap_windows(load_data(dataset, horizon), max_train_windows, max_validation_windows, max_test_windows)
     dev = device()
     model = ControlledTransformerSupplement(context, horizon, patch_len, stride, data.channels,
                                             use_position=use_position,
-                                            head_geometry=head_geometry).to(dev)
+                                            head_geometry=head_geometry, use_mask=use_mask).to(dev)
     opt = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     train_loader = DataLoader(Windows(data.standardized, data.train, context, horizon),
                               batch_size=batch_size, shuffle=True,
@@ -457,10 +475,12 @@ def train_controlled(seed: int, out: Path, strategy: str, context: int, horizon:
               "optimizer": "AdamW", "learning_rate": learning_rate, "weight_decay": weight_decay,
               "strategy": strategy, "input_scale": "train-row standardized",
               "use_position": use_position, "head_geometry": head_geometry,
+              "use_mask": use_mask, "diagnostic_split": diagnostic_split,
+              "max_train_windows": max_train_windows, "max_validation_windows": max_validation_windows, "max_test_windows": max_test_windows,
               "source_status": source_status,
               "formal_metric_denominator": "minimum MSE",
               "layout_audit": audit_layout(context, patch_len, stride, data.channels),
-              "padding_leakage_test": "outer sentinel is multiplied by observed mask before encoding"}
+              "padding_leakage_test": "outer sentinel is masked" if use_mask else "unmasked input; zero padding is part of the control"}
     train_rows, val_rows, best_state = [], [], None
     best_val, selected_epoch = float("inf"), None
     out.mkdir(parents=True, exist_ok=True)

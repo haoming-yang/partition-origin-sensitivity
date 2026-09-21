@@ -102,6 +102,11 @@ def run_controlled(config: dict, dataset: str, seed: int, output_root: Path) -> 
         use_position=bool(config.get("use_position", True)),
         head_geometry=str(config.get("head_geometry", "flattened")),
         source_status=str(config.get("source_status", "SOURCE_PRESENT")),
+        use_mask=bool(config.get("use_mask", True)),
+        max_train_windows=config.get("max_train_windows"),
+        max_validation_windows=config.get("max_validation_windows"),
+        max_test_windows=config.get("max_test_windows"),
+        diagnostic_split=config.get("diagnostic_split", "full"),
     )
 
 
@@ -240,6 +245,15 @@ def run_fullsplit(
     return {"experiment_id": config["experiment_id"], "status": "COMPLETE", "jobs": calls}
 
 
+def head_jobs(config, seeds, datasets):
+    if config.get("diagnostic_split", "capped_test_setting") != "capped_test_setting":
+        raise ValueError("Head diagnostic requires capped_test_setting")
+    return [dict(dataset=d, seed=s, head_geometry=h, use_mask=m,
+                 max_train_windows=1024, max_validation_windows=16, max_test_windows=16)
+            for d, s in config_jobs(config, seeds, datasets)
+            for h in ("flattened", "pooled") for m in (True, False)]
+
+
 def run(config: dict, seeds: list[int], datasets: list[str], output_root: Path) -> object:
     experiment_id = config["experiment_id"]
     if experiment_id == "PATCH_LENGTH_AUDIT_V1":
@@ -270,12 +284,13 @@ def run(config: dict, seeds: list[int], datasets: list[str], output_root: Path) 
         return results
     if experiment_id == "MASK_HEAD_FACTORIAL_V1":
         results = []
-        for head_geometry in ("flattened", "pooled"):
+        for job in head_jobs(config, seeds, datasets):
             local = dict(config, context=512, horizon=96, patch_len=12, stride=12,
-                         epochs=5, strategy="random_origin", head_geometry=head_geometry,
-                         source_status="RECONSTRUCTED_CONTROL")
-            for dataset, seed in config_jobs(dict(local, dataset="ETTh1"), seeds, ["ETTh1"]):
-                results.append(run_controlled(local, dataset, seed, output_root / head_geometry))
+                         epochs=5, strategy="random_origin", source_status="RECONSTRUCTED_CONTROL")
+            local.update(job)
+            local["diagnostic_split"] = "capped_test_setting"
+            condition = job["head_geometry"] + ("_masked" if job["use_mask"] else "_unmasked")
+            results.append(run_controlled(local, job["dataset"], job["seed"], output_root / condition))
         return results
     results = []
     for dataset, seed in config_jobs(config, seeds, datasets):
@@ -298,6 +313,8 @@ def main() -> None:
     selected_datasets = [item.strip() for item in args.datasets.split(",") if item.strip()]
     if config["experiment_id"] == "CROSS_MODEL_PHASE_V1":
         jobs = fullsplit_jobs(config, selected_seeds, selected_datasets)
+    elif config["experiment_id"] == "MASK_HEAD_FACTORIAL_V1":
+        jobs = head_jobs(config, selected_seeds, selected_datasets)
     else:
         jobs = config_jobs(config, selected_seeds, selected_datasets)
     if args.dry_run:
