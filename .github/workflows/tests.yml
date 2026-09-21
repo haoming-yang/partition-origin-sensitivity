@@ -25,3 +25,5 @@ jobs:
         run: python tools/verify_poc_stage3.py
       - name: Verify vendored source manifests
         run: python tools/verify_source_manifests.py
+      - name: Reproduce frozen paper tables through shell dispatcher
+        run: bash scripts/reproduce_all.sh tables

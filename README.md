@@ -1,8 +1,8 @@
 <div align="center">
 
-# Same Observations, Different Forecasts
+# Where You Start Matters
 
-### Partition-Origin Sensitivity in Patch-Based Time Series Forecasting
+### How Patch Alignment Shapes the Forecast: [Experiments & Analysis]
 
 <p>
   <a href="https://github.com/haoming-yang/partition-origin-sensitivity">
@@ -26,8 +26,7 @@
 
 </div>
 
-Code and configuration for the paper **“Same Observations, Different
-Forecasts: Partition-Origin Sensitivity in Patch-Based Time Series Forecasting.”**
+Code and configuration for the paper **“Where You Start Matters: How Patch Alignment Shapes the Forecast: [Experiments & Analysis].”**
 
 The repository studies whether changing only the origin of a one-dimensional
 patch lattice can change a forecast when the observed history, target, and
@@ -41,11 +40,11 @@ forecasting model are fixed.
 
 <p align="center">
   <a href="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.pdf">
-    <img src="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.png" alt="Figure 2: paired latent PCA diagnostic" width="100%">
+    <img src="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.png" alt="Supplementary Figure S1: paired latent PCA diagnostic" width="100%">
   </a>
 </p>
 
-<p align="center"><em>Figure 2. Appendix-only qualitative visualization of origin-induced latent displacement for the frozen ETTh1 seed-42 diagnostic.</em></p>
+<p align="center"><em>Supplementary Figure S1. Appendix-only qualitative visualization of origin-induced latent displacement for the frozen ETTh1 seed-42 diagnostic.</em></p>
 
 This repository also includes the frozen, compact diagnostic artifacts used by
 the latent-representation analyses; it does not include datasets, checkpoints,
@@ -331,3 +330,17 @@ If you use this repository, cite the paper using [CITATION.cff](CITATION.cff).
 Repository-level code is released under the MIT License. Files under
 `third_party/` retain their upstream provenance and licensing requirements;
 see [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
+
+## Current manuscript release
+
+The paper now uses Figure 2 for origin profiles, Figure 3 for ECDFs, Figure 4 for controls, Figure 5 for frozen-model diagnostics, and supplementary Figure S1 for PCA.
+
+```bash
+python tools/reproduce_frozen_paper.py --output outputs/paper_reproduction --figure
+bash scripts/reproduce_tables.sh frozen
+bash scripts/reproduce_tables.sh new-runs
+```
+
+The frozen command regenerates main Tables 2 and 3 and the Figure 5 readout audit from archived full-precision records. It does not claim to regenerate every manuscript table. The new-runs command retains experiment identity, protocol settings, seeds and source records and calculates sample SD; singleton SD is blank. Never replace historical paper results with these newly generated summaries.
+
+Frozen Jacobian profiles preserve the original draws, whose RNG state was not archived. New Jacobian runs accept `--projection-seed 0`; `--seed` is checkpoint-training metadata only. Reproduction of the archived profiles is distinct from resampling projections. See [review artifact instructions](docs/review_artifact.md) for the anonymous package and weight availability.

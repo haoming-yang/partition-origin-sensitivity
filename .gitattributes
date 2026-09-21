@@ -1,3 +1,6 @@
 artifacts/poc_stage3/SHA256SUMS.historical.txt -text
 third_party/patch_models/SOURCE_MANIFEST.historical.csv -text
 third_party/time_series_library/SOURCE_MANIFEST.historical.csv -text
+artifacts/frozen_diagnostics/** -text
+artifacts/paper_records/** -text
+artifacts/paper_release_sha256.json -text

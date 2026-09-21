@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Callable, Sequence
 
 import torch
@@ -67,6 +69,7 @@ def rademacher_jacobian_energy(
     forward_b: Callable[[torch.Tensor], torch.Tensor],
     raw: torch.Tensor,
     projections: int = 2,
+    generator: torch.Generator | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     if projections <= 0:
         raise ValueError("projections must be positive")
@@ -80,7 +83,7 @@ def rademacher_jacobian_energy(
     energy_b = torch.zeros_like(values)
     energy_difference = torch.zeros_like(values)
     for _ in range(projections):
-        signs = torch.randint(0, 2, flat_a.shape, device=flat_a.device, dtype=flat_a.dtype).mul_(2).sub_(1)
+        signs = torch.randint(0, 2, flat_a.shape, device=flat_a.device, dtype=flat_a.dtype, generator=generator).mul_(2).sub_(1)
         gradient_a = torch.autograd.grad((flat_a * signs).sum(), values, retain_graph=True)[0]
         gradient_b = torch.autograd.grad((flat_b * signs).sum(), values, retain_graph=True)[0]
         gradient_difference = torch.autograd.grad((flat_difference * signs).sum(), values, retain_graph=True)[0]
