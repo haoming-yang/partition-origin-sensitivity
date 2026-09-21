@@ -1,0 +1,48 @@
+{
+  "experiment_id": "CANONICAL_STAGE4_BATCH1_DISPERSION_V1",
+  "dataset": "Weather",
+  "p": 12,
+  "seed": 44,
+  "checkpoint_sha256": "71313808869a4d6dc23aa8e5ccd78e4ef8af7a3498ef2deb430f0eeb04b6713f",
+  "source_summary_sha256": "11c5f83c701c0ff1e6913d79b358b63cb1764efb503f132fd45e2c19125d916f",
+  "evaluator_sha256": "2720e15307228c8319d1858bd1644078e25474d7e50f33599ad05890b17ee75b",
+  "split": {
+    "rows": 52696,
+    "channels": 21,
+    "borders": [
+      0,
+      36887,
+      42157,
+      52696
+    ],
+    "counts": {
+      "train": 36280,
+      "validation": 5175,
+      "test": 10444
+    },
+    "scaler_fit_rows": [
+      0,
+      36887
+    ],
+    "data_sha256": "34ee981d07313e51da2a50bb600072c8ae4a69cb4b0651f4cb93a069d7a2ba63"
+  },
+  "preflight": {
+    "geometry_pass": true,
+    "reconstruction_pass": true,
+    "reconstruction_max_abs": 0.0,
+    "sentinel_random_pass": true,
+    "sentinel_plus1000_pass": true,
+    "sentinel_random_max_abs": 0.0,
+    "sentinel_plus1000_max_abs": 0.0
+  },
+  "S_theta": 0.004524957306957003,
+  "origin_prediction_variance": 0.002073938768765094,
+  "identity_rhs": 0.004524957313669296,
+  "identity_absolute_error": 6.712293047772544e-12,
+  "identity_relative_error": 1.4833936747762393e-09,
+  "G_origin": 1.7138650629148302,
+  "CV_origin": 0.004380530664130054,
+  "Delta_origin": 0.0025682997625428583,
+  "G_interior": 1.7138650629148302,
+  "Avg_MSE": 0.15107944807107718
+}

@@ -1,0 +1,210 @@
+{
+  "experiment_id": "CANONICAL_STAGE4_BATCH1_INFERENCE_V1",
+  "dataset": "ETTm1",
+  "p": 12,
+  "seed": 42,
+  "checkpoint_sha256": "9ca3b294c33a04079073072343407df712a939b1d246e442955e4753eed36e46",
+  "source_summary_sha256": "558f6adcd4c13035b1bc1e7c96482067d7cced40178614bed9054001d8544561",
+  "evaluator_sha256": "b505bf084bec8daeeb59f3336a7975cbda964e57ab79c3f8f18e1bf16926e3c5",
+  "split": {
+    "rows": 69680,
+    "channels": 7,
+    "borders": [
+      0,
+      34560,
+      46080,
+      57600
+    ],
+    "counts": {
+      "train": 33953,
+      "validation": 11425,
+      "test": 11425
+    },
+    "scaler_fit_rows": [
+      0,
+      34560
+    ],
+    "data_sha256": "6ce1759b1a18e3328421d5d75fadcb316c449fcd7cec32820c8dafda71986c9e"
+  },
+  "preflight": {
+    "geometry_pass": true,
+    "reconstruction_pass": true,
+    "reconstruction_max_abs": 0.0,
+    "sentinel_random_pass": true,
+    "sentinel_plus1000_pass": true,
+    "sentinel_random_max_abs": 0.0,
+    "sentinel_plus1000_max_abs": 0.0
+  },
+  "validation": {
+    "r_star": 5,
+    "selected_origin": {
+      "origin": 5,
+      "MSE": 0.42952156089153887,
+      "MAE": 0.44187270244086824
+    },
+    "mean_origin": {
+      "avg_mse": 0.4359461794401862,
+      "avg_mae": 0.44726266559831246,
+      "G_origin": 4.478659825733893,
+      "CV_origin": 0.015112990584991132,
+      "Delta_origin": 0.019236809590514492,
+      "G_interior": 4.478659825733893,
+      "min_mse_origin": 5,
+      "max_mse_origin": 4
+    },
+    "per_origin": [
+      {
+        "origin": 0,
+        "MSE": 0.444291850236402,
+        "MAE": 0.452587573051552
+      },
+      {
+        "origin": 1,
+        "MSE": 0.4372885950622527,
+        "MAE": 0.4487938644494242
+      },
+      {
+        "origin": 2,
+        "MSE": 0.4341919826653844,
+        "MAE": 0.4469785572929259
+      },
+      {
+        "origin": 3,
+        "MSE": 0.43865962263717245,
+        "MAE": 0.45058239041982595
+      },
+      {
+        "origin": 4,
+        "MSE": 0.44875837048205336,
+        "MAE": 0.4567671247496013
+      },
+      {
+        "origin": 5,
+        "MSE": 0.42952156089153887,
+        "MAE": 0.44187270244086824
+      },
+      {
+        "origin": 6,
+        "MSE": 0.4306169225116987,
+        "MAE": 0.4426113551470641
+      },
+      {
+        "origin": 7,
+        "MSE": 0.4296904892666558,
+        "MAE": 0.4415996084524292
+      },
+      {
+        "origin": 8,
+        "MSE": 0.43099848322835055,
+        "MAE": 0.4424985265776529
+      },
+      {
+        "origin": 9,
+        "MSE": 0.43056561225278184,
+        "MAE": 0.4436556316239394
+      },
+      {
+        "origin": 10,
+        "MSE": 0.431289271629638,
+        "MAE": 0.44509812602577475
+      },
+      {
+        "origin": 11,
+        "MSE": 0.445481392418306,
+        "MAE": 0.4541065269486909
+      }
+    ]
+  },
+  "test": {
+    "origin0": {
+      "origin": 0,
+      "MSE": 0.3511567929502302,
+      "MAE": 0.3886164959443166
+    },
+    "validation_selected_origin": {
+      "origin": 5,
+      "MSE": 0.3291832569826267,
+      "MAE": 0.373844608419374
+    },
+    "test_argmin_origin_record_only": 5,
+    "mean_single_origin": {
+      "avg_mse": 0.33472565740142984,
+      "avg_mae": 0.37846970321627715,
+      "G_origin": 6.675168162870215,
+      "CV_origin": 0.019387237151273377,
+      "Delta_origin": 0.02197353596760354,
+      "G_interior": 4.432710136607563,
+      "min_mse_origin": 5,
+      "max_mse_origin": 0
+    },
+    "ensemble": {
+      "MSE": 0.32382859375165235,
+      "MAE": 0.37126041988730846,
+      "forward_count": 12
+    },
+    "per_origin": [
+      {
+        "origin": 0,
+        "MSE": 0.3511567929502302,
+        "MAE": 0.3886164959443166
+      },
+      {
+        "origin": 1,
+        "MSE": 0.33995956388304377,
+        "MAE": 0.3830613017005201
+      },
+      {
+        "origin": 2,
+        "MSE": 0.3316032098414588,
+        "MAE": 0.3783128300609471
+      },
+      {
+        "origin": 3,
+        "MSE": 0.3302804390375746,
+        "MAE": 0.3778768935446517
+      },
+      {
+        "origin": 4,
+        "MSE": 0.33410443867123646,
+        "MAE": 0.38046380708326183
+      },
+      {
+        "origin": 5,
+        "MSE": 0.3291832569826267,
+        "MAE": 0.373844608419374
+      },
+      {
+        "origin": 6,
+        "MSE": 0.3310339651796437,
+        "MAE": 0.3750786019385178
+      },
+      {
+        "origin": 7,
+        "MSE": 0.3298896290961064,
+        "MAE": 0.37406161133890486
+      },
+      {
+        "origin": 8,
+        "MSE": 0.33039287179885485,
+        "MAE": 0.3741794858679891
+      },
+      {
+        "origin": 9,
+        "MSE": 0.3318957020722914,
+        "MAE": 0.37566216575636074
+      },
+      {
+        "origin": 10,
+        "MSE": 0.3334330227211812,
+        "MAE": 0.376842041725142
+      },
+      {
+        "origin": 11,
+        "MSE": 0.3437749965829105,
+        "MAE": 0.3836365952153398
+      }
+    ],
+    "single_origin_forward_count": 1,
+    "ensemble_forward_count": 12
+  }
+}

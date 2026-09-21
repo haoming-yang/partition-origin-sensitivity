@@ -1,0 +1,170 @@
+{
+  "experiment_id": "CANONICAL_STAGE4_BATCH1_INFERENCE_V1",
+  "dataset": "ETTh1",
+  "p": 8,
+  "seed": 43,
+  "checkpoint_sha256": "e6f4f52862ed3c85f48ecaf19facb80bbf34cd1e7804cbd1961e4fc3d5ac60be",
+  "source_summary_sha256": "57d38417da804405fc758bf44d1302b0230a00eb58791992ff35a07b45507d14",
+  "evaluator_sha256": "2720e15307228c8319d1858bd1644078e25474d7e50f33599ad05890b17ee75b",
+  "split": {
+    "rows": 17420,
+    "channels": 7,
+    "borders": [
+      0,
+      8640,
+      11520,
+      17420
+    ],
+    "counts": {
+      "train": 8033,
+      "validation": 2785,
+      "test": 5805
+    },
+    "scaler_fit_rows": [
+      0,
+      8640
+    ],
+    "data_sha256": "f18de3ad269cef59bb07b5438d79bb3042d3be49bdeecf01c1cd6d29695ee066"
+  },
+  "preflight": {
+    "geometry_pass": true,
+    "reconstruction_pass": true,
+    "reconstruction_max_abs": 0.0,
+    "sentinel_random_pass": true,
+    "sentinel_plus1000_pass": true,
+    "sentinel_random_max_abs": 0.0,
+    "sentinel_plus1000_max_abs": 0.0
+  },
+  "validation": {
+    "r_star": 1,
+    "selected_origin": {
+      "origin": 1,
+      "MSE": 0.7385093560634214,
+      "MAE": 0.5834926090597586
+    },
+    "mean_origin": {
+      "avg_mse": 0.7565865450622058,
+      "avg_mae": 0.5962098810095313,
+      "G_origin": 9.109807423348707,
+      "CV_origin": 0.027782749220699628,
+      "Delta_origin": 0.0672767801407903,
+      "G_interior": 4.51220162595962,
+      "min_mse_origin": 1,
+      "max_mse_origin": 0
+    },
+    "per_origin": [
+      {
+        "origin": 0,
+        "MSE": 0.8057861362042117,
+        "MAE": 0.6223145134583329
+      },
+      {
+        "origin": 1,
+        "MSE": 0.7385093560634214,
+        "MAE": 0.5834926090597586
+      },
+      {
+        "origin": 2,
+        "MSE": 0.7394866764316134,
+        "MAE": 0.5860749855442638
+      },
+      {
+        "origin": 3,
+        "MSE": 0.7460883206196847,
+        "MAE": 0.5909837607166609
+      },
+      {
+        "origin": 4,
+        "MSE": 0.7479835211359314,
+        "MAE": 0.5925284345812234
+      },
+      {
+        "origin": 5,
+        "MSE": 0.74785567237402,
+        "MAE": 0.5924111323141793
+      },
+      {
+        "origin": 6,
+        "MSE": 0.7551502904331846,
+        "MAE": 0.5961024811953329
+      },
+      {
+        "origin": 7,
+        "MSE": 0.771832387235579,
+        "MAE": 0.6057711312064984
+      }
+    ]
+  },
+  "test": {
+    "origin0": {
+      "origin": 0,
+      "MSE": 0.5648578699342798,
+      "MAE": 0.5236323685237496
+    },
+    "validation_selected_origin": {
+      "origin": 1,
+      "MSE": 0.4892222114125834,
+      "MAE": 0.48328734505416615
+    },
+    "test_argmin_origin_record_only": 1,
+    "mean_single_origin": {
+      "avg_mse": 0.506218808548351,
+      "avg_mae": 0.49344295120567827,
+      "G_origin": 15.46038931946804,
+      "CV_origin": 0.04699626967732342,
+      "Delta_origin": 0.0756356585216964,
+      "G_interior": 6.027864243323295,
+      "min_mse_origin": 1,
+      "max_mse_origin": 0
+    },
+    "ensemble": {
+      "MSE": 0.47999991839564404,
+      "MAE": 0.4808133832407407,
+      "forward_count": 8
+    },
+    "per_origin": [
+      {
+        "origin": 0,
+        "MSE": 0.5648578699342798,
+        "MAE": 0.5236323685237496
+      },
+      {
+        "origin": 1,
+        "MSE": 0.4892222114125834,
+        "MAE": 0.48328734505416615
+      },
+      {
+        "origin": 2,
+        "MSE": 0.489862771071596,
+        "MAE": 0.48364074238897287
+      },
+      {
+        "origin": 3,
+        "MSE": 0.4960841741570104,
+        "MAE": 0.48818936944667946
+      },
+      {
+        "origin": 4,
+        "MSE": 0.4956939151526563,
+        "MAE": 0.48790407972092126
+      },
+      {
+        "origin": 5,
+        "MSE": 0.4947594676865198,
+        "MAE": 0.48751250105442795
+      },
+      {
+        "origin": 6,
+        "MSE": 0.5005581968074445,
+        "MAE": 0.4918833908507257
+      },
+      {
+        "origin": 7,
+        "MSE": 0.518711862164718,
+        "MAE": 0.5014938126057833
+      }
+    ],
+    "single_origin_forward_count": 1,
+    "ensemble_forward_count": 8
+  }
+}

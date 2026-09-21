@@ -1,0 +1,34 @@
+{
+  "model": "patchtst",
+  "dataset": "Weather",
+  "seed": null,
+  "checkpoint_sha256": "d325040fee4a184ef7a212d0ee277d7e5b047dd0c5491b3a57da716568a8eeb1",
+  "input_scale": "raw",
+  "context": 512,
+  "horizon": 96,
+  "patch_length": 12,
+  "stride": 12,
+  "origin_pair": [
+    0,
+    6
+  ],
+  "windows": 512,
+  "batch_size": 2,
+  "projections": 2,
+  "gradient_quantity": "Rademacher estimate of per-input-position Jacobian energy",
+  "center_of_mass": {
+    "origin_a": 297.45274426362295,
+    "origin_b": 306.3551560782289,
+    "origin_difference": 306.1182262230367
+  },
+  "device": "cuda",
+  "torch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "python": "3.9.16",
+  "checkpoint": "checkpoints/frozen_diagnostics/d325040fee4a184ef7a212d0ee277d7e5b047dd0c5491b3a57da716568a8eeb1/checkpoint.pt",
+  "projection_seed": null,
+  "projection_rng_state": "not archived",
+  "window_selection": "first chronological test windows",
+  "checkpoint_training_seed": 42
+}

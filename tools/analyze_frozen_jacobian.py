@@ -57,6 +57,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     accumulated = np.zeros((3, args.context), dtype=np.float64)
     denominator = 0
     window_count = 0
+    generator = torch.Generator(device=device).manual_seed(args.projection_seed)
     for x, _target in loader:
         x = x.to(device, non_blocking=True)
         padded_a, observed_a = runner.partition(x, args.origin_a, args.context, args.patch_length, args.stride)
@@ -67,6 +68,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
                 lambda z: model(*runner.partition(z, args.origin_b, args.context, args.patch_length, args.stride)),
                 x,
                 projections=args.projections,
+                generator=generator,
             )
         batch_channels = x.shape[0] * x.shape[2]
         accumulated[0] += energy_a.detach().sum(dim=(0, 2)).cpu().numpy()
@@ -93,6 +95,10 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         "model": args.model,
         "dataset": args.dataset,
         "seed": args.seed,
+        "checkpoint_training_seed": args.seed,
+        "projection_seed": args.projection_seed,
+        "window_selection": "first chronological test windows; no shuffle",
+        "normalization": "mean squared projected gradients over projections, windows and channels; normalize positional mass after aggregation",
         "checkpoint": str(args.checkpoint.resolve()),
         "checkpoint_sha256": file_sha256(args.checkpoint.resolve()),
         "data_root": str(args.data_root.resolve()),
@@ -130,7 +136,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--dataset", choices=("ETTh1", "ETTh2", "ETTm1", "ETTm2", "Weather"), required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--seed", type=int)
+    parser.add_argument("--seed", type=int, help="checkpoint training seed metadata; does not seed projections")
+    parser.add_argument("--projection-seed", type=int, default=0)
     parser.add_argument("--origin-a", type=int, default=0)
     parser.add_argument("--origin-b", type=int, default=6)
     parser.add_argument("--context", type=int, default=512)

@@ -1,0 +1,35 @@
+{
+  "model": "controlled",
+  "dataset": "Weather",
+  "seed": 42,
+  "checkpoint_sha256": "61d1df789d0d4f186b02f6d15835aeb538cdc966469b6f4ba3b8a18f83a09d51",
+  "input_scale": "training-standardized",
+  "context": 512,
+  "horizon": 96,
+  "patch_length": 12,
+  "stride": 12,
+  "origin_pair": [
+    0,
+    6
+  ],
+  "windows": 10444,
+  "batch_size": 8,
+  "finite_difference_indices": [
+    0,
+    64,
+    128,
+    256,
+    384,
+    511
+  ],
+  "finite_difference_delta": 0.001,
+  "finite_difference_batches": 8,
+  "head_attribution_space": "linear prediction-head pre-denormalization output",
+  "gradient_objective": "mean squared prediction disagreement between the two origins",
+  "device": "cuda",
+  "torch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "python": "3.9.16",
+  "contribution_statistic": "sum of absolute output contributions over windows, channels and horizon; raw channel scaling included for PatchTST; normalize after aggregation"
+}

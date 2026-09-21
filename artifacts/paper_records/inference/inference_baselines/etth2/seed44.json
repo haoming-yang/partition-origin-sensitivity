@@ -1,0 +1,210 @@
+{
+  "experiment_id": "CANONICAL_STAGE4_BATCH1_INFERENCE_V1",
+  "dataset": "ETTh2",
+  "p": 12,
+  "seed": 44,
+  "checkpoint_sha256": "9f5fd5cbe069c1c156bb9662d8ad98e57d185e197587295a7ce745eeb197d5b8",
+  "source_summary_sha256": "362f3c858f1e1674034a03ba5d40084c7e9e4672083b6db6410f90853fb54d60",
+  "evaluator_sha256": "b505bf084bec8daeeb59f3336a7975cbda964e57ab79c3f8f18e1bf16926e3c5",
+  "split": {
+    "rows": 17420,
+    "channels": 7,
+    "borders": [
+      0,
+      8640,
+      11520,
+      17420
+    ],
+    "counts": {
+      "train": 8033,
+      "validation": 2785,
+      "test": 5805
+    },
+    "scaler_fit_rows": [
+      0,
+      8640
+    ],
+    "data_sha256": "a3dc2c597b9218c7ce1cd55eb77b283fd459a1d09d753063f944967dd6b9218b"
+  },
+  "preflight": {
+    "geometry_pass": true,
+    "reconstruction_pass": true,
+    "reconstruction_max_abs": 0.0,
+    "sentinel_random_pass": true,
+    "sentinel_plus1000_pass": true,
+    "sentinel_random_max_abs": 0.0,
+    "sentinel_plus1000_max_abs": 0.0
+  },
+  "validation": {
+    "r_star": 7,
+    "selected_origin": {
+      "origin": 7,
+      "MSE": 0.2686826410299286,
+      "MAE": 0.3671840659000736
+    },
+    "mean_origin": {
+      "avg_mse": 0.2811884517107926,
+      "avg_mae": 0.3765520229903798,
+      "G_origin": 15.040258482577604,
+      "CV_origin": 0.040093092030714886,
+      "Delta_origin": 0.04041056370871737,
+      "G_interior": 10.93488825014967,
+      "min_mse_origin": 7,
+      "max_mse_origin": 0
+    },
+    "per_origin": [
+      {
+        "origin": 0,
+        "MSE": 0.309093204738646,
+        "MAE": 0.39820714808533597
+      },
+      {
+        "origin": 1,
+        "MSE": 0.2980627875741021,
+        "MAE": 0.3889350655161031
+      },
+      {
+        "origin": 2,
+        "MSE": 0.2840376054200085,
+        "MAE": 0.3782554305882864
+      },
+      {
+        "origin": 3,
+        "MSE": 0.27587646685920947,
+        "MAE": 0.37170362709790933
+      },
+      {
+        "origin": 4,
+        "MSE": 0.27816580719975126,
+        "MAE": 0.3727204783875748
+      },
+      {
+        "origin": 5,
+        "MSE": 0.2776449692191207,
+        "MAE": 0.37317774540197646
+      },
+      {
+        "origin": 6,
+        "MSE": 0.2693690906826977,
+        "MAE": 0.3660540363794108
+      },
+      {
+        "origin": 7,
+        "MSE": 0.2686826410299286,
+        "MAE": 0.3671840659000736
+      },
+      {
+        "origin": 8,
+        "MSE": 0.272983170615574,
+        "MAE": 0.3693320150017443
+      },
+      {
+        "origin": 9,
+        "MSE": 0.2769669002657865,
+        "MAE": 0.3732091346826168
+      },
+      {
+        "origin": 10,
+        "MSE": 0.27837494355017706,
+        "MAE": 0.3761846621688578
+      },
+      {
+        "origin": 11,
+        "MSE": 0.2850038333745087,
+        "MAE": 0.383660866674668
+      }
+    ]
+  },
+  "test": {
+    "origin0": {
+      "origin": 0,
+      "MSE": 0.2936789790393242,
+      "MAE": 0.3819008084758704
+    },
+    "validation_selected_origin": {
+      "origin": 7,
+      "MSE": 0.2563670099595676,
+      "MAE": 0.35258001952814577
+    },
+    "test_argmin_origin_record_only": 7,
+    "mean_single_origin": {
+      "avg_mse": 0.2664484106112111,
+      "avg_mae": 0.3601938739779376,
+      "G_origin": 14.554122656281388,
+      "CV_origin": 0.04139541866591131,
+      "Delta_origin": 0.03731196907975659,
+      "G_interior": 9.129264583033134,
+      "min_mse_origin": 7,
+      "max_mse_origin": 0
+    },
+    "ensemble": {
+      "MSE": 0.25576590111943204,
+      "MAE": 0.35060188355571376,
+      "forward_count": 12
+    },
+    "per_origin": [
+      {
+        "origin": 0,
+        "MSE": 0.2936789790393242,
+        "MAE": 0.3819008084758704
+      },
+      {
+        "origin": 1,
+        "MSE": 0.27977143260238746,
+        "MAE": 0.37034069831228245
+      },
+      {
+        "origin": 2,
+        "MSE": 0.26402597347181445,
+        "MAE": 0.3586989258082866
+      },
+      {
+        "origin": 3,
+        "MSE": 0.2571316906144477,
+        "MAE": 0.35288074722311946
+      },
+      {
+        "origin": 4,
+        "MSE": 0.2567699646256446,
+        "MAE": 0.3522312933316815
+      },
+      {
+        "origin": 5,
+        "MSE": 0.2657808943058047,
+        "MAE": 0.3584385169021295
+      },
+      {
+        "origin": 6,
+        "MSE": 0.257148877233004,
+        "MAE": 0.35079675862740356
+      },
+      {
+        "origin": 7,
+        "MSE": 0.2563670099595676,
+        "MAE": 0.35258001952814577
+      },
+      {
+        "origin": 8,
+        "MSE": 0.2597669563654884,
+        "MAE": 0.3535178024487882
+      },
+      {
+        "origin": 9,
+        "MSE": 0.2626302842486409,
+        "MAE": 0.3567058723605856
+      },
+      {
+        "origin": 10,
+        "MSE": 0.2675928804511722,
+        "MAE": 0.36194956295113095
+      },
+      {
+        "origin": 11,
+        "MSE": 0.2767159844172372,
+        "MAE": 0.37228548176582654
+      }
+    ],
+    "single_origin_forward_count": 1,
+    "ensemble_forward_count": 12
+  }
+}

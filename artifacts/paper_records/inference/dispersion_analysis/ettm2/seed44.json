@@ -1,0 +1,48 @@
+{
+  "experiment_id": "CANONICAL_STAGE4_BATCH1_DISPERSION_V1",
+  "dataset": "ETTm2",
+  "p": 12,
+  "seed": 44,
+  "checkpoint_sha256": "544bb179494b9ed4bf1ef4fdbb80fee93f33d81d2fed54bfbe849c6a06c14a53",
+  "source_summary_sha256": "e7877daab4997387dd893a3d184948f8ff96121412a5d7bb7aaecb80cb1c18ac",
+  "evaluator_sha256": "2720e15307228c8319d1858bd1644078e25474d7e50f33599ad05890b17ee75b",
+  "split": {
+    "rows": 69680,
+    "channels": 7,
+    "borders": [
+      0,
+      34560,
+      46080,
+      57600
+    ],
+    "counts": {
+      "train": 33953,
+      "validation": 11425,
+      "test": 11425
+    },
+    "scaler_fit_rows": [
+      0,
+      34560
+    ],
+    "data_sha256": "db973ca252c6410a30d0469b13d696cf919648d0f3fd588c60f03fdbdbadd1fd"
+  },
+  "preflight": {
+    "geometry_pass": true,
+    "reconstruction_pass": true,
+    "reconstruction_max_abs": 0.0,
+    "sentinel_random_pass": true,
+    "sentinel_plus1000_pass": true,
+    "sentinel_random_max_abs": 0.0,
+    "sentinel_plus1000_max_abs": 0.0
+  },
+  "S_theta": 0.02233467716112309,
+  "origin_prediction_variance": 0.010236727133866082,
+  "identity_rhs": 0.02233467738298054,
+  "identity_absolute_error": 2.2185744907865512e-10,
+  "identity_relative_error": 9.93331792880498e-09,
+  "G_origin": 30.999016351815538,
+  "CV_origin": 0.08616161282329064,
+  "Delta_origin": 0.0587843043776593,
+  "G_interior": 30.999016351815538,
+  "Avg_MSE": 0.21711010199274505
+}
