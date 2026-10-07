@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+from src.utils.legacy_timm import legacy_timm_import
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 TIER1_ROOT = REPO_ROOT / "third_party" / "patch_models" / "tier1"
@@ -152,7 +154,8 @@ def build_hdmixer(seq_len: int, pred_len: int, channels: int):
 
 def build_deformabletst(seq_len: int, pred_len: int, channels: int):
     """Build the cloned DeformableTST with its native 4-point convolutional stem."""
-    module = _load_native_module(DEFORMABLETST_ROOT, "models.deformabletst")
+    with legacy_timm_import():
+        module = _load_native_module(DEFORMABLETST_ROOT, "models.deformabletst")
     config = SimpleNamespace(
         n_vars=channels,
         revin=True,

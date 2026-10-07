@@ -7,8 +7,12 @@ source "$ROOT/scripts/defaults.sh"
 
 SPECTRUM_ROOT="${SPECTRUM_ROOT:-$ROOT/artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96}"
 LAYERS_ROOT="${LAYERS_ROOT:-$ROOT/artifacts/latent_layers_etth1_o0_o6_p12_L512_H96}"
-OUTPUT_ROOT="${OUTPUT_ROOT:-$ROOT/artifacts}"
+OUTPUT_ROOT="${OUTPUT_ROOT:-$ROOT/outputs/latent_summary}"
 PERMUTATIONS="${PERMUTATIONS:-1000}"
+
+python -m src.utils.output_paths \
+  "$OUTPUT_ROOT/latent_summary_etth1_o0_o6.json" \
+  "$OUTPUT_ROOT/latent_spectrum_etth1_o0_o6_permutation.json"
 
 IFS=',' read -r -a seeds <<< "$DEFAULT_SEEDS"
 if [[ "${#seeds[@]}" -ne 3 ]]; then

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .output_paths import validate_generated_output
+
 
 def seed_directory(root: Path, seed: int | None) -> Path:
     """Return a seed-isolated output directory without encoding seed in files."""
@@ -34,6 +36,8 @@ def metric_filename(
 
 
 def artifact_path(root: Path, seed: int | None, filename: str) -> Path:
-    output = seed_directory(Path(root), seed)
+    validate_generated_output(Path(root))
+    output = validate_generated_output(seed_directory(Path(root), seed))
+    validate_generated_output(output / filename)
     output.mkdir(parents=True, exist_ok=True)
     return output / filename

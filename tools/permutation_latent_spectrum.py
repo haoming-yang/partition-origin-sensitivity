@@ -16,6 +16,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.analysis.latent_spectral import permutation_spearman_test
+from src.utils.output_paths import validate_generated_output
 
 
 def read_window_metrics(path: Path) -> tuple[np.ndarray, np.ndarray]:
@@ -39,6 +40,7 @@ def seed_from_artifact(path: Path) -> int | None:
 
 
 def run(args: argparse.Namespace) -> list[dict[str, object]]:
+    output = validate_generated_output(args.output, REPO_ROOT)
     records: list[dict[str, object]] = []
     for index, path in enumerate(args.input):
         spectral, forecast = read_window_metrics(path)
@@ -53,7 +55,6 @@ def run(args: argparse.Namespace) -> list[dict[str, object]]:
         except ValueError:
             public_input = path.name
         records.append({"input": public_input.replace("\\", "/"), "seed": seed_from_artifact(path), "windows": int(spectral.size), **result})
-    output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(records, indent=2), encoding="utf-8")
     return records
@@ -62,7 +63,8 @@ def run(args: argparse.Namespace) -> list[dict[str, object]]:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, action="append", required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path,
+                        default=REPO_ROOT / "outputs/latent_summary/latent_spectrum_etth1_o0_o6_permutation.json")
     parser.add_argument("--permutations", type=int, default=1000)
     parser.add_argument("--seed", "--permutation-seed", dest="seed", type=int, default=0)
     return parser.parse_args()

@@ -88,7 +88,7 @@ or full prediction dumps.
 - controlled extensions for optimization, training-origin policy, overlap,
   horizon 192, patch length, positional encoding, and the official PatchTST
   adapter;
-- read-only token-axis spectrum and layerwise diagnostics for frozen controlled
+- post-hoc token-axis spectrum and layerwise diagnostics for frozen controlled
   Transformer checkpoints, plus a protocol-adapted PatchTST diagnostic;
 - the saved per-window diagnostic differences and the three-replicate permutation
   audit used to test the spectral--forecast association against random pairing;
@@ -280,7 +280,7 @@ Stage3/Stage4 protocol and are included for provenance and auditability.
 
 ## Latent-representation diagnostics
 
-The diagnostic scripts are post-hoc and read-only: they compare origin 0 and
+The diagnostic scripts are post-hoc: they read frozen checkpoints, compare origin 0 and
 origin 6 on the same ETTh1 test windows using frozen checkpoints. They do not
 retrain a model. The controlled Transformer tools retain only fully observed
 patch tokens, apply the FFT along the ordered token axis (never the embedding
@@ -292,15 +292,15 @@ standardized controlled-Transformer values.
 ```bash
 python tools/analyze_latent_spectrum.py \
   --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
-  --seed 42 --output artifacts/latent_spectrum_etth1_o0_o6_p12_L512_H96
+  --seed 42 --output outputs/latent_spectrum_etth1_o0_o6_p12_L512_H96
 
 python tools/analyze_latent_layers.py \
   --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
-  --seed 42 --output artifacts/latent_layers_etth1_o0_o6_p12_L512_H96
+  --seed 42 --output outputs/latent_layers_etth1_o0_o6_p12_L512_H96
 
 python tools/analyze_patchtst_latent_spectrum.py \
   --checkpoint /path/to/patchtst_checkpoint.pt --data-root /path/to/data \
-  --seed 42 --output artifacts/patchtst_latent_spectrum_etth1_o0_o6_p12_s12_L512_H96
+  --seed 42 --output outputs/patchtst_latent_spectrum_etth1_o0_o6_p12_s12_L512_H96
 
 bash scripts/summarize_latent.sh
 ```
@@ -323,6 +323,13 @@ runs the optional random-pairing audit. It performs no model run and does not
 render a new figure. Override the replicate set with, for example,
 `SEEDS=42,43,44 bash scripts/summarize_latent.sh`.
 
+This is not a filesystem-read-only command: it reads historical CSVs and writes
+new JSON files to `outputs/latent_summary/` by default. `OUTPUT_ROOT` changes
+only the generated destination. The summary/permutation tools reject outputs
+anywhere under this checkout's `artifacts/` or over Git-tracked files, including
+explicitly supplied unsafe paths. Seed-isolated analysis outputs use the same
+guard. Never use `artifacts/` for new runs; it is historical frozen evidence.
+
 The wrapper accepts both the current seed-subdirectory layout and the legacy
 frozen artifact layout committed in this repository.
 
@@ -339,7 +346,7 @@ is started by the diagnostic runner. For a dry-run over the available archive:
 python tools/run_frozen_mechanism_matrix.py \
   --archive-root /path/to/checkpoint-archive \
   --data-root /path/to/data \
-  --output-root artifacts/frozen_mechanisms \
+  --output-root outputs/frozen_mechanisms \
   --model all --dry-run
 ```
 
@@ -364,7 +371,7 @@ src/analysis/             Token-spectrum, layerwise, and PatchTST latent helpers
 src/                      Core runners, patching, evaluation, and metrics
 tests/                    Fast protocol, analysis, and release-contract tests
 third_party/              Isolated source snapshots with provenance notices
-tools/                    Static audits, read-only diagnostics, and POC Stage3 source snapshots
+tools/                    Static audits, post-hoc diagnostics, and POC Stage3 source snapshots
 ```
 
 ## Citation and license
@@ -385,5 +392,10 @@ bash scripts/reproduce_tables.sh new-runs
 ```
 
 The frozen command regenerates main Tables 2 and 3 and the Figure 5 readout audit from archived full-precision records. It does not claim to regenerate every manuscript table. The new-runs command retains experiment identity, protocol settings, seeds and source records and calculates sample SD; singleton SD is blank. Never replace historical paper results with these newly generated summaries.
+
+Registered YAMLs are validated before dispatch. Unknown experiment IDs and
+unsupported or fixed-protocol overrides fail explicitly; no unknown ID falls
+back to training. The patch-length `--datasets` filter is shared by dry-run
+and execution. See [configuration and output safeguards](docs/reproducibility.md).
 
 Frozen Jacobian profiles preserve the original draws, whose RNG state was not archived. New Jacobian runs accept `--projection-seed 0`; `--seed` is checkpoint-training metadata only. Reproduction of the archived profiles is distinct from resampling projections. See [review artifact instructions](docs/reproducibility.md) for the anonymous package and weight availability.

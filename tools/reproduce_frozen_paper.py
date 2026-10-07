@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from src.utils.output_paths import validate_generated_output
 
 
 def save(path, rows):
@@ -37,6 +39,7 @@ def main():
     parser.add_argument("--output", type=Path, default=ROOT / "outputs/paper_reproduction")
     parser.add_argument("--figure", action="store_true")
     args = parser.parse_args()
+    args.output = validate_generated_output(args.output)
     manifest = json.loads((ROOT / "artifacts/paper_release_sha256.json").read_text())
     for rel, expected in manifest.items():
         if hashlib.sha256((ROOT / rel).read_bytes()).hexdigest() != expected:

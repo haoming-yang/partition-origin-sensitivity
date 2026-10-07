@@ -17,7 +17,7 @@ the inference origin (exact ties choose the smaller origin).
 
 Full-split mixers use `run_meta.json` and `config.json` instead of the core
 filenames, with commit/dirty status/time/software/device and effective config.
-Read-only diagnostics write these runtime fields alongside checkpoint hashes
+Post-hoc diagnostics write these runtime fields alongside checkpoint hashes
 and their existing analysis settings. ETTh1 formal POC adds runtime metadata
 to `PROVENANCE_FORMAL.json`; immutable historical records are not rewritten.
 `git_dirty=true` means HEAD alone does not identify the local edits; preserve
@@ -47,6 +47,13 @@ Population SD applies across origins; sample SD applies across fits.
 The repository does not include data, checkpoints, or user-specific paths.
 Generated files are ignored by Git. Checkpoint placement is described in the
 README; missing input files do not authorize substitute experiments.
+
+`artifacts/` is immutable historical evidence, not a generated-output root.
+Latent summary/permutation defaults are `outputs/latent_summary/`. These tools,
+seed-isolated analysis outputs and table summary tools reject paths under the
+repository's frozen directory and refuse to overwrite tracked destinations.
+See [usability_safeguards.md](usability_safeguards.md) for configuration validation,
+the local legacy-timm import adapter, and future POC tie selection.
 
 ## Environment and numerical identity
 

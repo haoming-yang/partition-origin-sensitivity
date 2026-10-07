@@ -20,6 +20,7 @@ if str(REPO_ROOT) not in sys.path:
 from src.analysis.layerwise import dense_token_tensor, summarize_layer_pairs
 from src.utils.artifact_naming import artifact_path, metric_filename
 from src.utils.provenance import runtime_metadata
+from src.utils.output_paths import validate_generated_output
 from tools.analyze_latent_spectrum import (
     _bootstrap_spearman_ci,
     _full_token_latents,
@@ -67,6 +68,7 @@ def _expanded_valid_tokens(observed: torch.Tensor, patch_length: int, channels: 
 
 
 def run(args: argparse.Namespace) -> dict[str, object]:
+    validate_generated_output(Path(args.output))
     data_root = Path(args.data_root).resolve()
     import src.experiments.canonical.phenomenon_run as canonical
 

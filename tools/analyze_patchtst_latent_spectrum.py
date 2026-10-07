@@ -26,6 +26,7 @@ if str(REPO_ROOT) not in sys.path:
 from src.analysis.latent_spectral import summarize_latent_pair
 from src.utils.artifact_naming import artifact_path, metric_filename
 from src.utils.provenance import runtime_metadata
+from src.utils.output_paths import validate_generated_output
 
 
 def checkpoint_sha256(path: Path) -> str:
@@ -68,6 +69,7 @@ def _encode_and_predict(
 
 
 def run(args: argparse.Namespace) -> dict[str, object]:
+    validate_generated_output(Path(args.output))
     data_root = Path(args.data_root).resolve()
     runner.DATASET_PATHS["ETTh1"] = dataset_path_for(data_root)
     data = runner.load_data("ETTh1", args.horizon)

@@ -2,7 +2,12 @@ import argparse
 import csv
 import json
 import math
+import sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from src.utils.output_paths import validate_generated_output
 
 METRICS = ["MSE_mean", "G_origin", "G_interior", "CV_origin", "Delta_origin"]
 PROTOCOL = ["model", "context", "horizon", "patch_len", "stride", "epochs", "batch_size", "optimizer", "learning_rate", "weight_decay", "strategy", "use_position", "use_mask", "diagnostic_split", "max_train_windows", "max_validation_windows", "max_test_windows", "head_geometry", "input_scale", "source_status", "git_commit", "dropout", "scheduler", "origins", "train_windows", "validation_windows", "test_windows"]
@@ -23,6 +28,7 @@ def main():
     parser.add_argument("--root", default="outputs")
     parser.add_argument("--out", default="outputs/aggregate.csv")
     args = parser.parse_args()
+    output = validate_generated_output(Path(args.out))
     root = Path(args.root)
     rows = []
     for path in sorted(root.rglob("summary.json")):
@@ -45,7 +51,6 @@ def main():
         rows.append(row)
     if not rows:
         raise ValueError("No forecasting summaries found")
-    output = Path(args.out)
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["path", "experiment_id", "dataset", "seed", "protocol"] + METRICS)

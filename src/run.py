@@ -18,6 +18,9 @@ from types import SimpleNamespace
 
 import yaml
 
+from .experiment_config import SOURCE_STATUSES, validate_config
+from .utils.output_paths import validate_generated_output
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_ROOT = ROOT / "configs"
@@ -28,6 +31,7 @@ def load_config(path: Path) -> dict:
         config = yaml.safe_load(handle)
     if not isinstance(config, dict) or not config.get("experiment_id"):
         raise ValueError(f"invalid experiment configuration: {path}")
+    validate_config(config)
     return config
 
 
@@ -59,7 +63,12 @@ def config_jobs(config: dict, seeds: list[int], datasets: list[str]) -> list[tup
     configured_datasets = config.get("dataset") or config.get("datasets") or datasets
     if isinstance(configured_datasets, str):
         configured_datasets = [configured_datasets]
-    selected = [dataset for dataset in datasets if dataset in configured_datasets]
+    canonical = {name.lower(): name for name in ("ETTh1", "ETTh2", "ETTm1", "ETTm2", "Weather")}
+    if any(str(dataset).lower() not in canonical for dataset in datasets):
+        raise ValueError("Unknown dataset filter; legal values: ETTh1, ETTh2, ETTm1, ETTm2, Weather")
+    configured = {str(dataset).lower() for dataset in configured_datasets}
+    selected = list(dict.fromkeys(canonical[str(dataset).lower()] for dataset in datasets
+                                 if str(dataset).lower() in configured))
     return [(dataset, seed) for dataset in selected for seed in seeds]
 
 
@@ -73,7 +82,7 @@ def dry_run(config: dict, jobs: list[tuple[str, int] | dict]) -> dict:
         ]
     return {
         "experiment_id": config["experiment_id"],
-        "source_status": config.get("source_status", "SOURCE_PRESENT"),
+        "source_status": SOURCE_STATUSES.get(config["experiment_id"], "SOURCE_PRESENT"),
         "jobs": normalized_jobs,
         "training_started": False,
     }
@@ -101,7 +110,7 @@ def run_controlled(config: dict, dataset: str, seed: int, output_root: Path) -> 
         experiment_id=experiment_id,
         use_position=bool(config.get("use_position", True)),
         head_geometry=str(config.get("head_geometry", "flattened")),
-        source_status=str(config.get("source_status", "SOURCE_PRESENT")),
+        source_status=SOURCE_STATUSES.get(experiment_id, "SOURCE_PRESENT"),
         use_mask=bool(config.get("use_mask", True)),
         max_train_windows=config.get("max_train_windows"),
         max_validation_windows=config.get("max_validation_windows"),
@@ -119,13 +128,26 @@ def run_phenomenon(config: dict, dataset: str, seed: int, output_root: Path) -> 
     return json.loads((out / "summary.json").read_text(encoding="utf-8"))
 
 
-def run_patch_lengths(config: dict, seeds: list[int], output_root: Path) -> list[dict]:
+def experiment_jobs(config: dict, seeds: list[int], datasets: list[str]) -> list[dict]:
+    validate_config(config)
+    experiment = config["experiment_id"]
+    if experiment == "CROSS_MODEL_PHASE_V1":
+        return fullsplit_jobs(config, seeds, datasets)
+    if experiment == "MASK_HEAD_FACTORIAL_V1":
+        return head_jobs(config, seeds, datasets)
+    jobs = config_jobs(config, seeds, datasets)
+    if experiment == "PATCH_LENGTH_AUDIT_V1":
+        return [dict(dataset=d, seed=s, patch_len=p)
+                for d in dict.fromkeys(d for d, _ in jobs)
+                for p in config["patch_lengths"] for s in seeds]
+    return [dict(dataset=d, seed=s) for d, s in jobs]
+
+
+def run_patch_lengths(config: dict, seeds: list[int], output_root: Path, datasets: list[str] | None = None) -> list[dict]:
     results = []
-    for dataset in config["datasets"]:
-        for patch in config["patch_lengths"]:
-            for seed in seeds:
-                item = dict(config, patch_len=patch)
-                results.append(run_phenomenon(item, dataset, seed, output_root))
+    for job in experiment_jobs(config, seeds, config["datasets"] if datasets is None else datasets):
+        item = dict(config, patch_len=job["patch_len"])
+        results.append(run_phenomenon(item, job["dataset"], job["seed"], output_root))
     return results
 
 
@@ -145,7 +167,7 @@ def run_supplement(config: dict, dataset: str, seed: int, output_root: Path) -> 
         learning_rate=float(config.get("learning_rate", 1e-4)),
         weight_decay=float(config.get("weight_decay", 0.0 if experiment_id == "SUPPLEMENT_PATCHTST_ORIGIN" else 1e-4)),
         dataset=dataset,
-        source_status=str(config.get("source_status", "SOURCE_PRESENT")),
+        source_status=SOURCE_STATUSES.get(experiment_id, "SOURCE_PRESENT"),
     )
     if experiment_id == "SUPPLEMENT_PATCHTST_ORIGIN":
         return runner.train_patchtst(
@@ -255,9 +277,13 @@ def head_jobs(config, seeds, datasets):
 
 
 def run(config: dict, seeds: list[int], datasets: list[str], output_root: Path) -> object:
+    validate_config(config)
+    output_root = validate_generated_output(output_root)
     experiment_id = config["experiment_id"]
+    if experiment_id in {"POC_ETTH1_V1", "POC_ETTM2_V1"}:
+        raise ValueError("POC requires its explicit artifact-dependent runner; use scripts/run_poc.sh or the frozen-record audit")
     if experiment_id == "PATCH_LENGTH_AUDIT_V1":
-        return run_patch_lengths(config, seeds, output_root)
+        return run_patch_lengths(config, seeds, output_root, datasets)
     if experiment_id == "CROSS_MODEL_PHASE_V1":
         return run_fullsplit(config, seeds, output_root, datasets)
     if experiment_id == "CANONICAL_PHENOMENON_27_V1":
@@ -277,8 +303,9 @@ def run(config: dict, seeds: list[int], datasets: list[str], output_root: Path) 
                       strategy="random_origin")
     if experiment_id == "OPTIMIZATION_TRAJECTORY_V1":
         results = []
-        for dataset, seed in config_jobs(dict(config, dataset="ETTh1"), seeds, ["ETTh1"]):
-            results.append(run_controlled(dict(config, epochs=max(config["epochs"]),
+        for dataset, seed in config_jobs(dict(config, dataset="ETTh1"), seeds, datasets):
+            epochs = config["epochs"]
+            results.append(run_controlled(dict(config, epochs=max(epochs) if isinstance(epochs, list) else epochs,
                                                context=512, horizon=96, patch_len=12,
                                                stride=12, strategy="random_origin"), dataset, seed, output_root))
         return results
@@ -292,10 +319,10 @@ def run(config: dict, seeds: list[int], datasets: list[str], output_root: Path) 
             condition = job["head_geometry"] + ("_masked" if job["use_mask"] else "_unmasked")
             results.append(run_controlled(local, job["dataset"], job["seed"], output_root / condition))
         return results
-    results = []
-    for dataset, seed in config_jobs(config, seeds, datasets):
-        results.append(run_controlled(config, dataset, seed, output_root))
-    return results
+    if experiment_id == "NO_PE_CONTROL_V1":
+        return [run_controlled(config, dataset, seed, output_root)
+                for dataset, seed in config_jobs(config, seeds, datasets)]
+    raise ValueError(f"No runner registered for {experiment_id}")
 
 
 def main() -> None:
@@ -311,16 +338,11 @@ def main() -> None:
     config = load_config(args.config if args.config.is_absolute() else ROOT / args.config)
     selected_seeds = resolve_seeds(config, seed=args.seed, seeds=args.seeds)
     selected_datasets = [item.strip() for item in args.datasets.split(",") if item.strip()]
-    if config["experiment_id"] == "CROSS_MODEL_PHASE_V1":
-        jobs = fullsplit_jobs(config, selected_seeds, selected_datasets)
-    elif config["experiment_id"] == "MASK_HEAD_FACTORIAL_V1":
-        jobs = head_jobs(config, selected_seeds, selected_datasets)
-    else:
-        jobs = config_jobs(config, selected_seeds, selected_datasets)
+    jobs = experiment_jobs(config, selected_seeds, selected_datasets)
     if args.dry_run:
         result = dry_run(config, jobs)
     else:
-        status = str(config.get("source_status", "SOURCE_PRESENT")).upper()
+        status = SOURCE_STATUSES.get(config["experiment_id"], "SOURCE_PRESENT")
         if status in {"FROZEN_ARTIFACT_ONLY", "ARTIFACT_DEPENDENT"}:
             message = (
                 "This configuration is frozen-artifact-only; use the recorded artifact audit."

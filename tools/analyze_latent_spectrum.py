@@ -25,6 +25,7 @@ if str(REPO_ROOT) not in sys.path:
 from src.analysis.latent_spectral import summarize_latent_pair
 from src.utils.artifact_naming import artifact_path, metric_filename
 from src.utils.provenance import runtime_metadata
+from src.utils.output_paths import validate_generated_output
 from src.experiments.canonical.phenomenon_run import (
     BATCH,
     CONTEXT,
@@ -91,6 +92,7 @@ def _full_token_latents(hidden: torch.Tensor, observed: torch.Tensor, p: int, ch
 
 
 def run(args: argparse.Namespace) -> dict[str, object]:
+    validate_generated_output(Path(args.output))
     data_root = Path(args.data_root).resolve()
     import src.experiments.canonical.phenomenon_run as canonical
 

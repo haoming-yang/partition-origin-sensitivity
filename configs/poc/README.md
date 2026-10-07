@@ -62,6 +62,24 @@ only after data and B checkpoint placement; do not execute
 `tools/poc_stage3/freeze_lambda_selection.py` against tracked records. That
 historical snapshot is retained for audit, not to overwrite frozen inputs.
 
+For future validation-only selection, use the guarded entrypoint:
+
+```bash
+python -m tools.select_poc_lambda --input-root outputs/poc_stage4/batch2_poc/lambda_selection --output outputs/poc_selection/selection.json
+```
+
+Its default input root is the frozen pilot directory, allowing an independent
+check without new training; its default output is `outputs/poc_selection/selection.json`.
+Among eligible candidates, find the global minimum validation S_theta, then
+choose the smaller lambda among values at most `1e-12` above that minimum.
+This avoids order-dependent chains of pairwise approximate ties. The legacy
+`tools/poc_stage3/freeze_lambda_selection.py` used raw-value sorting despite the
+recorded tolerance; it remains unchanged because its source hash is frozen.
+The new tool does not rewrite `FROZEN_POC_LAMBDA.json` or change eligibility.
+The five historical candidates' minimum S_theta separation is
+`0.0018594912662968435`, far above `1e-12`; all are eligible and lambda1.0
+is unchanged. No paper value is recomputed or replaced by this check.
+
 Environment variables: `DATA_ROOT`, `STAGE_ROOT` for new output
 (default `outputs/poc_stage4`), `STAGE4_INPUT_ROOT` for protocol inputs,
 `STAGE3_ROOT` for schedules/B records, `PARTITION_ORIGIN_POC_CHECKPOINT_ROOT`
