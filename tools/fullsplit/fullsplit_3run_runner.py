@@ -21,6 +21,10 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+from src.utils.provenance import runtime_metadata
+
 try:
     import controlled_backbone_runner as base
 except ModuleNotFoundError:
@@ -189,6 +193,8 @@ def run(model_name: str, seed: int, out: Path):
     (out / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     (out / "validation_metrics.json").write_text(json.dumps(validation_metrics, indent=2), encoding="utf-8")
     run_meta = {
+        **runtime_metadata(REPO_ROOT, str(device)),
+        "config": config,
         "experiment_id": experiment_id,
         "model": model_name,
         "dataset": "ETTh1",

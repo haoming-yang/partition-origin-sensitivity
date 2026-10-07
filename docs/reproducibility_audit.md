@@ -13,7 +13,8 @@ The repository contains code, configuration, compact diagnostic records, source 
 | Source-backed extensions | `scripts/run_overlap.sh`, `scripts/run_h192.sh`, `scripts/run_training_policy.sh`, `scripts/run_patch_length.sh`, `scripts/run_patchtst.sh` | Dataset files; PatchTST source snapshot is tracked | Re-runs the declared configurations |
 | Full-split mixer comparison | `scripts/run_mixers.sh` | ETTh1 and optional `PARTITION_ORIGIN_DATA_ROOT` | Re-runs the fixed five-epoch Transformer/MLP/Conv protocol |
 | Reconstructed controls | `scripts/run_optimization.sh`, `scripts/run_heads.sh`, `scripts/run_pe_control.sh` | Dataset files | Produces labeled controls, not replacements for frozen historical values |
-| POC | `scripts/run_poc.sh` | Eight checkpoint files at the paths in `README.md` | Audits or runs only when external checkpoints are present |
+| ETTh1 POC C | `scripts/run_poc.sh` | Checkpoints at the paths in `README.md`; strict verifier covers all eight historical inputs | Reuses seed42 C pilot, trains C seeds43/44; not a complete A/B/C or transfer rerun |
+| ETTm2 POC transfer | `configs/poc/ettm2_poc_transfer.yaml` | Exact transfer source/config not established | `frozen-artifact-only`; no replacement run claimed |
 | Frozen latent summaries | `scripts/summarize_latent.sh` | Tracked compact artifact CSV files | Reproduces summaries and random-pairing checks without training |
 
 ## External datasets

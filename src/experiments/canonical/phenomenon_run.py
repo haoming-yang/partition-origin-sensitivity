@@ -6,6 +6,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
 from ...training.runner import current_git_commit, seed_all
+from ...utils.provenance import runtime_metadata
 
 ROOT = Path(__file__).resolve().parent
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -118,7 +119,7 @@ def run(name, p, seed, out):
     summary={"experiment_id":"CANONICAL_PHENOMENON_27_V1","dataset":name,"p":p,"stride":p,"seed":seed,"n_train":len(train),"n_validation":len(val),"n_test":len(test),"selected_epoch":selected,"best_val_avg_mse":best_val,"git_commit":current_git_commit(),**metrics}
     (out/"summary.json").write_text(json.dumps(summary,indent=2),encoding="utf8")
     total = ((CONTEXT + 2*p - 2) // p) * p
-    prov={"experiment_id":"CANONICAL_PHENOMENON_27_V1","dataset":name,"p":p,"seed":seed,"git_commit":current_git_commit(),"python":sys.version,"pytorch":torch.__version__,"cuda":torch.version.cuda,"gpu":torch.cuda.get_device_name(0) if torch.cuda.is_available() else "NONE","code_sha256":sha256(ROOT/"phenomenon_run.py"),"checkpoint_sha256":sha256(out/"checkpoint.pt"),"config_sha256":sha256(out/"config.json"),"tokens":total//p,"padded_length":total,"padding_slots":total-CONTEXT}
+    prov={**runtime_metadata(REPO_ROOT,str(device)),"experiment_id":"CANONICAL_PHENOMENON_27_V1","dataset":name,"p":p,"seed":seed,"git_commit":current_git_commit(),"python":sys.version,"pytorch":torch.__version__,"cuda":torch.version.cuda,"gpu":torch.cuda.get_device_name(0) if torch.cuda.is_available() else "NONE","code_sha256":sha256(ROOT/"phenomenon_run.py"),"checkpoint_sha256":sha256(out/"checkpoint.pt"),"config_sha256":sha256(out/"config.json"),"tokens":total//p,"padded_length":total,"padding_slots":total-CONTEXT}
     (out/"PROVENANCE.json").write_text(json.dumps(prov,indent=2),encoding="utf8")
     print(json.dumps(summary),flush=True)
 

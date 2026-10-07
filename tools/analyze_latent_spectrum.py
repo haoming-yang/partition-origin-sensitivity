@@ -24,6 +24,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.analysis.latent_spectral import summarize_latent_pair
 from src.utils.artifact_naming import artifact_path, metric_filename
+from src.utils.provenance import runtime_metadata
 from src.experiments.canonical.phenomenon_run import (
     BATCH,
     CONTEXT,
@@ -151,6 +152,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     spearman = _pearson(_rank(spectral), _rank(prediction))
     ci_low, ci_high = _bootstrap_spearman_ci(spectral, prediction, np.random.default_rng(0))
     result = {
+        **runtime_metadata(REPO_ROOT, str(device)),
         "dataset": "ETTh1",
         "seed": args.seed,
         "checkpoint": "frozen-checkpoint.pt",

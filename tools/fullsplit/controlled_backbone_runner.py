@@ -6,7 +6,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
 CONTEXT,HORIZON,PATCH,STRIDE,TOTAL,TOKENS,D=512,96,12,12,528,44,64
-_DATA_ROOT = Path(os.environ.get("PARTITION_ORIGIN_DATA_ROOT", Path(__file__).resolve().parents[2] / "data"))
+_DATA_ROOT = Path(os.environ.get("PARTITION_ORIGIN_DATA_ROOT", os.environ.get("DATA_ROOT", Path(__file__).resolve().parents[2] / "data")))
 DATA={"ETTh1":_DATA_ROOT / "ETT-small" / "ETTh1.csv", "Weather":_DATA_ROOT / "weather" / "weather.csv"}
 
 class Windows(Dataset):

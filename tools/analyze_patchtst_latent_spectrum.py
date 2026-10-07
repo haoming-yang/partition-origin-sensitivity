@@ -25,6 +25,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.analysis.latent_spectral import summarize_latent_pair
 from src.utils.artifact_naming import artifact_path, metric_filename
+from src.utils.provenance import runtime_metadata
 
 
 def checkpoint_sha256(path: Path) -> str:
@@ -139,6 +140,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         for key in ("dc_l1", "non_dc_low_l1", "low_band_l1", "mid_band_l1", "high_band_l1")
     }
     result = {
+        **runtime_metadata(REPO_ROOT, str(device)),
         "dataset": "ETTh1",
         "seed": args.seed,
         "checkpoint": "frozen-checkpoint.pt",

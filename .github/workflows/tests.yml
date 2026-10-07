@@ -15,12 +15,14 @@ jobs:
       - name: Install test dependencies
         run: |
           python -m pip install --upgrade pip
+          python -m pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -r requirements-dev.txt
-          python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
       - name: Run tests
         run: python -m pytest -q
       - name: Validate canonical dry-run
-        run: python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44 --dry-run
+        run: python -m src.run --config configs/core/canonical.yaml --dry-run
+      - name: CPU synthetic smoke experiment
+        run: bash scripts/smoke_test.sh
       - name: Verify POC provenance and optional checkpoint hashes
         run: python tools/verify_poc_stage3.py
       - name: Verify vendored source manifests

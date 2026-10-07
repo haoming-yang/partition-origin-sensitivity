@@ -17,3 +17,10 @@ repository-relative source path in run metadata, and accepts arbitrary integer
 seeds; the batch wrapper defaults to the paper replicate set `42,43,44`. No
 model was retrained during this source recovery, so the frozen manuscript
 values remain the reference results until a separate rerun is performed.
+
+The reviewer-quality patch adds run timestamp, Git revision/dirty state and
+effective configuration to `run_meta.json`, and accepts `DATA_ROOT` as a fallback
+when `PARTITION_ORIGIN_DATA_ROOT` is unset. The model, splits, five-epoch budget,
+data ordering and checkpoint selection are unchanged. Legacy `metrics.json`
+calls prediction variance `S_theta`; see `docs/reproducibility.md` before
+comparing it to the formal pairwise-disagreement diagnostic.

@@ -3,3 +3,22 @@ dataset: ETTh1
 source_status: ARTIFACT_DEPENDENT
 conditions: [A, B, C]
 lambda_candidates: [0.01, 0.03, 0.1, 0.3, 1.0]
+historical_conditions: [A, B, C]
+runnable_condition: C
+runner: src.experiments.stage4.poc_formal_c_runner
+seeds: [42, 43, 44]
+context: 512
+horizon: 96
+patch_len: 12
+stride: 12
+epochs: 15
+batch_size: 32
+optimizer: AdamW
+learning_rate: 0.0001
+weight_decay: 0.0001
+scheduler: none
+gradient_clip: 1.0
+eligibility_multiplier: 1.01
+protocol_record: artifacts/poc_stage4/batch2_poc/lambda_selection/LAMBDA_SELECTION_PROTOCOL.json
+frozen_lambda_record: artifacts/poc_stage4/batch2_poc/FROZEN_POC_LAMBDA.json
+schedule_root: artifacts/poc_stage3/attribution_abc

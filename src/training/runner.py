@@ -34,6 +34,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
+from src.utils.provenance import runtime_metadata
+
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
@@ -274,6 +276,26 @@ def metric_rows(predictions: dict[int, np.ndarray], targets: np.ndarray) -> tupl
     return rows, formal_metrics(np.asarray(mse), np.asarray(mae))
 
 
+def inference_policy_metrics(validation_predictions, validation_targets, predictions, targets):
+    validation_rows, _ = metric_rows(validation_predictions, validation_targets)
+    test_rows, test_metrics = metric_rows(predictions, targets)
+    if set(validation_predictions) != set(predictions):
+        raise ValueError("Validation and test must use the same origin set")
+    selected = min(validation_rows, key=lambda row: (row["MSE"], row["origin"]))["origin"]
+    by_origin = {row["origin"]: row for row in test_rows}
+    ensemble = np.zeros_like(targets, dtype=np.float64)
+    for origin in sorted(predictions):
+        ensemble += predictions[origin]
+    ensemble /= len(predictions)
+    ensemble_error = ensemble - targets.astype(np.float64)
+    return {"selected_origin": selected, "origin_selection": "validation MSE; exact ties choose smallest origin",
+            "E0": by_origin[0]["MSE"], "E_star": by_origin[selected]["MSE"],
+            "E_mean": test_metrics["MSE_mean"], "E_ens": float(np.mean(ensemble_error ** 2)),
+            "MAE_ens": float(np.mean(np.abs(ensemble_error))),
+            "inference_forward_count_single_origin": 1,
+            "inference_forward_count_ensemble": len(predictions)}
+
+
 def save_run_artifacts(out: Path, config: dict, train_rows: list[dict],
                        val_rows: list[dict], per_origin: list[dict],
                        predictions: dict[int, np.ndarray], targets: np.ndarray,
@@ -285,6 +307,15 @@ def save_run_artifacts(out: Path, config: dict, train_rows: list[dict],
     write_csv(out / "per_origin_mse.csv", per_origin)
     save_predictions(out / "per_origin_predictions.npz", predictions)
     recomputed_rows, recomputed = metric_rows(predictions, targets)
+    origin_count = len(predictions)
+    mean_prediction = np.zeros_like(targets, dtype=np.float64)
+    for prediction in predictions.values():
+        mean_prediction += prediction
+    mean_prediction /= origin_count
+    variance = sum(float(np.mean((prediction - mean_prediction) ** 2))
+                   for prediction in predictions.values()) / origin_count
+    recomputed["origin_prediction_variance"] = variance
+    recomputed["S_theta"] = 2 * origin_count / (origin_count - 1) * variance if origin_count > 1 else 0.0
     assert len(recomputed_rows) == len(per_origin)
     for a, b in zip(recomputed_rows, per_origin):
         assert a["origin"] == b["origin"]
@@ -297,6 +328,8 @@ def save_run_artifacts(out: Path, config: dict, train_rows: list[dict],
                "finite_predictions_pass": all(np.isfinite(v).all() for v in predictions.values())}
     write_json(out / "summary.json", summary)
     provenance = {
+        **runtime_metadata(REPO_ROOT, config.get("device", "cpu")),
+        "config": config,
         "git_commit": commit,
         "runner": str(Path(__file__).resolve()),
         "runner_sha256": sha256(Path(__file__).resolve()),
@@ -466,6 +499,7 @@ def train_controlled(seed: int, out: Path, strategy: str, context: int, horizon:
                              pin_memory=dev.type == "cuda")
     phases = list(range(phase_count(patch_len, stride)))
     config = {"experiment_id": experiment_id,
+              "seed": seed, "device": str(dev),
               "model": "ControlledTransformerV2_duplicate_for_supplement_audit",
               "dataset": dataset, "context": context, "horizon": horizon,
               "channels": data.channels, "split": data.split,
@@ -518,11 +552,15 @@ def train_controlled(seed: int, out: Path, strategy: str, context: int, horizon:
     assert best_state is not None
     torch.save(model.state_dict(), out / "final_checkpoint.pt")
     model.load_state_dict(best_state); torch.save(model.state_dict(), out / "checkpoint.pt")
+    selected_val_pred, selected_val_target = evaluate_model(model, val_loader, dev, context, horizon, patch_len, stride)
+    selected_val_rows, _ = metric_rows(selected_val_pred, selected_val_target)
+    write_csv(out / "validation_per_origin.csv", selected_val_rows)
     predictions, targets = evaluate_model(model, test_loader, dev, context, horizon, patch_len, stride)
     per_origin, _ = metric_rows(predictions, targets)
     summary = save_run_artifacts(
         out, config, train_rows, val_rows, per_origin, predictions, targets,
         {"selected_epoch": selected_epoch, "best_val_MSE_mean": best_val,
+         **inference_policy_metrics(selected_val_pred, selected_val_target, predictions, targets),
          "padding_leakage_audit": "PASS", "status": "COMPLETE"},
         [Path(__file__), data.path])
     return summary
@@ -550,6 +588,7 @@ def train_patchtst(seed: int, out: Path, context: int = L512, horizon: int = H96
     phases = list(range(phase_count(patch_len, stride)))
     config = {"experiment_id": experiment_id,
               "model": "official_Time-Series-Library_PatchTST_with_mask_aware_outer_adapter",
+              "seed": seed, "device": str(dev),
               "dataset": dataset, "context": context, "horizon": horizon,
               "channels": data.channels, "split": data.split,
               "patch_len": patch_len, "stride": stride, "origins": phases,

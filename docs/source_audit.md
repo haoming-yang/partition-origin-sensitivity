@@ -15,4 +15,12 @@ The canonical measurement, overlap/H=192 extensions, origin-training strategies,
 
 ## Policy
 
+The current result-by-result status is in `docs/reproduction_map.md`. In
+particular, complete ETTm2 POC transfer is `FROZEN_ARTIFACT_ONLY`, not implied
+by the ETTh1 formal-C runner. Full-precision ETTh1 C seeds43/44 and ETTm2
+A/B/C table records are not included in the current compact POC tree; frozen
+printed manuscript records are not a substitute for missing raw outputs.
+The exact original optimization/head/no-PE source identity remains unresolved;
+their reconstructed runner outputs must not be described as exact historical reruns.
+
 Unavailable experiments are surfaced as machine-readable `SOURCE_UNAVAILABLE` without creating output directories or side effects. A reconstructed control is deliberately labeled and is not a claim of historical-value reproduction. Any future addition of an exact runner must include its source identity, configuration, and independent artifact audit before it is marked source-backed.

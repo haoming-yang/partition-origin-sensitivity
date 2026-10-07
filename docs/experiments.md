@@ -1,5 +1,11 @@
 # Paper to code map
 
+Paper: **Accompanying manuscript**.
+See [reproduction_map.md](reproduction_map.md) for current paper identifiers,
+commands, outputs, reference values, tolerance and runtime boundaries.
+POC scope is condition-specific: the public batch entrypoint runs ETTh1 C,
+not complete A/B/C or ETTm2 transfer. See [POC protocol](../configs/poc/README.md).
+
 ## Canonical primary evidence
 
 The canonical measurement uses `L=512`, `H=96`, `p=12`, non-overlapping stride `12`, origins `0..11`, three independent replicates, train/validation/test windows from the controlled loader, train-row standardization, zero outer padding with an observation mask, and minimum-MSE denominators for formal gaps. The runnable entrypoint is `scripts/run_core.sh` and the configuration family is `configs/core/`.

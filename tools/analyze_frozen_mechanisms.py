@@ -15,6 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from src.utils.provenance import runtime_metadata
+
 from src.analysis.frozen_mechanisms import (
     disagreement_gradient,
     finite_difference_response,
@@ -229,6 +231,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     write_csv(output / "gradient_profile.csv", gradient_rows)
     write_csv(output / "window_metrics.csv", pair_rows)
     summary = {
+        **runtime_metadata(ROOT, str(dev)),
         "model": args.model,
         "dataset": args.dataset,
         "seed": args.seed,

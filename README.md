@@ -2,8 +2,6 @@
 
 # Partition-Origin Evaluation Artifact
 
-### How Patch Alignment Shapes the Forecast: [Experiments & Analysis]
-
 <p>
   <a href="https://github.com/Anonymous-yang/partition-origin-sensitivity">
     <img src="https://img.shields.io/badge/Code-GitHub-181717?style=for-the-badge&logo=github" alt="GitHub repository">
@@ -31,6 +29,40 @@ Code and configuration for the accompanying manuscript.
 The repository studies whether changing only the origin of a one-dimensional
 patch lattice can change a forecast when the observed history, target, and
 forecasting model are fixed.
+
+## Quick Start
+
+From the repository root (Conda plus Bash/Git Bash/WSL):
+
+```bash
+conda env create -f environment.yml
+conda activate partition-origin-sensitivity
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+python -m src.run --config configs/core/canonical.yaml --dry-run
+bash scripts/smoke_test.sh
+```
+
+Tests, dry-run, and the synthetic CPU smoke need no datasets or checkpoints.
+The smoke performs one synthetic optimizer update and an origin sweep; it is
+not a reduced paper experiment. Outputs go to a new directory under
+`outputs/smoke/`. For a CPU-only install with Python 3.11:
+
+```bash
+python -m pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -r requirements-dev.txt
+```
+
+After placing the five CSVs as described in [data/README.md](data/README.md):
+
+```bash
+python -m src.run --config configs/core/canonical.yaml
+```
+
+This starts 15 full training jobs, not a five-minute check. Default seeds are
+42, 43, and 44; `--seed` or `--seeds` overrides them. Start with the
+[paper-result reproduction map](docs/reproduction_map.md) to distinguish source
+reruns, frozen-record verification, reconstructed controls, and missing inputs.
 
 <p align="center">
   <img src="docs/figures/partition_origin_effect_case.png" alt="Figure 1: same observations assigned to different partition origins can yield different forecasts" width="100%">
@@ -99,13 +131,19 @@ python tools/verify_source_manifests.py
 python tools/check_anonymity.py --root .
 ```
 
-The smoke script performs protocol tests, a dry-run, reconstruction checks,
-and padding-sentinel checks. The separate native source smoke check performs
+The smoke script performs selected fast protocol tests, a dry-run, reconstruction
+and padding-sentinel checks, and a synthetic CPU training/evaluation check.
+Run the full test suite separately as shown above. The native source smoke performs
 import/forward validation only:
 
 ```bash
 bash scripts/run_tier1_smoke.sh
 ```
+
+The POC entrypoint runs ETTh1 formal C only: seed42 reuses the selected pilot,
+and seeds43/44 train using tracked schedules. It does not reproduce complete
+A/B/C or ETTm2 transfer results. See [configs/poc/README.md](configs/poc/README.md)
+for the preserved design, selection criterion discrepancy and missing inputs.
 
 The POC manifest verifier checks every tracked provenance record. It reports
 missing external checkpoints by default; use
@@ -116,6 +154,11 @@ Current release manifests normalize CRLF to LF for tracked text only; external
 checkpoint hashes always cover the exact binary bytes. Historical manifests
 remain separate and unchanged. Both verifiers run in CI; see
 [docs/provenance_checks.md](docs/provenance_checks.md) for the hashing rules.
+
+The frozen POC protocol uses a 1% validation eligibility slack; the current
+manuscript describes the stricter no-slack rule. All saved candidates satisfy
+both, but the rules differ. This repository preserves the historical protocol
+and documents the discrepancy rather than silently changing it.
 
 To check generated forecasting summaries without training or changing results:
 

@@ -19,6 +19,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.analysis.layerwise import dense_token_tensor, summarize_layer_pairs
 from src.utils.artifact_naming import artifact_path, metric_filename
+from src.utils.provenance import runtime_metadata
 from tools.analyze_latent_spectrum import (
     _bootstrap_spearman_ci,
     _full_token_latents,
@@ -132,6 +133,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             "spearman_bootstrap_95_ci": [ci_low, ci_high],
         }
     result = {
+        **runtime_metadata(REPO_ROOT, str(device)),
         "dataset": "ETTh1",
         "seed": args.seed,
         "checkpoint": "frozen-checkpoint.pt",

@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
 
 from src.analysis.frozen_mechanisms import rademacher_jacobian_energy
 from src.training import runner
+from src.utils.provenance import runtime_metadata
 from tools.analyze_frozen_mechanisms import build_model, configure_data_root
 
 
@@ -92,6 +93,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     positions = np.arange(args.context, dtype=np.float64)
     center = (positions[None, :] * profiles).sum(axis=1) / profiles.sum(axis=1)
     summary = {
+        **runtime_metadata(ROOT, str(device)),
         "model": args.model,
         "dataset": args.dataset,
         "seed": args.seed,

@@ -17,9 +17,22 @@ def test_reference_config_has_no_machine_specific_dataset_path():
 
 
 def test_public_text_has_no_machine_specific_paths():
+    try:
+        inventory = subprocess.run(
+            ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+            cwd=ROOT, capture_output=True,
+        )
+    except OSError:
+        inventory = None
+    if inventory is not None and inventory.returncode == 0:
+        public_paths = [ROOT / name for name in inventory.stdout.decode("utf-8").split("\0") if name]
+    else:
+        generated = {".git", "temp_outputs", "outputs", "checkpoints", "data", ".venv", "venv"}
+        public_paths = [path for path in ROOT.rglob("*")
+                        if not generated.intersection(path.relative_to(ROOT).parts)]
     candidates = [
         path
-        for path in ROOT.rglob("*")
+        for path in public_paths
         if path.is_file()
         and ".git" not in path.parts
         and "tests" not in path.parts

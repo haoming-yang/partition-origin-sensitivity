@@ -12,6 +12,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
+from src.utils.provenance import runtime_metadata
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 import stage4_inference as base
@@ -34,6 +36,8 @@ def sha(path: Path) -> str:
 
 def dump(path: Path, obj) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    if path.name == "PROVENANCE_FORMAL.json":
+        obj = {**obj, **runtime_metadata(base.REPO_ROOT, str(DEVICE))}
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
 
 

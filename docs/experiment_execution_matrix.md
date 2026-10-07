@@ -16,7 +16,14 @@ new run.
 | Mask-head factorial | `configs/heads/*.yaml` / `scripts/run_heads.sh` | `RECONSTRUCTED_CONTROL` | Executable flattened/pooled control; not a replacement for the frozen mask-head records |
 | No-PE control | `configs/positional_encoding/etth1_no_pe.yaml` / `scripts/run_pe_control.sh` | `RECONSTRUCTED_CONTROL` | Executable control with position parameters disabled |
 | Full-split Transformer/MLP/Conv comparison | `configs/mixers/etth1_fullsplit_5epoch.yaml` / `scripts/run_mixers.sh` | `SOURCE_PRESENT` | Complete ETTh1 runner under `tools/fullsplit/`; default batch uses seeds 42, 43, 44 and writes isolated model/seed outputs |
-| ETTh1/ETTm2 POC | `scripts/run_poc.sh` | `ARTIFACT_DEPENDENT` | Included Stage-4 source and schedules require eight external checkpoints |
+| ETTh1 POC C | `scripts/run_poc.sh` | `ARTIFACT_DEPENDENT` | Formal C runner reuses the seed42 pilot and trains seeds43/44; checkpoint-dependent, not a complete A/B/C rerun |
+| Complete historical A/B/C and ETTm2 POC transfer | `configs/poc/ettm2_poc_transfer.yaml` | `FROZEN_ARTIFACT_ONLY` | No exact ETTm2 transfer training dispatcher is present; ETTh1 C is the only formal batch entrypoint above |
+
+The POC batch does not produce a complete historical A/B/C table. Its ETTh1
+seed42 C reuses the selected pilot checkpoint; seeds43/44 train C with the
+tracked schedules. `configs/poc/README.md` records the design and limitations.
+Result-level paper identifiers, runtime and tolerance are in
+[reproduction_map.md](reproduction_map.md).
 
 The six native Tier-1 sources have a no-training import/forward check:
 `scripts/run_tier1_smoke.sh`. It uses model-specific native input lengths; in

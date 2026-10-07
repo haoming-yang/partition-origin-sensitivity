@@ -15,6 +15,7 @@ dependencies:
   - scikit-learn=1.6.1
   - einops=0.8.1
   - timm=0.3.2
+  - matplotlib=3.7.1
   - pip
   - pip:
       - reformer-pytorch==1.4.4

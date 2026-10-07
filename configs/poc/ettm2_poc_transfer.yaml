@@ -1,4 +1,5 @@
 experiment_id: POC_ETTM2_V1
 dataset: ETTm2
-source_status: ARTIFACT_DEPENDENT
+source_status: FROZEN_ARTIFACT_ONLY
 conditions: [A, B, C]
+reason: Exact historical ETTm2 POC transfer training source and schedules are not established in this checkout.
