@@ -1,395 +1,154 @@
-<div align="center">
+# Partition-Origin Sensitivity
 
-# Anonymous Artifact for Partition-Origin Evaluation
+This repository contains code, configurations, and compact records for studying
+whether changing only the origin of a fixed patch lattice changes forecasting
+results when the observed history and target are unchanged. It includes runnable
+protocol checks and experiments, plus frozen evidence for analyses whose exact
+original inputs are not all available.
 
-<p>
-  <a href="environment.yml">
-    <img src="https://img.shields.io/badge/Python-3.9-3776ab?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.9">
-  </a>
-  <a href="environment.yml">
-    <img src="https://img.shields.io/badge/PyTorch-2.5.1%20%7C%20CUDA%2012.1-ee4c2c?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch and CUDA">
-  </a>
-  <a href="LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-2ea44f?style=for-the-badge" alt="MIT license">
-  </a>
+The illustration below is conceptual: it shows how the same observations can be
+assigned to different patches and produce different forecasts from a fixed model.
+
+<p align="center">
+  <img src="docs/figures/partition_origin_effect_case.png" alt="Identical observations assigned to different partition origins can yield different forecasts" width="100%">
 </p>
-
-<p><strong>A controlled study of one overlooked coordinate choice in discrete time series representations.</strong></p>
-
-</div>
-
-Code and configuration for the accompanying manuscript.
-
-The repository studies whether changing only the origin of a one-dimensional
-patch lattice can change a forecast when the observed history, target, and
-forecasting model are fixed.
 
 ## Quick Start
 
-From the repository root (Conda plus Bash/Git Bash/WSL):
+The default reviewer path uses Python 3.11 on CPU. From the repository root,
+create and activate a Python 3.11 environment, then install the pinned CPU
+PyTorch build and development requirements:
 
 ```bash
-conda env create -f environment.yml
-conda activate partition-origin-sensitivity
-python -m pip install -r requirements-dev.txt
-python -m pytest -q
-python -m src.run --config configs/core/canonical.yaml --dry-run
-bash scripts/smoke_test.sh
-```
-
-Tests, dry-run, and the synthetic CPU smoke need no datasets or checkpoints.
-The smoke performs one synthetic optimizer update and an origin sweep; it is
-not a reduced paper experiment. Outputs go to a new directory under
-`outputs/smoke/`. For a CPU-only install with Python 3.11:
-
-```bash
+python -m venv .venv
+# Activate .venv using the command for your shell.
+python -m pip install --upgrade pip
 python -m pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -r requirements-dev.txt
 ```
 
-After placing the five CSVs as described in [data/README.md](data/README.md):
+Ensure that the active `python` command refers to Python 3.11.
+
+Run the fast checks. They do not require datasets, checkpoints, or a GPU:
 
 ```bash
-python -m src.run --config configs/core/canonical.yaml
-```
-
-This starts 15 full training jobs, not a five-minute check. Default seeds are
-42, 43, and 44; `--seed` or `--seeds` overrides them. Start with the
-[paper-result reproduction map](docs/reproduction_map.md) to distinguish source
-reruns, frozen-record verification, reconstructed controls, and missing inputs.
-
-<p align="center">
-  <img src="docs/figures/partition_origin_effect_case.png" alt="Figure 1: same observations assigned to different partition origins can yield different forecasts" width="100%">
-</p>
-
-<p align="center"><em>Figure 1. Same observations, different partition origins, and different forecasts from a fixed model.</em></p>
-
-<p align="center">
-  <a href="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.pdf">
-    <img src="docs/figures/paired_latent_pca_etth1_seed42_o0_o6.png" alt="Supplementary Figure S1: paired latent PCA diagnostic" width="100%">
-  </a>
-</p>
-
-<p align="center"><em>Supplementary Figure S1. Appendix-only qualitative visualization of origin-induced latent displacement for the frozen ETTh1 seed-42 diagnostic.</em></p>
-
-This repository also includes the frozen, compact diagnostic artifacts used by
-the latent-representation analyses; it does not include datasets, checkpoints,
-or full prediction dumps.
-
-## What is included
-
-- the canonical five-dataset origin-sensitivity protocol;
-- controlled extensions for optimization, training-origin policy, overlap,
-  horizon 192, patch length, positional encoding, and the official PatchTST
-  adapter;
-- post-hoc token-axis spectrum and layerwise diagnostics for frozen controlled
-  Transformer checkpoints, plus a protocol-adapted PatchTST diagnostic;
-- the saved per-window diagnostic differences and the three-replicate permutation
-  audit used to test the spectral--forecast association against random pairing;
-- the patching, masking, evaluation, and formal metric implementations;
-- isolated third-party model snapshots used by the native source audit;
-- configuration files and audit tools for checking protocol behavior.
-
-The repository does not include datasets, checkpoints, or full prediction
-dumps. Historical results that depend on unavailable training artifacts are
-identified in the
-[experiment matrix](docs/experiment_execution_matrix.md); they are never
-silently replaced by a new run.
-
-## Install
-
-The public environment specification is in [environment.yml](environment.yml).
-For a Conda installation:
-
-```bash
-conda env create -f environment.yml
-conda activate partition-origin-sensitivity
-python -m pip install -r requirements.txt
-```
-
-Put the public datasets under `data/`, or set `DATA_ROOT` to an external data
-directory. The expected layout and split definitions are documented in
-[data/README.md](data/README.md).
-
-## Verify the checkout
-
-The following checks do not train a model and do not require datasets:
-
-```bash
-python -m pip install -r requirements-dev.txt
 python -m pytest -q
-python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44 --dry-run
+python -m src.run --config configs/core/canonical.yaml --dry-run
 bash scripts/smoke_test.sh
-python tools/verify_poc_stage3.py
-python tools/verify_source_manifests.py
-python tools/check_anonymity.py --root .
-```
-
-The smoke script performs selected fast protocol tests, a dry-run, reconstruction
-and padding-sentinel checks, and a synthetic CPU training/evaluation check.
-Run the full test suite separately as shown above. The native source smoke performs
-import/forward validation only:
-
-```bash
 bash scripts/run_tier1_smoke.sh
 ```
 
-The POC entrypoint runs ETTh1 formal C only: seed42 reuses the selected pilot,
-and seeds43/44 train using tracked schedules. It does not reproduce complete
-A/B/C or ETTm2 transfer results. See [configs/poc/README.md](configs/poc/README.md)
-for the preserved design, selection criterion discrepancy and missing inputs.
+The smoke checks use synthetic or model-specific inputs; they verify execution
+and protocol behavior, not paper-scale training results. For the CUDA reference
+environment, see [`environment.yml`](environment.yml). It is not the default
+installation path.
 
-The POC manifest verifier checks every tracked provenance record. It reports
-missing external checkpoints by default; use
-`python tools/verify_poc_stage3.py --strict` after placing the checkpoints to
-require all external hashes to be present and correct.
+## Reproducing results
 
-Current release manifests normalize CRLF to LF for tracked text only; external
-checkpoint hashes always cover the exact binary bytes. Historical manifests
-remain separate and unchanged. Both verifiers run in CI; see
-[docs/provenance_checks.md](docs/provenance_checks.md) for the hashing rules.
+The paper's default replicate seeds are **42, 43, and 44**. Override them with
+`--seed`/`--seeds` or, for supported shell wrappers, the `SEEDS` environment
+variable. Outputs are written under `outputs/` by default. The directory
+[`artifacts/`](artifacts/) contains frozen historical evidence and is not a
+destination for new runs.
 
-The frozen POC protocol uses a 1% validation eligibility slack; the current
-manuscript describes the stricter no-slack rule. All saved candidates satisfy
-both, but the rules differ. This repository preserves the historical protocol
-and documents the discrepancy rather than silently changing it.
-
-To check generated forecasting summaries without training or changing results:
-
-```bash
-python tools/audit_artifacts.py --root outputs --out audit_report.json
-```
-
-This command exits with an error for empty result directories, invalid JSON,
-missing required MSE/origin-gap fields, or nonfinite/negative metrics. It checks
-summary validity, not whether a new run reproduces the historical paper values.
-
-For a double-blind submission copy, run
-`python tools/check_anonymity.py --root . --double-blind`; the public release
-metadata intentionally retains its citation and repository identity.
-
-For the shortest end-to-end entry point, validate the canonical configuration
-without starting training:
+To validate the canonical configuration without training:
 
 ```bash
 python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44 --dry-run
 ```
 
-To start that registered experiment after placing the datasets under `data/`:
+After placing the five public CSV datasets in the layout described by
+[`data/README.md`](data/README.md), start the canonical experiment:
 
 ```bash
 python -m src.run --config configs/core/canonical.yaml --seeds 42,43,44
 ```
 
-Each completed run writes its configuration, training and validation logs,
-per-origin metrics, summary, provenance, and checkpoints below `outputs/`.
-The summary and provenance record the Git commit used for the run.
+This launches 15 training jobs. It is a full experiment, not a smoke test.
+Other registered experiment entrypoints and their configurations are listed
+in [`docs/experiments.md`](docs/experiments.md). For a result-by-result mapping
+from the paper to commands, configs, outputs, tolerances, and reproduction
+status, use [`docs/reproduction_map.md`](docs/reproduction_map.md).
 
-## Reproduce experiments
-
-After the datasets are available, use the explicit entrypoints below. Training
-starts only when one of these commands is selected.
-
-The default replicate seeds used for the paper are 42, 43, and 44. They define
-the default reproducibility set and can be overridden through the `SEEDS`
-environment variable or the `--seed`/`--seeds` parameters.
+Frozen summaries and summaries of newly generated runs can be produced with:
 
 ```bash
-bash scripts/run_core.sh
-bash scripts/run_overlap.sh
-bash scripts/run_h192.sh
-bash scripts/run_training_policy.sh
-bash scripts/run_patch_length.sh
-bash scripts/run_patchtst.sh
-```
-
-These controls are intentionally separate from the historical paper records:
-
-```bash
-bash scripts/run_optimization.sh
-bash scripts/run_heads.sh
-bash scripts/run_pe_control.sh
-bash scripts/run_poc.sh
-```
-
-See [docs/experiments.md](docs/experiments.md) for the experiment-to-code
-map, [docs/reproducibility.md](docs/reproducibility.md) for metric and
-provenance details, and [docs/source_audit.md](docs/source_audit.md) for the
-source-availability boundary. The clean-checkout prerequisites and the exact
-boundary between source-backed reruns, reconstructed controls, frozen compact
-artifacts, and external checkpoints are summarized in
-[docs/reproducibility_audit.md](docs/reproducibility_audit.md).
-
-All public shell entrypoints resolve the repository root before invoking
-Python, so they can be called from outside the checkout. The environment name
-is not part of the runner contract; use the Python executable from the
-environment described by `environment.yml`. Run `.sh` entrypoints from Bash,
-Git Bash, or WSL; PowerShell users can invoke the equivalent `python` commands
-shown in each section.
-
-Reproduction has three levels in this release. The canonical, overlap,
-horizon, training-policy, PatchTST, and patch-length runners can generate new
-runs after the public datasets are supplied. The optimization, mask-head, and
-no-PE entries are reconstructed controls and must not be used as replacements
-for frozen historical values. The full-split mixer comparison is source-backed
-by `tools/fullsplit/` and can be launched with `scripts/run_mixers.sh` after
-the ETTh1 data are available. Its default batch uses seeds `42,43,44`; set
-`SEEDS=...` to override the batch and `PARTITION_ORIGIN_DATA_ROOT` to locate
-the dataset. Outputs are written under
-`outputs/fullsplit_cross_backbone/<model>/etth1/seed<seed>/`.
-Each full-split output directory must be new or empty; the runner refuses to
-overwrite a non-empty run directory. The recovered comparison fixes the paper
-protocol at `L=512`, `H=96`, `p=12`, stride `12`, five epochs, batch size `32`,
-and AdamW with learning rate `1e-4` and weight decay `1e-4`; unsupported
-overrides fail explicitly.
-
-### POC Stage3 inputs
-
-The repository includes the historical Stage3 source snapshots, origin-pair
-schedules, and non-checkpoint provenance records needed to audit the POC in
-`tools/poc_stage3/` and `artifacts/poc_stage3/`. Checkpoint-dependent POC
-inputs are not included in this repository. When those files are available
-through the authorized experiment record, place them at these paths relative to
-the repository root:
-
-```text
-checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed42/checkpoint.pt
-checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed42/final_checkpoint.pt
-checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed43/checkpoint.pt
-checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed43/final_checkpoint.pt
-checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed44/checkpoint.pt
-checkpoints/poc_stage3/attribution_abc/b_two_view_supervised/seed44/final_checkpoint.pt
-checkpoints/poc_stage4/batch2_poc/lambda_selection/lambda_1p0/checkpoint.pt
-checkpoints/poc_stage4/batch2_poc/lambda_selection/lambda_1p0/final_checkpoint.pt
-```
-
-Expected SHA256 values for both repository-tracked files and these external
-checkpoints are recorded in
-[`artifacts/poc_stage3/SHA256SUMS.txt`](artifacts/poc_stage3/SHA256SUMS.txt).
-The `[external]` files remain absent until the inputs are placed in the paths
-above. The frozen lambda-selection and protocol records are tracked under
-`artifacts/poc_stage4/`; the Stage4 formal runner writes newly generated
-outputs under `outputs/poc_stage4/`. The copied scripts preserve the historical
-Stage3/Stage4 protocol and are included for provenance and auditability.
-
-## Latent-representation diagnostics
-
-The diagnostic scripts are post-hoc: they read frozen checkpoints, compare origin 0 and
-origin 6 on the same ETTh1 test windows using frozen checkpoints. They do not
-retrain a model. The controlled Transformer tools retain only fully observed
-patch tokens, apply the FFT along the ordered token axis (never the embedding
-axis), and save per-window spectral and forecast discrepancies. The
-Protocol-Adapted PatchTST tool preserves its raw-scale, mask-aware adapter
-protocol, so its values are not numerically interchangeable with the
-standardized controlled-Transformer values.
-
-```bash
-python tools/analyze_latent_spectrum.py \
-  --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
-  --seed 42 --output outputs/latent_spectrum_etth1_o0_o6_p12_L512_H96
-
-python tools/analyze_latent_layers.py \
-  --checkpoint /path/to/checkpoint.pt --data-root /path/to/data \
-  --seed 42 --output outputs/latent_layers_etth1_o0_o6_p12_L512_H96
-
-python tools/analyze_patchtst_latent_spectrum.py \
-  --checkpoint /path/to/patchtst_checkpoint.pt --data-root /path/to/data \
-  --seed 42 --output outputs/patchtst_latent_spectrum_etth1_o0_o6_p12_s12_L512_H96
-
-bash scripts/summarize_latent.sh
-```
-
-The repository retains the frozen appendix PCA coordinates and the matching
-PDF asset as release artifacts. The PCA generator is intentionally not a
-reproduction entry point: it was a one-off qualitative diagnostic, not a
-repeated aggregate analysis.
-
-The checked-in artifact directory names retain seed identifiers as reproducibility
-keys. The prose uses replicate terminology so these identifiers are not read as
-additional scientific conditions.
-
-New analysis runs place results under a seed-specific subdirectory such as
-`seed42/`. CSV names contain only the analysis purpose and its hyperparameters;
-the seed is recorded in the file contents and summary metadata.
-
-The summary wrapper aggregates existing replicate CSV records into JSON and
-runs the optional random-pairing audit. It performs no model run and does not
-render a new figure. Override the replicate set with, for example,
-`SEEDS=42,43,44 bash scripts/summarize_latent.sh`.
-
-This is not a filesystem-read-only command: it reads historical CSVs and writes
-new JSON files to `outputs/latent_summary/` by default. `OUTPUT_ROOT` changes
-only the generated destination. The summary/permutation tools reject outputs
-anywhere under this checkout's `artifacts/` or over Git-tracked files, including
-explicitly supplied unsafe paths. Seed-isolated analysis outputs use the same
-guard. Never use `artifacts/` for new runs; it is historical frozen evidence.
-
-The wrapper accepts both the current seed-subdirectory layout and the legacy
-frozen artifact layout committed in this repository.
-
-The test holds forecast discrepancies fixed and randomly permutes the paired
-token-spectrum discrepancies across windows. It assesses random pairing, not
-causal mediation.
-
-The frozen-model input-response and readout diagnostics used by the mechanism
-analysis are launched by `tools/run_frozen_mechanism_matrix.py`. They require
-the archived checkpoint tree and the same external dataset layout; no training
-is started by the diagnostic runner. For a dry-run over the available archive:
-
-```bash
-python tools/run_frozen_mechanism_matrix.py \
-  --archive-root /path/to/checkpoint-archive \
-  --data-root /path/to/data \
-  --output-root outputs/frozen_mechanisms \
-  --model all --dry-run
-```
-
-For a single checkpoint, use `tools/analyze_frozen_jacobian.py` or
-`tools/analyze_frozen_mechanisms.py` with explicit `--model`, `--checkpoint`,
-`--data-root`, `--dataset`, and `--output` arguments. The outputs record the
-checkpoint hash, input scale, window count, projection count, and reconstruction
-error. The diagnostic summary is descriptive and does not identify a unique
-causal component.
-
-## Repository layout
-
-```text
-artifacts/                Frozen compact records, including frozen-checkpoint PCA coordinates; no predictions
-artifacts/poc_stage3/     Stage3 POC schedules, provenance records, and SHA256 manifest; no checkpoints
-artifacts/poc_stage4/     Frozen POC lambda-selection and protocol records; no checkpoints
-configs/                  Protocol configurations
-data/                     Dataset layout instructions; data is ignored
-docs/                     Reproduction, source, and experiment documentation
-scripts/                  Training and reproduction entrypoints
-src/analysis/             Token-spectrum, layerwise, and PatchTST latent helpers
-src/                      Core runners, patching, evaluation, and metrics
-tests/                    Fast protocol, analysis, and release-contract tests
-third_party/              Isolated source snapshots with provenance notices
-tools/                    Static audits, post-hoc diagnostics, and POC Stage3 source snapshots
-```
-
-## Citation and license
-
-If you use this repository, cite the paper using [CITATION.cff](CITATION.cff).
-Repository-level code is released under the MIT License. Files under
-`third_party/` retain their upstream provenance and licensing requirements;
-see [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
-
-## Current manuscript release
-
-The paper now uses Figure 2 for origin profiles, Figure 3 for ECDFs, Figure 4 for controls, Figure 5 for frozen-model diagnostics, and supplementary Figure S1 for PCA.
-
-```bash
-python tools/reproduce_frozen_paper.py --output outputs/paper_reproduction --figure
 bash scripts/reproduce_tables.sh frozen
 bash scripts/reproduce_tables.sh new-runs
 ```
 
-The frozen command regenerates main Tables 2 and 3 and the Figure 5 readout audit from archived full-precision records. It does not claim to regenerate every manuscript table. The new-runs command retains experiment identity, protocol settings, seeds and source records and calculates sample SD; singleton SD is blank. Never replace historical paper results with these newly generated summaries.
+These commands write generated files under `outputs/`; they do not overwrite
+the tracked evidence in `artifacts/`. The frozen path recomputes summaries from
+archived records, while `new-runs` aggregates results already present in the
+output tree. Neither command by itself reruns model training.
 
-Registered YAMLs are validated before dispatch. Unknown experiment IDs and
-unsupported or fixed-protocol overrides fail explicitly; no unknown ID falls
-back to training. The patch-length `--datasets` filter is shared by dry-run
-and execution. See [reproducibility instructions](docs/reproducibility.md).
+To also render the archived diagnostic visualization, use the supported
+`--figure` option and choose an output directory:
 
-Frozen Jacobian profiles preserve the original draws, whose RNG state was not archived. New Jacobian runs accept `--projection-seed 0`; `--seed` is checkpoint-training metadata only. Reproduction of the archived profiles is distinct from resampling projections. Checkpoint availability and result boundaries are listed in [the reproduction map](docs/reproduction_map.md).
+In Bash-compatible shells:
+
+```bash
+MPLBACKEND=Agg python tools/reproduce_frozen_paper.py --output outputs/paper_reproduction --figure
+```
+
+## Reproduction boundaries
+
+Not every historical result can be regenerated from this checkout. Some
+analyses require datasets or checkpoints that are not included; some historical
+controls are available only as frozen records or are explicitly marked as
+reconstructed controls. Missing inputs stop the corresponding run rather than
+triggering a substitute experiment. The reproduction map and
+[`docs/reproducibility.md`](docs/reproducibility.md) describe these boundaries,
+the recorded protocols, and the expected sources of numerical variation.
+
+The frozen POC selection protocol uses a **1% validation-error eligibility
+slack**. All archived candidates also satisfy the stricter zero-slack condition,
+so the selected value remains **\(\lambda=1.0\)**. The historical protocol and
+selection records are preserved; this README does not redefine them. See
+[`configs/poc/README.md`](configs/poc/README.md) for the detailed POC protocol
+and input requirements.
+
+## Diagnostics and data
+
+Post-hoc representation diagnostics use frozen checkpoints and require the
+matching data and checkpoint files. They do not retrain models. Their commands,
+input scales, token filtering, output schemas, and artifact-dependent limits are
+documented in the [reproduction map](docs/reproduction_map.md) and
+[reproducibility guide](docs/reproducibility.md).
+
+Datasets are not included. Put the CSVs under `data/` or set `DATA_ROOT` to an
+external data directory. The expected paths, split definitions, and window
+counts are documented in [`data/README.md`](data/README.md). Dataset licenses
+should be checked at their respective sources before redistribution.
+
+## Repository layout
+
+```text
+artifacts/       Frozen compact records and provenance; do not use for new outputs
+configs/         Experiment and protocol configurations
+data/            Dataset layout instructions; datasets are not included
+docs/            Reproduction maps, experiment notes, and provenance guidance
+scripts/         Training, smoke-test, and summary entrypoints
+src/             Core runners, patching, evaluation, and metrics
+tests/           Protocol, analysis, and release-contract tests
+third_party/     Isolated upstream source snapshots and license notices
+tools/           Audits, post-hoc diagnostics, and historical protocol helpers
+outputs/         Default destination for generated runs and summaries (Git-ignored)
+```
+
+## Further documentation
+
+- [Experiment descriptions and entrypoints](docs/experiments.md)
+- [Paper-result reproduction map](docs/reproduction_map.md)
+- [Reproducibility and provenance](docs/reproducibility.md)
+- [Source availability and audit boundaries](docs/source_audit.md)
+- [Execution status matrix](docs/experiment_execution_matrix.md)
+- [Dataset paths and split protocol](data/README.md)
+- [POC protocol and required inputs](configs/poc/README.md)
+- [Third-party licenses](docs/THIRD_PARTY.md)
+
+## Citation and license
+
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff). Repository
+code is released under the MIT License. Files under `third_party/` retain their
+upstream provenance and licensing terms; see [`docs/THIRD_PARTY.md`](docs/THIRD_PARTY.md).
