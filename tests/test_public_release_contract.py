@@ -15,7 +15,7 @@ def _contains_machine_specific_path(value):
     home = str(Path.home()).replace("\\", "/").rstrip("/")
     return bool(
         re.search(r"(?:[A-Za-z]:/+Users/+|/(?:home|Users)/+)[\w.-]+", normalized)
-        or re.search(r"E:/+Deep Learning(?:/|$)", normalized)
+        or re.search(r"(?<![\w])[A-Za-z]:/+", normalized)
         or (home and re.search(re.escape(home) + r"(?=/|$|[\s\"'])", normalized))
     )
 
@@ -51,8 +51,7 @@ def test_reference_config_has_no_machine_specific_dataset_path():
     config = json.loads((ROOT / "configs" / "reference.json").read_text(encoding="utf-8"))
     dataset_file = config["dataset_file"]
     assert not Path(dataset_file).is_absolute()
-    assert "Deep Learning" not in dataset_file
-    assert "Anonymous" not in dataset_file
+    assert not re.search(r"[A-Za-z]:[\\/]", dataset_file)
 
 
 def test_public_text_has_no_machine_specific_paths():
