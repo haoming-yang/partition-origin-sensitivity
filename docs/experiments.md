@@ -1,6 +1,6 @@
 # Paper to code map
 
-Paper: **Accompanying manuscript**.
+This document describes experiments for the accompanying manuscript.
 See [reproduction_map.md](reproduction_map.md) for current paper identifiers,
 commands, outputs, reference values, tolerance and runtime boundaries.
 POC scope is condition-specific: the public batch entrypoint runs ETTh1 C,

@@ -3,7 +3,7 @@
 This is a local fork snapshot used by the isolated PatchTST adapter. It is
 not labeled as canonical upstream Time-Series-Library.
 
-- Recorded remote: `https://github.com/Anonymous-yang/Time-Series-Library.git`
+- Source snapshot provenance is recorded by the commit and source manifests below.
 - Recorded commit: `61f68df6965b8d4061a08d0d09b6d69dba8728c8`
 - Worktree status at audit: clean
 - Role in this repository: source snapshot for `models/PatchTST.py` and its

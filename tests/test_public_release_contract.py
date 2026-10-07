@@ -4,8 +4,47 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _contains_machine_specific_path(value):
+    normalized = re.sub(r"\\+", "/", value)
+    home = str(Path.home()).replace("\\", "/").rstrip("/")
+    return bool(
+        re.search(r"(?:[A-Za-z]:/+Users/+|/(?:home|Users)/+)[\w.-]+", normalized)
+        or re.search(r"E:/+Deep Learning(?:/|$)", normalized)
+        or (home and re.search(re.escape(home) + r"(?=/|$|[\s\"'])", normalized))
+    )
+
+
+def test_public_path_scan_accepts_runner_terms(monkeypatch):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: Path("/home/runner")))
+    test_public_text_has_no_machine_specific_paths()
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "/home/runner/project/data.csv",
+        "/home/researcher/data.csv",
+        "/Users/researcher/data.csv",
+        r"C:\Users\researcher\data.csv",
+        r"C:/Users/researcher/data.csv",
+        r"E:\workspace\data.csv",
+    ],
+)
+@pytest.mark.parametrize("suffix", [".md", ".json"])
+def test_public_path_scan_rejects_absolute_machine_paths(tmp_path, monkeypatch, value, suffix):
+    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
+    path = tmp_path / ("example" + suffix)
+    path.write_text(json.dumps({"path": value}) if suffix == ".json" else value, encoding="utf-8")
+    monkeypatch.setattr(sys.modules[__name__], "ROOT", tmp_path)
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: Path("/home/runner")))
+    with pytest.raises(AssertionError):
+        test_public_text_has_no_machine_specific_paths()
 
 
 def test_reference_config_has_no_machine_specific_dataset_path():
@@ -42,7 +81,7 @@ def test_public_text_has_no_machine_specific_paths():
     offenders = []
     for path in candidates:
         text = path.read_text(encoding="utf-8")
-        if "E:\\Deep Learning" in text or "C:\\Users\\" in text or Path.home().name in text:
+        if _contains_machine_specific_path(text):
             offenders.append(str(path.relative_to(ROOT)))
             continue
         if path.suffix.lower() == ".json":
@@ -57,7 +96,7 @@ def test_public_text_has_no_machine_specific_paths():
                     stack.extend(value.values())
                 elif isinstance(value, list):
                     stack.extend(value)
-                elif isinstance(value, str) and (re.match(r"^[A-Za-z]:[\\/]", value) or Path.home().name in value):
+                elif isinstance(value, str) and (re.match(r"^[A-Za-z]:[\\/]", value) or _contains_machine_specific_path(value)):
                     offenders.append(str(path.relative_to(ROOT)))
                     stack.clear()
                     break

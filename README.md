@@ -1,14 +1,8 @@
 <div align="center">
 
-# Partition-Origin Evaluation Artifact
+# Anonymous Artifact for Partition-Origin Evaluation
 
 <p>
-  <a href="https://github.com/Anonymous-yang/partition-origin-sensitivity">
-    <img src="https://img.shields.io/badge/Code-GitHub-181717?style=for-the-badge&logo=github" alt="GitHub repository">
-  </a>
-  <a href=".github/workflows/tests.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/Anonymous-yang/partition-origin-sensitivity/tests.yml?branch=main&style=for-the-badge&label=tests" alt="Tests">
-  </a>
   <a href="environment.yml">
     <img src="https://img.shields.io/badge/Python-3.9-3776ab?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.9">
   </a>
@@ -396,6 +390,6 @@ The frozen command regenerates main Tables 2 and 3 and the Figure 5 readout audi
 Registered YAMLs are validated before dispatch. Unknown experiment IDs and
 unsupported or fixed-protocol overrides fail explicitly; no unknown ID falls
 back to training. The patch-length `--datasets` filter is shared by dry-run
-and execution. See [configuration and output safeguards](docs/reproducibility.md).
+and execution. See [reproducibility instructions](docs/reproducibility.md).
 
-Frozen Jacobian profiles preserve the original draws, whose RNG state was not archived. New Jacobian runs accept `--projection-seed 0`; `--seed` is checkpoint-training metadata only. Reproduction of the archived profiles is distinct from resampling projections. See [review artifact instructions](docs/reproducibility.md) for the anonymous package and weight availability.
+Frozen Jacobian profiles preserve the original draws, whose RNG state was not archived. New Jacobian runs accept `--projection-seed 0`; `--seed` is checkpoint-training metadata only. Reproduction of the archived profiles is distinct from resampling projections. Checkpoint availability and result boundaries are listed in [the reproduction map](docs/reproduction_map.md).

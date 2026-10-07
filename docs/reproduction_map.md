@@ -1,7 +1,8 @@
 # Paper result to command map
 
-Paper: **Accompanying manuscript**.
-This map follows the current SIGMOD main-paper numbering (Sections 3--6,
+This map links the accompanying manuscript's results to commands,
+configurations, outputs, reference values, tolerances, and reproduction boundaries.
+It follows the current SIGMOD main-paper numbering (Sections 3--6,
 Tables 1--9, Figures 1--5) and supplementary identifiers. Section/table labels,
 not page numbers, are the stable identifiers. It is not a claim that new
 training has reproduced historical numerical values.

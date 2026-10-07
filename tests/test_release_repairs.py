@@ -8,6 +8,7 @@ import pytest
 import torch
 
 from src.analysis.frozen_mechanisms import rademacher_jacobian_energy
+from tools import export_review_artifact
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -65,8 +66,16 @@ def test_review_export_sanitizes_identity_and_keeps_weights(tmp_path):
     out = tmp_path / "review"
     assert not (out / ".git").exists()
     text = (out / "README.md").read_text(encoding="utf-8")
-    author = "Example Author"
-    owner = "example-user"
-    assert author not in text and owner not in text
+    assert "github.com/" not in text
     manifest = json.loads((out / "artifacts/review_checkpoint_manifest.json").read_text())
     assert all((out / row["file"]).is_file() for row in manifest)
+
+
+def test_review_text_sanitizer_removes_example_identity_metadata():
+    cff = """title: Artifact\nauthors:\n  - family-names: Author\n    given-names: Example\nrepository-code: https://github.com/example-user/project\n"""
+    pyproject = 'authors = [{name = "Example Author", email = "author@example.invalid"}]\n'
+    readme = '<a href="https://github.com/example-user/project">Repository</a>\n'
+    assert "Example" not in export_review_artifact.sanitize_review_text("CITATION.cff", cff)
+    assert "example-user" not in export_review_artifact.sanitize_review_text("CITATION.cff", cff)
+    assert "Example Author" not in export_review_artifact.sanitize_review_text("pyproject.toml", pyproject)
+    assert "example-user" not in export_review_artifact.sanitize_review_text("README.md", readme)

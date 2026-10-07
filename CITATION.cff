@@ -3,11 +3,10 @@ message: "If you use this repository, please cite the accompanying paper."
 title: "Partition-Origin Evaluation Artifact"
 type: software
 authors:
-  - family-names: Yang
+  - family-names: Authors
     given-names: Anonymous
 version: 1.0.0
 date-released: 2026-09-01
-repository-code: "https://github.com/Anonymous-yang/partition-origin-sensitivity"
 license: MIT
 keywords:
   - time series forecasting

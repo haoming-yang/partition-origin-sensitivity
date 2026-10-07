@@ -1,6 +1,6 @@
 # Reproducibility and provenance
 
-Paper: **Accompanying manuscript**.
+This document supports reproduction of the accompanying manuscript.
 Use [reproduction_map.md](reproduction_map.md) for paper-result commands and
 source/frozen-record boundaries. A successful command is not a historical
 numerical reproduction claim.
@@ -52,8 +52,9 @@ README; missing input files do not authorize substitute experiments.
 Latent summary/permutation defaults are `outputs/latent_summary/`. These tools,
 seed-isolated analysis outputs and table summary tools reject paths under the
 repository's frozen directory and refuse to overwrite tracked destinations.
-See [usability_safeguards.md](usability_safeguards.md) for configuration validation,
-the local legacy-timm import adapter, and future POC tie selection.
+Configuration validation and generated-output protections are enforced by the
+experiment entrypoints. See [reproduction_map.md](reproduction_map.md) for
+execution boundaries and result availability.
 
 ## Environment and numerical identity
 

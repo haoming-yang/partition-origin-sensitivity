@@ -3,6 +3,8 @@ import json
 import re
 from pathlib import Path
 
+import yaml
+
 TEXT_SUFFIXES = {".md", ".txt", ".yaml", ".yml", ".json", ".py", ".sh", ".bib", ".csv", ".toml", ".cff"}
 PATTERNS = {
     "windows_path": re.compile(r"[A-Za-z]:\\\\Users\\\\|[A-Za-z]:/Users/"),
@@ -12,9 +14,15 @@ PATTERNS = {
 }
 
 DOUBLE_BLIND_PATTERNS = {
-    "author_identity": re.compile(r"example", re.IGNORECASE),
-    "author_metadata": re.compile(r"(?im)^\s*authors?\s*[:=]"),
+    "project_owner_url": re.compile(r"https?://(?:www\.)?github\.com/[^/\s]+/partition-origin-sensitivity(?:\.git)?", re.IGNORECASE),
+    "named_author_metadata": re.compile(r"(?im)^[ \t]*(?:author|maintainer)\s*[:=][ \t]*(?!.*\banonymous\b)\S.+"),
 }
+
+
+def has_named_cff_author(text):
+    data = yaml.safe_load(text) or {}
+    authors = data.get("authors") or []
+    return any("anonymous" not in " ".join(str(value) for value in author.values()).lower() for author in authors)
 
 
 def main() -> None:
@@ -47,6 +55,8 @@ def main() -> None:
             for name, pattern in DOUBLE_BLIND_PATTERNS.items():
                 if pattern.search(text):
                     issues.append({"file": str(path), "pattern": name})
+            if path.name == "CITATION.cff" and has_named_cff_author(text):
+                issues.append({"file": str(path), "pattern": "named_author_metadata"})
     result = {"root": str(args.root), "issue_count": len(issues), "issues": issues}
     print(json.dumps(result, indent=2))
     raise SystemExit(1 if issues else 0)
