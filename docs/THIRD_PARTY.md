@@ -1,19 +1,17 @@
 # Third-party source and licensing
 
-The `third_party/` directory contains isolated snapshots used by the native
-model source audit. These files are not original contributions of this
-repository and must be used under their upstream terms.
+The adapted PatchTST experiment uses the isolated Time-Series-Library fork
+snapshot under `third_party/time_series_library/`. Its recorded source commit,
+local changes, and integrity manifests are described in
+[`PROVENANCE.md`](../third_party/time_series_library/PROVENANCE.md). The
+upstream license notice is retained as
+[`UPSTREAM_LICENSE`](../third_party/time_series_library/UPSTREAM_LICENSE).
 
-| Snapshot | Upstream repository | Local license file | Release action |
-|---|---|---:|---|
-| DeformableTST | [luodhhh/DeformableTST](https://github.com/luodhhh/DeformableTST) | present | retain with notice |
-| HDMixer | [hqh0728/HDMixer](https://github.com/hqh0728/HDMixer) | not found in snapshot | verify before redistribution |
-| PatchMixer | [Zeying-Gong/PatchMixer](https://github.com/Zeying-Gong/PatchMixer) | present | retain with notice |
-| PatchMLP | [TangPeiwang/PatchMLP](https://github.com/TangPeiwang/PatchMLP) | not found in snapshot | verify before redistribution |
-| PatchTST | [yuqinie98/PatchTST](https://github.com/yuqinie98/PatchTST) | present | retain with notice |
-| Pathformer | [decisionintelligence/pathformer](https://github.com/decisionintelligence/pathformer) | not found in snapshot | verify before redistribution |
+The paper's Transformer, MLP, and Conv mixer comparison instead uses the
+recovered full-split runner under `tools/fullsplit/`; it does not depend on the
+separate six-model native source audit. Source recovery details are in
+[`provenance_checks.md`](provenance_checks.md).
 
-The Time-Series-Library snapshot has a separate provenance notice at
-`third_party/time_series_library/PROVENANCE.md`. Before a tagged public
-release, every redistributed snapshot must have a matching upstream license
-notice or be removed from the release artifact.
+The repository MIT license does not replace the upstream terms applicable to
+the vendored source. Dataset licenses must be checked at their own sources;
+the CSV datasets are not redistributed here.

@@ -67,14 +67,21 @@ training environment. A separate clean CPU environment was installed and checked
 with Python 3.11.17, PyTorch 2.5.1+cpu, torchvision 0.20.1+cpu, NumPy 1.26.4,
 and pandas 1.5.3; `pip check`, the tests, dry-run and CPU smoke passed.
 This validates engineering checks, not full training or CUDA execution.
-No dependency was upgraded for this task; matplotlib's
-existing 3.7.1 pin was added to the Conda specification to match pip metadata,
-and torchvision's existing 0.20.1 environment pin was mirrored in pip metadata
-so timm does not resolve an incompatible newer torchvision/PyTorch pair.
+No scientific dependency was upgraded for this cleanup. The optional native
+six-model audit and its `timm` compatibility shim were removed; the paper's
+controlled models and adapted PatchTST do not import `timm`.
 Capture `python -m pip freeze` and `nvidia-smi` with new runs as well as provenance.
 
 There is no established fresh-training numerical tolerance or measured runtime
 for this release. Frozen-table arithmetic/printed rounding and stochastic
 diagnostic resampling have different acceptance boundaries, documented in the map.
 
-The exact source and artifact availability audit is recorded in `docs/source_audit.md`. Anonymity checks are available through `scripts/run_audits.sh`.
+The [reproduction map](reproduction_map.md) gives each result's source status.
+`source-rerun` means the declared runner and configuration are present, not
+that fresh training reproduces a historical checkpoint. `reconstructed-control`
+marks a runnable control whose exact historical source identity is unresolved.
+`artifact-dependent` requires external checkpoints, while
+`frozen-artifact-only` has no exact rerun path in this checkout. The complete
+ETTm2 POC transfer and historical A/B/C table remain frozen-artifact-only;
+the compact POC tree does not contain every full-precision table record.
+Anonymity checks remain available through `scripts/run_audits.sh`.

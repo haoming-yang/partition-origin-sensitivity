@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.experiments.cross_model.result_schema import summarize_phase_mse
+from src.metrics.result_schema import summarize_phase_mse
 from src.training.runner import formal_metrics
 
 

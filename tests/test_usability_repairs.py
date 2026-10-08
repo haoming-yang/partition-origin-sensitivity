@@ -174,20 +174,6 @@ def test_patch_length_weather_filter_matches_dry_run(monkeypatch, tmp_path):
     assert not (tmp_path / "unused").exists()
 
 
-def test_deformabletst_legacy_import_is_scoped():
-    command = [sys.executable, "-c", "\n".join([
-        "import sys, torch",
-        "from src.experiments.cross_model.native_models import build_model, native_forecast",
-        "assert 'torch._six' not in sys.modules",
-        "model = build_model('DeformableTST', 512, 96, 7).eval()",
-        "assert 'torch._six' not in sys.modules",
-        "with torch.inference_mode(): y = native_forecast('DeformableTST', model, torch.zeros(1,512,7))",
-        "assert y.shape == (1,96,7) and torch.isfinite(y).all()",
-    ])]
-    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
-    assert result.returncode == 0, result.stderr
-
-
 @pytest.mark.parametrize("offset,expected", [(5e-13, 0.01), (2e-12, 1.0)])
 def test_poc_future_selection_respects_tolerance(offset, expected):
     from src.analysis.poc_selection import select_lambda

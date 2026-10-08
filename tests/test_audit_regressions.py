@@ -1,4 +1,3 @@
-import hashlib
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -8,7 +7,7 @@ import torch
 
 from src import run
 from src.training import runner
-from tools import aggregate_results, export_review_artifact
+from tools import aggregate_results
 
 
 def test_weather_head_dispatch_has_four_capped_conditions(monkeypatch, tmp_path):
@@ -29,13 +28,6 @@ def test_patch_aliases_are_canonical_and_conflicts_fail():
     assert aggregate_results.protocol_settings({"patch_len": 8}) != aggregate_results.protocol_settings({"patch_len": 16})
     with pytest.raises(ValueError):
         aggregate_results.protocol_settings({"patch_len": 8, "p": 16})
-
-
-def test_export_unchanged_text_preserves_crlf_bytes(tmp_path):
-    a, b = tmp_path / "a.json", tmp_path / "b.json"
-    a.write_bytes(b'{\r\n  "frozen": true\r\n}\r\n')
-    export_review_artifact.write_export_text(a, b, a.read_text(encoding="utf-8"))
-    assert hashlib.sha256(a.read_bytes()).digest() == hashlib.sha256(b.read_bytes()).digest()
 
 
 def test_unmasked_model_has_value_only_tokenizer_and_valid_outputs():

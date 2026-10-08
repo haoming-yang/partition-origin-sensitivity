@@ -46,7 +46,7 @@ def main() -> int:
     args = parser.parse_args()
     total = 0
     errors = []
-    for name, prefix in (("patch_models", "tier1"), ("time_series_library", "")):
+    for name, prefix in (("time_series_library", ""),):
         root = args.root / "third_party" / name
         count, failures = verify_manifest(root / "SOURCE_MANIFEST.csv", root / prefix)
         total += count

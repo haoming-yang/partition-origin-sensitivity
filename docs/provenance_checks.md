@@ -40,22 +40,40 @@ external checkpoint values; no checkpoint was regenerated or uploaded.
 | Archive | SHA256 of archived manifest file |
 |---|---|
 | `artifacts/poc_stage3/SHA256SUMS.historical.txt` | `c40e53b85d8247ed31441e6c6785f52b74c7d6222584e3a9901cc18b35636956` |
-| `third_party/patch_models/SOURCE_MANIFEST.historical.csv` | `95b9eb7747fd7a4219cc62953e9f57931f57b740dc52aa20f5f8519cdf466b50` |
 | `third_party/time_series_library/SOURCE_MANIFEST.historical.csv` | `1807dcdacfbeedc4592fb705b59b5dbf52f1f2eb41fed05d3b7d2ab0d4815145` |
 
 The archived lists use the historical byte conventions and are not checks of
 the current modified source. For an intentional source change, inspect the
 diff, update only the affected current release records using the declared
 hash mode, leave the archived manifests and external checkpoint values alone,
-and rerun both verifiers and the test suite. Source changes since copying,
-including comment cleanup and restored notices, are recorded in
-`docs/model_source_patches.md`.
+and rerun both verifiers and the test suite.
+
+The pre-cleanup release manifest remains retrievable from Git commit
+`35500dc71801c2564e74a9e0293cfb24443eebfe` and has file SHA256
+`98eb0ce5e1d64db70c134688b7b012b036ba0a035841001ce5c508d55a7f62f7`.
+The current `artifacts/paper_release_sha256.json` lists only retained frozen
+files; five verified derived CSVs are generated under `outputs/` instead.
+The former optional six-model native audit and its source manifests are also
+available in that pre-cleanup Git history, but are not part of the current
+paper-result release.
+
+The paper's full-split ETTh1 Transformer/MLP/Conv runner was recovered from
+historical source. Before repository path adaptation, the source SHA256 values
+were `24e9560bde893918c206fbab47bd0a5d96b3258f8507df383917435489efc667`
+for `fullsplit_3run_runner.py` and
+`2c31ae8cad31e9160dd09084b45a3d81346f8fc342d6199a0b32203525892cad`
+for `controlled_backbone_runner.py`. The included copy uses
+`PARTITION_ORIGIN_DATA_ROOT` or `DATA_ROOT` instead of a machine-specific path,
+adds repository execution support and runtime provenance, and accepts arbitrary
+integer seeds. The model, splits, five-epoch budget, data order, and checkpoint
+selection were not changed. This recovery did not retrain models or establish
+bitwise reproduction of the historical paper values.
 
 The source-list generator emits the current CSV schema and defaults to `lf`.
 For example, generate a candidate outside the source tree before reviewing it:
 
 ```bash
-python tools/generate_source_manifest.py --root third_party/patch_models/tier1 --output candidate_sources.csv
+python tools/generate_source_manifest.py --root third_party/time_series_library --output candidate_sources.csv
 ```
 
 Use `--hash-mode raw` only for a tree requiring exact binary-byte hashes.

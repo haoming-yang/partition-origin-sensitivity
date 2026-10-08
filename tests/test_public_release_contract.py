@@ -138,13 +138,6 @@ def test_public_shell_entrypoints_enter_repository_root():
             assert 'cd "$ROOT"' in text
 
 
-def test_reproducibility_audit_documents_external_boundaries():
-    text = (ROOT / "docs" / "reproducibility_audit.md").read_text(encoding="utf-8")
-    assert "does not contain the public datasets" in text
-    assert "eight binary POC checkpoints" in text
-    assert "lowercase snake_case" in text
-
-
 def test_git_commit_provenance_is_available():
     from src.training.runner import current_git_commit
 

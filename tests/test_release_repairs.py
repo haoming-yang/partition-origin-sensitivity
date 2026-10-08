@@ -8,8 +8,6 @@ import pytest
 import torch
 
 from src.analysis.frozen_mechanisms import rademacher_jacobian_energy
-from tools import export_review_artifact
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -41,9 +39,12 @@ def test_projection_generator_is_independent_of_global_rng():
     assert all(torch.equal(u, v) for u, v in zip(a, b))
 
 
-def test_shell_dispatch_explicitly_uses_bash():
-    text = (ROOT / "scripts/reproduce_all.sh").read_text()
-    assert 'exec "$ROOT/scripts/' not in text
+def test_shell_dispatch_lists_paper_commands_without_native_audit():
+    result = subprocess.run(["bash", str(ROOT / "scripts/reproduce_all.sh"), "list"],
+                            cwd=ROOT, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    assert all(name in result.stdout.split() for name in ("core", "mixers", "patchtst", "poc", "tables"))
+    assert "tier1-smoke" not in result.stdout
 
 
 def test_frozen_release_reproduces_paper_anchors(tmp_path):
@@ -54,28 +55,15 @@ def test_frozen_release_reproduces_paper_anchors(tmp_path):
     audit = json.loads((tmp_path / "diagnostic_audit.json").read_text())
     assert round(audit["readout_weather_controlled"]["top_mass_percent"], 2) == 14.04
     assert round(audit["readout_weather_patchtst"]["top_mass_percent"], 2) == 13.74
-
-
-def test_review_export_sanitizes_identity_and_keeps_weights(tmp_path):
-    if not (ROOT / ".git").exists():
-        pytest.skip("Re-export requires the public source checkout, not an anonymous export")
-    weights = json.loads((ROOT / "artifacts/review_checkpoint_manifest.json").read_text())
-    if any(not (ROOT / row["file"]).is_file() for row in weights):
-        pytest.skip("Review export integration requires external checkpoint bundle")
-    subprocess.run([sys.executable, str(ROOT / "tools/export_review_artifact.py"), "--output", str(tmp_path / "review")], check=True)
-    out = tmp_path / "review"
-    assert not (out / ".git").exists()
-    text = (out / "README.md").read_text(encoding="utf-8")
-    assert "github.com/" not in text
-    manifest = json.loads((out / "artifacts/review_checkpoint_manifest.json").read_text())
-    assert all((out / row["file"]).is_file() for row in manifest)
-
-
-def test_review_text_sanitizer_removes_example_identity_metadata():
-    cff = """title: Artifact\nauthors:\n  - family-names: Author\n    given-names: Example\nrepository-code: https://github.com/example-user/project\n"""
-    pyproject = 'authors = [{name = "Example Author", email = "author@example.invalid"}]\n'
-    readme = '<a href="https://github.com/example-user/project">Repository</a>\n'
-    assert "Example" not in export_review_artifact.sanitize_review_text("CITATION.cff", cff)
-    assert "example-user" not in export_review_artifact.sanitize_review_text("CITATION.cff", cff)
-    assert "Example Author" not in export_review_artifact.sanitize_review_text("pyproject.toml", pyproject)
-    assert "example-user" not in export_review_artifact.sanitize_review_text("README.md", readme)
+    with (tmp_path / "core_cross_dataset_summary.csv").open(newline="") as stream:
+        core = list(csv.DictReader(stream))
+    with (tmp_path / "etth1_window_dispersion_summary.csv").open(newline="") as stream:
+        windows = list(csv.DictReader(stream))
+    with (tmp_path / "visualization_per_origin_normalized.csv").open(newline="") as stream:
+        origins = list(csv.DictReader(stream))
+    assert len(core) == 5 and len(windows) == 3 and len(origins) == 180
+    assert float(core[0]["G_origin_pct_mean"]) == pytest.approx(22.698977985463767, abs=1e-10)
+    assert float(windows[0]["mean"]) == pytest.approx(0.07746532537159544, abs=1e-10)
+    assert float(origins[0]["origin_relative_to_run_mean_pct"]) == pytest.approx(15.219289889899578, abs=1e-10)
+    for name in ("visualization_canonical_summary.csv", "visualization_canonical_aggregate.csv"):
+        assert (tmp_path / name).is_file()

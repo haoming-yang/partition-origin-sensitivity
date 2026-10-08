@@ -73,7 +73,7 @@ def test_checked_in_poc_manifest_verifies_without_checkpoints():
 
 
 def test_checked_in_source_manifests_match_release_contents():
-    for name, prefix in [("patch_models", "tier1"), ("time_series_library", "")]:
+    for name, prefix in [("time_series_library", "")]:
         root = ROOT / "third_party" / name
         with (root / "SOURCE_MANIFEST.csv").open(encoding="utf-8-sig", newline="") as stream:
             rows = list(csv.DictReader(stream))
@@ -87,7 +87,7 @@ def test_checked_in_source_manifests_match_release_contents():
 
 def source_fixture(root):
     manifests = []
-    for name, prefix in [("patch_models", "tier1"), ("time_series_library", "")]:
+    for name, prefix in [("time_series_library", "")]:
         directory = root / "third_party" / name
         source = directory / prefix / "model.py"
         source.parent.mkdir(parents=True, exist_ok=True)

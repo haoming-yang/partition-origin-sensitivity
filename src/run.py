@@ -187,17 +187,6 @@ def run_supplement(config: dict, dataset: str, seed: int, output_root: Path) -> 
     )
 
 
-def run_cross_model(config: dict, output_root: Path) -> dict:
-    script = ROOT / "src" / "experiments" / "cross_model" / "run_tier1_matrix.py"
-    command = [sys.executable, str(script), "--out", str(output_root / config["experiment_id"].lower()),
-               "--epochs", str(config.get("epochs", 5)),
-               "--max-train-windows", str(config.get("max_train_windows", 1024)),
-               "--max-test-windows", str(config.get("max_test_windows", 16)),
-               "--batch-size", str(config.get("batch_size", 8))]
-    subprocess.run(command, cwd=script.parent, check=True)
-    return {"experiment_id": config["experiment_id"], "status": "COMPLETE"}
-
-
 FULLSPLIT_PROTOCOL = {
     "context": 512,
     "horizon": 96,
