@@ -42,3 +42,10 @@ htmlcov/
 .pytest_cache/
 .DS_Store
 Thumbs.db
+
+# Independent projection verification: retain the four frozen checkpoints and projection traces.
+!/verification/random_projection_robustness/checkpoints/etth2_controlled_seed42_checkpoint.pt
+!/verification/random_projection_robustness/checkpoints/weather_controlled_seed42_checkpoint.pt
+!/verification/random_projection_robustness/checkpoints/etth1_patchtst_seed42_checkpoint.pt
+!/verification/random_projection_robustness/checkpoints/weather_patchtst_seed42_checkpoint.pt
+!/verification/random_projection_robustness/results/*/projection_trace.npz

@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-10-09T05:07:43.496506+00:00",
+  "git_commit": null,
+  "git_dirty": null,
+  "device": "cuda",
+  "python": "3.9.16",
+  "software_versions": {
+    "torch": "2.5.1+cu121",
+    "numpy": "1.26.4",
+    "pandas": "1.5.3",
+    "PyYAML": "6.0.3",
+    "scipy": "1.13.1",
+    "scikit-learn": "1.6.1"
+  },
+  "model": "controlled",
+  "dataset": "Weather",
+  "seed": 42,
+  "checkpoint_training_seed": 42,
+  "projection_seed": 2,
+  "window_selection": "first chronological test windows; no shuffle",
+  "normalization": "mean squared projected gradients over projections, windows and channels; normalize positional mass after aggregation",
+  "checkpoint": "checkpoints/weather_controlled_seed42_checkpoint.pt",
+  "checkpoint_sha256": "61d1df789d0d4f186b02f6d15835aeb538cdc966469b6f4ba3b8a18f83a09d51",
+  "data_sha256": "34ee981d07313e51da2a50bb600072c8ae4a69cb4b0651f4cb93a069d7a2ba63",
+  "data_root": "data",
+  "data_file": "data/weather/weather.csv",
+  "input_scale": "training-standardized",
+  "context": 512,
+  "horizon": 96,
+  "patch_length": 12,
+  "stride": 12,
+  "origin_pair": [
+    0,
+    6
+  ],
+  "windows": 512,
+  "batch_size": 4,
+  "projections": 2,
+  "projection_rng": "torch.Generator on the selected device; exact sign tensors and initial generator state stored in projection_trace.npz",
+  "projection_trace": "results/weather_controlled_seed2/projection_trace.npz",
+  "projection_trace_sha256": "b22693e7153ed880214a09bc38d8aefaee5946bbf3442a00e6b71f04842c796a",
+  "projection_sign_shape": [
+    512,
+    2,
+    96,
+    21
+  ],
+  "initial_generator_state_sha256": "b1535c7783ea8829b6b0cf67704539798b4d16c39bf0bfe09494c5d9f12eee30",
+  "window_start_rows": [
+    41645,
+    42156
+  ],
+  "gradient_quantity": "Rademacher estimate of per-input-position Jacobian energy",
+  "center_of_mass": {
+    "origin_a": 466.44967722538036,
+    "origin_b": 427.5746698687704,
+    "origin_difference": 411.9478862247209
+  },
+  "torch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "artifact": "results/weather_controlled_seed2/jacobian_profile.csv"
+}

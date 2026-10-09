@@ -79,6 +79,18 @@ To render the archived diagnostic visualization, in a Bash-compatible shell:
 MPLBACKEND=Agg python tools/reproduce_frozen_paper.py --output outputs/paper_reproduction --figure
 ```
 
+## Independent random-projection verification
+
+[Independent Random-Projection Robustness Check](verification/random_projection_robustness/README.md)
+accompanies Supplementary Section 3.6. It covers four model--dataset
+configurations and ten projection seeds, providing diagnostic code, frozen
+checkpoints, projection records, per-seed paired results, and reproduction
+instructions. Raw dataset CSVs are not distributed; use the fixed-version
+sources and SHA-256 checks in the package's download instructions.
+
+The independent check does not recover the historical Jacobian projection RNG
+state, and global CUDA bitwise determinism was not verified.
+
 ## Reproduction boundaries
 
 Not every historical result can be regenerated from this checkout. Some

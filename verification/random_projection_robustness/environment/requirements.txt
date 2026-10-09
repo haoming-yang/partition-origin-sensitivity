@@ -1,0 +1,10 @@
+# Non-CUDA Python dependencies for the public reproduction environment.
+# Install PyTorch/CUDA through environment.yml rather than this pip file.
+numpy==1.26.4
+pandas==1.5.3
+PyYAML==6.0.3
+scikit-learn==1.6.1
+einops==0.8.1
+reformer-pytorch==1.4.4
+torchvision==0.20.1
+matplotlib==3.7.1

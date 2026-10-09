@@ -1,0 +1,465 @@
+{
+  "python": "3.9.16",
+  "torch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "checkpoints": [
+    {
+      "dataset": "ETTh2",
+      "model": "controlled",
+      "checkpoint_file": "etth2_controlled_seed42_checkpoint.pt",
+      "checkpoint_sha256": "ce20ba1b0ba73edd49c4680a4c15606148d86cb95a8d13fdc21f762eadb1ac17",
+      "expected_sha256": "ce20ba1b0ba73edd49c4680a4c15606148d86cb95a8d13fdc21f762eadb1ac17",
+      "checkpoint_hash_match": true,
+      "strict_state_dict_load": true,
+      "device": "cuda",
+      "dataset_rows": 17420,
+      "channels": 7,
+      "split": {
+        "rows": 17420,
+        "channels": 7,
+        "train_rows": [
+          0,
+          8640
+        ],
+        "validation_rows": [
+          8640,
+          11520
+        ],
+        "test_rows": [
+          11520,
+          17420
+        ],
+        "scaler_fit_rows": [
+          0,
+          8640
+        ],
+        "window_counts": {
+          "train": 8033,
+          "validation": 2785,
+          "test": 5805
+        }
+      },
+      "sample_test_start_row": 11008,
+      "input_scale": "train-row standardized",
+      "input_shape": [
+        1,
+        512,
+        7
+      ],
+      "input_finite": true,
+      "prediction_shape": [
+        1,
+        96,
+        7
+      ],
+      "prediction_finite": true,
+      "repeat_forward_bitwise_equal": true,
+      "model_eval": true,
+      "dropout_modules": [
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        }
+      ],
+      "train_mean": [
+        41.536834716796875,
+        12.273452758789062,
+        46.609771728515625,
+        10.526151657104492,
+        1.1869920492172241,
+        -2.373218536376953,
+        26.87202262878418
+      ],
+      "train_std": [
+        10.448841094970703,
+        4.5871124267578125,
+        16.858190536499023,
+        3.0186054706573486,
+        4.641010761260986,
+        8.46091079711914,
+        11.58471965789795
+      ],
+      "parameter_count": 374944
+    },
+    {
+      "dataset": "Weather",
+      "model": "controlled",
+      "checkpoint_file": "weather_controlled_seed42_checkpoint.pt",
+      "checkpoint_sha256": "61d1df789d0d4f186b02f6d15835aeb538cdc966469b6f4ba3b8a18f83a09d51",
+      "expected_sha256": "61d1df789d0d4f186b02f6d15835aeb538cdc966469b6f4ba3b8a18f83a09d51",
+      "checkpoint_hash_match": true,
+      "strict_state_dict_load": true,
+      "device": "cuda",
+      "dataset_rows": 52696,
+      "channels": 21,
+      "split": {
+        "rows": 52696,
+        "channels": 21,
+        "train_rows": [
+          0,
+          36887
+        ],
+        "validation_rows": [
+          36887,
+          42157
+        ],
+        "test_rows": [
+          42157,
+          52696
+        ],
+        "scaler_fit_rows": [
+          0,
+          36887
+        ],
+        "window_counts": {
+          "train": 36280,
+          "validation": 5175,
+          "test": 10444
+        }
+      },
+      "sample_test_start_row": 41645,
+      "input_scale": "train-row standardized",
+      "input_shape": [
+        1,
+        512,
+        21
+      ],
+      "input_finite": true,
+      "prediction_shape": [
+        1,
+        96,
+        21
+      ],
+      "prediction_finite": true,
+      "repeat_forward_bitwise_equal": true,
+      "model_eval": true,
+      "dropout_modules": [
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        }
+      ],
+      "train_mean": [
+        990.6424560546875,
+        11.978743553161621,
+        285.9095153808594,
+        5.474408149719238,
+        67.52999114990234,
+        15.683926582336426,
+        9.844447135925293,
+        5.839411735534668,
+        6.215718746185303,
+        9.94795036315918,
+        1206.7523193359375,
+        1.94741690158844,
+        3.760849952697754,
+        175.98529052734375,
+        0.011481009423732758,
+        23.287065505981445,
+        160.64173889160156,
+        318.0404052734375,
+        378.4815673828125,
+        22.81171989440918,
+        411.0543518066406
+      ],
+      "train_std": [
+        8.630709648132324,
+        7.718421936035156,
+        7.916676044464111,
+        6.464405536651611,
+        18.755159378051758,
+        8.109081268310547,
+        4.39618444442749,
+        5.902716636657715,
+        2.7998812198638916,
+        4.461935520172119,
+        38.06816101074219,
+        52.09941482543945,
+        2.595986843109131,
+        86.96403503417969,
+        0.12278429418802261,
+        105.34730529785156,
+        238.77780151367188,
+        468.0555419921875,
+        643.3527221679688,
+        7.977993965148926,
+        383.9571228027344
+      ],
+      "parameter_count": 374944
+    },
+    {
+      "dataset": "ETTh1",
+      "model": "patchtst",
+      "checkpoint_file": "etth1_patchtst_seed42_checkpoint.pt",
+      "checkpoint_sha256": "b7d30f4078980da573c7268644e79766c610721b8e72bcd48c12eebc2f668936",
+      "expected_sha256": "b7d30f4078980da573c7268644e79766c610721b8e72bcd48c12eebc2f668936",
+      "checkpoint_hash_match": true,
+      "strict_state_dict_load": true,
+      "device": "cuda",
+      "dataset_rows": 17420,
+      "channels": 7,
+      "split": {
+        "rows": 17420,
+        "channels": 7,
+        "train_rows": [
+          0,
+          8640
+        ],
+        "validation_rows": [
+          8640,
+          11520
+        ],
+        "test_rows": [
+          11520,
+          17420
+        ],
+        "scaler_fit_rows": [
+          0,
+          8640
+        ],
+        "window_counts": {
+          "train": 8033,
+          "validation": 2785,
+          "test": 5805
+        }
+      },
+      "sample_test_start_row": 11008,
+      "input_scale": "raw",
+      "input_shape": [
+        1,
+        512,
+        7
+      ],
+      "input_finite": true,
+      "prediction_shape": [
+        1,
+        96,
+        7
+      ],
+      "prediction_finite": true,
+      "repeat_forward_bitwise_equal": true,
+      "model_eval": true,
+      "dropout_modules": [
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        }
+      ],
+      "train_mean": [
+        7.937742233276367,
+        2.02103853225708,
+        5.079770565032959,
+        0.746185839176178,
+        2.7817623615264893,
+        0.7884531021118164,
+        17.12826156616211
+      ],
+      "train_std": [
+        5.812748908996582,
+        2.090104579925537,
+        5.51879358291626,
+        1.9263792037963867,
+        1.0235226154327393,
+        0.6302366852760315,
+        9.176490783691406
+      ],
+      "parameter_count": 8523872
+    },
+    {
+      "dataset": "Weather",
+      "model": "patchtst",
+      "checkpoint_file": "weather_patchtst_seed42_checkpoint.pt",
+      "checkpoint_sha256": "d325040fee4a184ef7a212d0ee277d7e5b047dd0c5491b3a57da716568a8eeb1",
+      "expected_sha256": "d325040fee4a184ef7a212d0ee277d7e5b047dd0c5491b3a57da716568a8eeb1",
+      "checkpoint_hash_match": true,
+      "strict_state_dict_load": true,
+      "device": "cuda",
+      "dataset_rows": 52696,
+      "channels": 21,
+      "split": {
+        "rows": 52696,
+        "channels": 21,
+        "train_rows": [
+          0,
+          36887
+        ],
+        "validation_rows": [
+          36887,
+          42157
+        ],
+        "test_rows": [
+          42157,
+          52696
+        ],
+        "scaler_fit_rows": [
+          0,
+          36887
+        ],
+        "window_counts": {
+          "train": 36280,
+          "validation": 5175,
+          "test": 10444
+        }
+      },
+      "sample_test_start_row": 41645,
+      "input_scale": "raw",
+      "input_shape": [
+        1,
+        512,
+        21
+      ],
+      "input_finite": true,
+      "prediction_shape": [
+        1,
+        96,
+        21
+      ],
+      "prediction_finite": true,
+      "repeat_forward_bitwise_equal": true,
+      "model_eval": true,
+      "dropout_modules": [
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        },
+        {
+          "p": 0.1,
+          "training": false
+        }
+      ],
+      "train_mean": [
+        990.6424560546875,
+        11.978743553161621,
+        285.9095153808594,
+        5.474408149719238,
+        67.52999114990234,
+        15.683926582336426,
+        9.844447135925293,
+        5.839411735534668,
+        6.215718746185303,
+        9.94795036315918,
+        1206.7523193359375,
+        1.94741690158844,
+        3.760849952697754,
+        175.98529052734375,
+        0.011481009423732758,
+        23.287065505981445,
+        160.64173889160156,
+        318.0404052734375,
+        378.4815673828125,
+        22.81171989440918,
+        411.0543518066406
+      ],
+      "train_std": [
+        8.630709648132324,
+        7.718421936035156,
+        7.916676044464111,
+        6.464405536651611,
+        18.755159378051758,
+        8.109081268310547,
+        4.39618444442749,
+        5.902716636657715,
+        2.7998812198638916,
+        4.461935520172119,
+        38.06816101074219,
+        52.09941482543945,
+        2.595986843109131,
+        86.96403503417969,
+        0.12278429418802261,
+        105.34730529785156,
+        238.77780151367188,
+        468.0555419921875,
+        643.3527221679688,
+        7.977993965148926,
+        383.9571228027344
+      ],
+      "parameter_count": 8523872
+    }
+  ]
+}

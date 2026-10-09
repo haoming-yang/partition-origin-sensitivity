@@ -1,0 +1,82 @@
+{
+  "purpose": "Independent random-projection robustness check; not recovery of historical projections",
+  "projection_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "checkpoint_training_seed": 42,
+  "protocol": {
+    "context": 512,
+    "horizon": 96,
+    "patch_length": 12,
+    "stride": 12,
+    "origin_pair": [
+      0,
+      6
+    ],
+    "windows": 512,
+    "window_selection": "first chronological test windows, no shuffle",
+    "projections_per_estimate": 2,
+    "projection_distribution": "Rademacher +/-1 output-shaped signs; same sign vectors reused for origin 0, origin 6, and their difference",
+    "precision": "float32",
+    "mode": "eval, dropout disabled",
+    "device": "CUDA",
+    "recording": "Store exact projection sign tensors, initial torch.Generator state, window start row IDs, checkpoint/data hashes, per-run profile and summary"
+  },
+  "historical_projection_seed": null,
+  "historical_projection_state": "not archived",
+  "targets": [
+    {
+      "dataset": "ETTh2",
+      "model": "controlled",
+      "training_seed": 42,
+      "checkpoint": "checkpoints/etth2_controlled_seed42_checkpoint.pt",
+      "checkpoint_sha256": "ce20ba1b0ba73edd49c4680a4c15606148d86cb95a8d13fdc21f762eadb1ac17",
+      "batch_size": 4,
+      "input_scale": "training-standardized",
+      "historical_profile": "historical_profiles/etth2_controlled.csv",
+      "archive_checkpoint_path": "checkpoints/frozen_diagnostics/ce20ba1b0ba73edd49c4680a4c15606148d86cb95a8d13fdc21f762eadb1ac17/checkpoint.pt"
+    },
+    {
+      "dataset": "Weather",
+      "model": "controlled",
+      "training_seed": 42,
+      "checkpoint": "checkpoints/weather_controlled_seed42_checkpoint.pt",
+      "checkpoint_sha256": "61d1df789d0d4f186b02f6d15835aeb538cdc966469b6f4ba3b8a18f83a09d51",
+      "batch_size": 4,
+      "input_scale": "training-standardized",
+      "historical_profile": "historical_profiles/weather_controlled.csv",
+      "archive_checkpoint_path": "checkpoints/frozen_diagnostics/61d1df789d0d4f186b02f6d15835aeb538cdc966469b6f4ba3b8a18f83a09d51/checkpoint.pt"
+    },
+    {
+      "dataset": "ETTh1",
+      "model": "patchtst",
+      "training_seed": 42,
+      "checkpoint": "checkpoints/etth1_patchtst_seed42_checkpoint.pt",
+      "checkpoint_sha256": "b7d30f4078980da573c7268644e79766c610721b8e72bcd48c12eebc2f668936",
+      "batch_size": 2,
+      "input_scale": "raw",
+      "historical_profile": "historical_profiles/etth1_patchtst.csv",
+      "archive_checkpoint_path": "checkpoints/frozen_diagnostics/b7d30f4078980da573c7268644e79766c610721b8e72bcd48c12eebc2f668936/checkpoint.pt"
+    },
+    {
+      "dataset": "Weather",
+      "model": "patchtst",
+      "training_seed": 42,
+      "checkpoint": "checkpoints/weather_patchtst_seed42_checkpoint.pt",
+      "checkpoint_sha256": "d325040fee4a184ef7a212d0ee277d7e5b047dd0c5491b3a57da716568a8eeb1",
+      "batch_size": 2,
+      "input_scale": "raw",
+      "historical_profile": "historical_profiles/weather_patchtst.csv",
+      "archive_checkpoint_path": "checkpoints/frozen_diagnostics/d325040fee4a184ef7a212d0ee277d7e5b047dd0c5491b3a57da716568a8eeb1/checkpoint.pt"
+    }
+  ]
+}

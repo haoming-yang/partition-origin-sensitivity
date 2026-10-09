@@ -1,0 +1,25 @@
+\subsection{Random-Projection Robustness Check}\label{sec:projection-robustness}
+
+We conducted an independent ten-seed robustness check to assess the sensitivity of the normalized Jacobian mass assigned to the final 16 positions to random projection sampling. For each of four model--dataset configurations, we evaluated 512 fixed test windows using two shared Rademacher projections per window under each projection seed, while keeping the model checkpoints, input windows, preprocessing, and evaluation settings fixed. The projection seeds were 0--9.
+
+For each seed, we computed the paired difference in this normalized mass between partition origins 0 and 6 (origin 0 minus origin 6), expressed in percentage points. The summary below gives the mean, sample standard deviation, and observed range of these ten paired differences.
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Configuration & Mean $\pm$ SD (pp) & Observed range (pp)\\
+\midrule
+ETTh1 / PatchTST & $+1.547 \pm 0.309$ & $[+1.021,\,+2.073]$\\
+ETTh2 / Controlled & $+1.026 \pm 0.055$ & $[+0.934,\,+1.089]$\\
+Weather / Controlled & $+14.701 \pm 0.076$ & $[+14.586,\,+14.810]$\\
+Weather / PatchTST & $-5.131 \pm 0.977$ & $[-6.442,\,-3.524]$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The sign of this specific paired difference remained unchanged across all ten seeds in each configuration and agreed with the corresponding historical Jacobian comparison. This observation supports the directional robustness of the final-16-position normalized Jacobian mass comparison between origins 0 and 6, but does not establish robustness for other portions of Figure~5 or for other gradient-based diagnostics.
+
+The recovered dataset CSV files match the hashes recorded in historical inference artifacts for the corresponding datasets. However, the original Jacobian runs did not archive directly associated dataset hashes or input tensors, so exact input provenance for those historical diagnostics cannot be established.
+
+The sampled projection vectors and the initial CUDA projection-generator state for each independent run were archived, enabling reconstruction of the sampled projections. Nevertheless, the original historical projection states remain unavailable, and global bitwise determinism of CUDA computations was not verified. Accordingly, this independent check does not constitute an exact reproduction of the historical Jacobian estimates. The accompanying anonymous verification material provides the diagnostic code and commands, frozen checkpoints and hashes, fixed input sources and hashes, projection records, per-seed paired differences, summary statistics, and environment information.
+

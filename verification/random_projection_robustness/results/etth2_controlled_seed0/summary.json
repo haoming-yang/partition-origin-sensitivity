@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-10-09T05:04:42.566608+00:00",
+  "git_commit": null,
+  "git_dirty": null,
+  "device": "cuda",
+  "python": "3.9.16",
+  "software_versions": {
+    "torch": "2.5.1+cu121",
+    "numpy": "1.26.4",
+    "pandas": "1.5.3",
+    "PyYAML": "6.0.3",
+    "scipy": "1.13.1",
+    "scikit-learn": "1.6.1"
+  },
+  "model": "controlled",
+  "dataset": "ETTh2",
+  "seed": 42,
+  "checkpoint_training_seed": 42,
+  "projection_seed": 0,
+  "window_selection": "first chronological test windows; no shuffle",
+  "normalization": "mean squared projected gradients over projections, windows and channels; normalize positional mass after aggregation",
+  "checkpoint": "checkpoints/etth2_controlled_seed42_checkpoint.pt",
+  "checkpoint_sha256": "ce20ba1b0ba73edd49c4680a4c15606148d86cb95a8d13fdc21f762eadb1ac17",
+  "data_sha256": "a3dc2c597b9218c7ce1cd55eb77b283fd459a1d09d753063f944967dd6b9218b",
+  "data_root": "data",
+  "data_file": "data/ETT-small/ETTh2.csv",
+  "input_scale": "training-standardized",
+  "context": 512,
+  "horizon": 96,
+  "patch_length": 12,
+  "stride": 12,
+  "origin_pair": [
+    0,
+    6
+  ],
+  "windows": 512,
+  "batch_size": 4,
+  "projections": 2,
+  "projection_rng": "torch.Generator on the selected device; exact sign tensors and initial generator state stored in projection_trace.npz",
+  "projection_trace": "results/etth2_controlled_seed0/projection_trace.npz",
+  "projection_trace_sha256": "feabb05d0140477629118b07560714fcb2c40499590cae96235c68b3f692cbea",
+  "projection_sign_shape": [
+    512,
+    2,
+    96,
+    7
+  ],
+  "initial_generator_state_sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+  "window_start_rows": [
+    11008,
+    11519
+  ],
+  "gradient_quantity": "Rademacher estimate of per-input-position Jacobian energy",
+  "center_of_mass": {
+    "origin_a": 305.5975613331259,
+    "origin_b": 306.350309731761,
+    "origin_difference": 284.6983586792077
+  },
+  "torch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "artifact": "results/etth2_controlled_seed0/jacobian_profile.csv"
+}

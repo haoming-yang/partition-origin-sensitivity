@@ -4,3 +4,6 @@ third_party/time_series_library/SOURCE_MANIFEST.historical.csv -text
 artifacts/frozen_diagnostics/** -text
 artifacts/paper_records/** -text
 artifacts/paper_release_sha256.json -text
+
+# Preserve verification evidence byte-for-byte across Git checkouts.
+verification/random_projection_robustness/** -text

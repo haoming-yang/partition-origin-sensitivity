@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-10-09T05:20:26.867004+00:00",
+  "git_commit": null,
+  "git_dirty": null,
+  "device": "cuda",
+  "python": "3.9.16",
+  "software_versions": {
+    "torch": "2.5.1+cu121",
+    "numpy": "1.26.4",
+    "pandas": "1.5.3",
+    "PyYAML": "6.0.3",
+    "scipy": "1.13.1",
+    "scikit-learn": "1.6.1"
+  },
+  "model": "patchtst",
+  "dataset": "Weather",
+  "seed": 42,
+  "checkpoint_training_seed": 42,
+  "projection_seed": 6,
+  "window_selection": "first chronological test windows; no shuffle",
+  "normalization": "mean squared projected gradients over projections, windows and channels; normalize positional mass after aggregation",
+  "checkpoint": "checkpoints/weather_patchtst_seed42_checkpoint.pt",
+  "checkpoint_sha256": "d325040fee4a184ef7a212d0ee277d7e5b047dd0c5491b3a57da716568a8eeb1",
+  "data_sha256": "34ee981d07313e51da2a50bb600072c8ae4a69cb4b0651f4cb93a069d7a2ba63",
+  "data_root": "data",
+  "data_file": "data/weather/weather.csv",
+  "input_scale": "raw",
+  "context": 512,
+  "horizon": 96,
+  "patch_length": 12,
+  "stride": 12,
+  "origin_pair": [
+    0,
+    6
+  ],
+  "windows": 512,
+  "batch_size": 2,
+  "projections": 2,
+  "projection_rng": "torch.Generator on the selected device; exact sign tensors and initial generator state stored in projection_trace.npz",
+  "projection_trace": "results/weather_patchtst_seed6/projection_trace.npz",
+  "projection_trace_sha256": "762284285a8152619d012a1f2401c996df7c8f65b1df21c88a1e2d54c0d891e6",
+  "projection_sign_shape": [
+    512,
+    2,
+    96,
+    21
+  ],
+  "initial_generator_state_sha256": "5e9a5de4a59a7c3c9ba8846060ba77ab402e3088658aa705e1a64e796f6cd5cf",
+  "window_start_rows": [
+    41645,
+    42156
+  ],
+  "gradient_quantity": "Rademacher estimate of per-input-position Jacobian energy",
+  "center_of_mass": {
+    "origin_a": 297.9959093649322,
+    "origin_b": 306.24535529998514,
+    "origin_difference": 306.44741032342637
+  },
+  "torch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "artifact": "results/weather_patchtst_seed6/jacobian_profile.csv"
+}

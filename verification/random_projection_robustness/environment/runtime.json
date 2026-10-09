@@ -1,0 +1,10 @@
+{
+  "python": "3.9.16",
+  "torch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "numpy": "1.26.4",
+  "pandas": "1.5.3",
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "precision": "float32 model and gradients; float64 profile accumulation",
+  "global_bitwise_determinism_verified": false
+}
